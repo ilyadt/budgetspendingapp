@@ -9,21 +9,21 @@
         <td>
           <IconMoveRow />
         </td>
-        <td>109</td>
+        <td class="text-end">109</td>
         <td>кола</td>
       </tr>
       <tr>
         <td>
           <IconMoveRow />
         </td>
-        <td>148</td>
+        <td class="text-end">148</td>
         <td>мороженое</td>
       </tr>
       <tr>
         <td>
           <IconMoveRow />
         </td>
-        <td>66</td>
+        <td class="text-end">66</td>
         <td>шоколад</td>
       </tr>
       <tr>
