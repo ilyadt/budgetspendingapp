@@ -3,7 +3,8 @@
 </script>
 
 <template>
-  <table class="table table-sm">
+  <row>
+    <table class="table table-sm">
     <tbody>
       <tr>
         <td>
@@ -26,9 +27,10 @@
         <td class="text-end">66</td>
         <td>шоколад</td>
       </tr>
-      <tr>
-        <td colspan="2"><button type="button" class="btn btn-success btn-sm">&nbsp;&nbsp;+&nbsp;&nbsp;</button></td>
-      </tr>
     </tbody>
   </table>
+  </row>
+  <row>
+    <button type="button" class="btn btn-success btn-sm">+</button>
+  </row>
 </template>
