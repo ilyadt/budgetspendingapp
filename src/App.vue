@@ -1,5 +1,12 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
+import { ApiApi, ApiClient } from './api/src/index.js';
+
+let client = new ApiClient('http://localhost:3333')
+let api = new ApiApi(client)
+
+api.getBudgetsWithSpendings()
+
 </script>
 
 <template>
