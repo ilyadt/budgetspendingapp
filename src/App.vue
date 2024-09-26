@@ -1,11 +1,11 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
-import { ApiApi, ApiClient } from './api/src/index.js';
+import { useBudgetSpendingsStore } from '@/stores/budgetSpendings'
+import { storeToRefs } from 'pinia'
 
-let client = new ApiClient('http://localhost:3333')
-let api = new ApiApi(client)
+const store = useBudgetSpendingsStore()
 
-api.getBudgetsWithSpendings()
+const { budgets } = storeToRefs(store)
 
 </script>
 
@@ -16,10 +16,7 @@ api.getBudgetsWithSpendings()
   <div class="container">
     <div class="row">
       <nav>
-        <RouterLink to="/">Б1-кофе</RouterLink>
-        <RouterLink to="/">Б2-кофе</RouterLink>
-        <RouterLink to="/">Б3-кофе</RouterLink>
-        <RouterLink to="/errors">Errors</RouterLink>
+        <RouterLink v-for="budget in budgets" to="/">{{ budget.alias }}</RouterLink>
       </nav>
     </div>
   </div>
