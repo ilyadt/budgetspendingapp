@@ -10,14 +10,12 @@ const { budgets } = storeToRefs(store)
 </script>
 
 <template>
-  <RouterView />
-
-  <!-- Нижняя навигация -->
   <div class="container">
-    <div class="row">
-      <nav>
-        <RouterLink v-for="budget in budgets" to="/">{{ budget.alias }}</RouterLink>
-      </nav>
-    </div>
+    <RouterView />
   </div>
+  <!-- Нижняя навигация -->
+  <nav class="navbar border-top fixed-bottom navbar-dark">
+    <RouterLink v-for="budget in budgets" to="/">{{ budget.alias }}</RouterLink>
+  </nav>
+
 </template>
