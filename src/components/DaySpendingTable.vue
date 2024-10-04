@@ -1,30 +1,22 @@
 <script setup>
   import IconMoveRow from './icons/IconMoveRow.vue';
+  import { moneyToString } from '@/helpers/money'
+
+  const props = defineProps({
+    daySpendings: Object,
+  });
+
 </script>
 <template>
   <div class="row">
     <table class="table table-sm">
     <tbody>
-      <tr>
+      <tr v-for="daySpending in props.daySpendings">
         <td>
           <IconMoveRow />
         </td>
-        <td class="text-end">109</td>
-        <td>кола</td>
-      </tr>
-      <tr>
-        <td>
-          <IconMoveRow />
-        </td>
-        <td class="text-end">148</td>
-        <td>мороженое</td>
-      </tr>
-      <tr>
-        <td>
-          <IconMoveRow />
-        </td>
-        <td class="text-end">66</td>
-        <td>шоколад</td>
+        <td class="text-end">{{ moneyToString(daySpending.money) }}</td>
+        <td>{{ daySpending.description }}</td>
       </tr>
     </tbody>
   </table>

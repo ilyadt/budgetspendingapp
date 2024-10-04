@@ -23,8 +23,17 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
       budgets.value = response.data.budgets
 
       let resSpendings= {}
-      response.data.spendings.forEach((spending) => {
-        resSpendings[spending.budgetId] = spending
+      response.data.spendings.forEach((budgetSpendings) => {
+        if (resSpendings[budgetSpendings.budgetId] == undefined) {
+          resSpendings[budgetSpendings.budgetId] = {}
+        }
+
+        for (let i = 0; i < budgetSpendings.spendings.length; i++) {
+          if (resSpendings[budgetSpendings.budgetId][budgetSpendings.spendings[i].date] == undefined) {
+            resSpendings[budgetSpendings.budgetId][budgetSpendings.spendings[i].date] = []
+          }
+          resSpendings[budgetSpendings.budgetId][budgetSpendings.spendings[i].date].push(budgetSpendings.spendings[i])
+        }
       })
 
       spendings.value = resSpendings

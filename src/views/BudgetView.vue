@@ -2,7 +2,8 @@
 import DaySpendingTable from '@/components/DaySpendingTable.vue'
 
 const props = defineProps({
-  budget: Object
+  budget: Object,
+  spendings: Object,
 })
 
 let budget = props.budget
@@ -26,9 +27,9 @@ function dateFormat(i) {
         <b>{{ budget.dateFrom }} &mdash; {{ budget.dateTo }}</b>
     </p>
   </div>
-  <div v-for="i in daysCount" class="row">
-    <p>{{ dateFormat(i) }}</p>
-    <DaySpendingTable />
+  <div v-for="i in daysCount" :set="day = dateFormat(i)" class="row">
+    <p><i>{{ day }}</i></p>
+    <DaySpendingTable :daySpendings="props.spendings[day]"/>
     <p></p>
   </div>
 </template>
