@@ -1,9 +1,8 @@
 <script setup>
   import IconMoveRow from './icons/IconMoveRow.vue';
 </script>
-
 <template>
-  <row>
+  <div class="row">
     <table class="table table-sm">
     <tbody>
       <tr>
@@ -29,8 +28,8 @@
       </tr>
     </tbody>
   </table>
-  </row>
-  <row>
-    <button type="button" class="btn btn-success btn-sm">+</button>
-  </row>
+</div>
+<div class="row">
+  <button type="button" class="btn btn-success btn-sm">+</button>
+</div>
 </template>
