@@ -9,7 +9,7 @@
 </script>
 <template>
   <div class="row">
-    <table class="table table-sm">
+    <table class="table table-sm" style="margin-bottom: 0;">
     <tbody>
       <tr v-for="daySpending in props.daySpendings">
         <td>
@@ -22,6 +22,12 @@
   </table>
 </div>
 <div class="row">
-  <button type="button" class="btn btn-success btn-sm">+</button>
+  <button class="btn btn-success btn-small custom-width">+</button>
 </div>
 </template>
+
+<style lang="css" scoped>
+  .custom-width {
+      width: 70px;
+  }
+</style>

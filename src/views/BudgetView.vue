@@ -41,8 +41,7 @@ function dateISO(d) {
     </p>
   </div>
   <div v-for="i in daysCount" :set="date = getDate(i)" class="row">
-    <p><i>{{ dateFormat(date) }}</i></p>
+    <p style="padding-left: 0; margin-bottom: 0;"><i>{{ dateFormat(date) }}</i></p>
     <DaySpendingTable :daySpendings="props.spendings[dateISO(date)]"/>
-    <p></p>
   </div>
 </template>
