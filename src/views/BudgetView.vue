@@ -1,5 +1,6 @@
 <script setup>
 import DaySpendingTable from '@/components/DaySpendingTable.vue'
+import { dateFormat, dateFormatFromString, dateISO } from '@/helpers/date'
 
 const props = defineProps({
   budget: Object,
@@ -16,20 +17,6 @@ function getDate(i) {
   return new Date(dateStart.getTime() + (i-1)*24*60*60*1000);
 }
 
-// https://stackoverflow.com/a/2998822/15347300
-function pad(num, size) {
-    var s = "00" + num;
-    return s.substring(s.length-size);
-}
-
-function dateFormat(d) {
-  return pad(d.getDate(), 2)  + "." + pad(d.getMonth()+1, 2) + "." + d.getFullYear();
-}
-
-function dateISO(d) {
-  return d.toISOString().split('T')[0];
-}
-
 </script>
 
 <template>
@@ -37,7 +24,7 @@ function dateISO(d) {
   <div>
     <p>
         <b>Бюджет: {{ budget.name }}</b> <br>
-        <b>{{ budget.dateFrom }} &mdash; {{ budget.dateTo }}</b>
+        <b>{{ dateFormatFromString(budget.dateFrom) }} &mdash; {{ dateFormatFromString(budget.dateTo) }}</b>
     </p>
   </div>
   <div v-for="i in daysCount" :set="date = getDate(i)" class="row">
