@@ -12,9 +12,15 @@ export function dateFormat(d) {
 export function dateFormatFromString(dStr) {
   let d = new Date(dStr);
 
-  return pad(d.getDate(), 2)  + "." + pad(d.getMonth()+1, 2) + "." + d.getFullYear();
+  return dateFormat(d);
 }
 
 export function dateISO(d) {
   return d.toISOString().split('T')[0];
+}
+
+export function dateISOFromString(dStr) {
+  let d = new Date(dStr);
+
+  return dateISO(d);
 }
