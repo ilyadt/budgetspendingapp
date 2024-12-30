@@ -40,7 +40,7 @@ for (const sp of toRaw(props.spendings)) {
   <div>
     <p>
         <b>Бюджет: {{ budget.name }}</b> <br>
-        <b>{{ dateFormatFromString(budget.dateFrom) }} &mdash; {{ dateFormatFromString(budget.dateTo) }}</b><br>
+        <b>{{ dateFormatFromString(props.budget.dateFrom) }} &mdash; {{ dateFormatFromString(props.budget.dateTo) }}</b><br>
         <b>{{ moneyToString(moneyLeft) }} {{ moneyLeft.currency }}</b> (из <b>{{ moneyToString(budget.money) }} {{ budget.money.currency }}</b>)
     </p>
   </div>
