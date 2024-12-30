@@ -1,11 +1,13 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 import { useBudgetSpendingsStore } from '@/stores/budgetSpendings'
+import { storeToRefs } from 'pinia'
 
 const store = useBudgetSpendingsStore()
-const { budgets, spendings } = store
+const { spendings } = store
+const { budgets } = storeToRefs(store)
 
-const spendingsByBudget = spendings[budgets[0].id]
+const spendingsByBudget = spendings[budgets.value[0].id]
 
 </script>
 

@@ -1,11 +1,12 @@
 import { defineStore } from 'pinia'
+import { ref } from 'vue'
 import axios from 'axios'
 import { useStorage } from '@vueuse/core'
 
 export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
-  const lastUpdatedAt = useStorage('lastUpdatedAt', 0)
-  const budgets = useStorage('budgets', [])
-  const spendings = useStorage('spendings', {})
+  const lastUpdatedAt = ref(useStorage('lastUpdatedAt', 0))
+  const budgets = ref(useStorage('budgets', []))
+  const spendings = ref(useStorage('spendings', {}))
 
   if (lastUpdatedAt.value < (Date.now() - 1 * 60 * 1000)) {
     updateBudgetSpendings()
