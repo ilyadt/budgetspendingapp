@@ -2,24 +2,20 @@
 import DaySpendingTable from '@/components/DaySpendingTable.vue'
 import { dateFormat, dateFormatFromString, dateISO, dateISOFromString } from '@/helpers/date'
 import { moneyToString, minus } from '@/helpers/money'
-import { toRaw } from 'vue'
+import { toRaw, computed } from 'vue'
 
 const props = defineProps({
   budget: Object,
   spendings: Object,
 })
 
-let budget = props.budget
-
-const dateStart = new Date(budget.dateFrom);
-const dateEnd = new Date(budget.dateTo);
-const daysCount = (dateEnd-dateStart) / 1000 / 60 / 60 / 24 + 1
+const daysCount = computed (() => {return ((new Date(props.budget.dateTo))-(new Date(props.budget.dateFrom))) / 1000 / 60 / 60 / 24 + 1});
 
 function getDate(i) {
-  return new Date(dateStart.getTime() + (i-1)*24*60*60*1000);
+  return new Date((new Date(props.budget.dateFrom)).getTime() + (i-1)*24*60*60*1000);
 }
 
-let moneyLeft = budget.money;
+let moneyLeft = props.budget.money;
 
 let spendingsByDate = {};
 
@@ -33,6 +29,8 @@ for (const sp of toRaw(props.spendings)) {
   spendingsByDate[dateISOFromString(sp.date)].push(sp)
 }
 
+const budgetComp = computed(() => {return props.budget; });
+
 </script>
 
 <template>
@@ -40,8 +38,8 @@ for (const sp of toRaw(props.spendings)) {
   <div>
     <p>
         <b>Бюджет: {{ budget.name }}</b> <br>
-        <b>{{ dateFormatFromString(props.budget.dateFrom) }} &mdash; {{ dateFormatFromString(props.budget.dateTo) }}</b><br>
-        <b>{{ moneyToString(moneyLeft) }} {{ moneyLeft.currency }}</b> (из <b>{{ moneyToString(budget.money) }} {{ budget.money.currency }}</b>)
+        <b>{{ dateFormatFromString(budgetComp.dateFrom) }} &mdash; {{ dateFormatFromString(budgetComp.dateTo) }}</b><br>
+        <b>{{ moneyToString(moneyLeft) }} {{ moneyLeft.currency }}</b> (из <b>{{ moneyToString(budgetComp.money) }} {{ budgetComp.money.currency }}</b>)
     </p>
   </div>
   <div v-for="i in daysCount" :set="date = getDate(i)" class="row">
