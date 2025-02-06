@@ -1,17 +1,16 @@
-<script setup>
-import IconMoveRow from './icons/IconMoveRow.vue';
+<script setup lang="ts">
+import IconMoveRow from './icons/IconMoveRow.vue'
 import { moneyToString } from '@/helpers/money'
 
 const props = defineProps({
   daySpendings: Object,
-});
-
+})
 </script>
 <template>
   <div class="row">
-    <table class="table table-sm" style="margin-bottom: 0;">
+    <table class="table table-sm" style="margin-bottom: 0">
       <tbody>
-        <tr v-for="daySpending in props.daySpendings">
+        <tr v-for="daySpending in props.daySpendings" :key="daySpending">
           <td>
             <IconMoveRow />
           </td>

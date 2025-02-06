@@ -8,11 +8,11 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: to => {
+      redirect: () => {
         const store = useBudgetSpendingsStore()
         const { budgets } = storeToRefs(store)
 
-        return {name: 'budget', params: {budgetId: budgets.value[0].id}}
+        return { name: 'budget', params: { budgetId: budgets.value[0].id } }
       },
     },
     {
@@ -20,7 +20,7 @@ const router = createRouter({
       name: 'budget',
       component: BudgetView,
     },
-  ]
+  ],
 })
 
 export default router
