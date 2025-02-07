@@ -2,18 +2,14 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useStorage } from '@vueuse/core'
 import createClient from 'openapi-fetch'
-import type {paths} from '../schemas'
-import type {Budget, Spending} from "@/models/models"
-
+import type { paths } from '../schemas'
+import type { Budget, Spending } from '@/models/models'
 
 export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
   const lastUpdatedAt = ref(useStorage('lastUpdatedAt', 0))
 
-  const usBudgets = useStorage<Budget[]>('budgets', [])
-  const budgets = ref<Budget[]>(usBudgets.value)
-
-  const usSpendings = useStorage<Record<string, Array<Spending>>>('spendings', {})
-  const spendings = ref<Record<string, Array<Spending>>>(usSpendings.value)
+  const budgets = useStorage<Budget[]>('budgets', [])
+  const spendings = useStorage<Record<string, Array<Spending>>>('spendings', {})
 
   const client = createClient<paths>({ baseUrl: 'http://localhost:3333/' })
 
@@ -23,11 +19,12 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
 
   setInterval(function () {
     updateBudgetSpendings()
-  }, 5 * 1000)
+  }, 60 * 1000)
 
   async function updateBudgetSpendings() {
     try {
       const { data, error } = await client.GET('/budgets/spendings')
+      console.log(data)
 
       if (error) {
         throw error
@@ -49,7 +46,6 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
       })
 
       spendings.value = resSpendings
-
 
       lastUpdatedAt.value = Date.now()
     } catch (error) {

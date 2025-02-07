@@ -6,7 +6,7 @@
 //   ) {}
 // }
 
-import type { components } from "@/schemas"
+import type { components } from '@/schemas'
 
 // export class Spending {
 //   constructor(
@@ -16,4 +16,4 @@ import type { components } from "@/schemas"
 // }
 
 export type Budget = components['schemas']['Budget']
-export type Spending = components['schemas']["Spending"]
+export type Spending = components['schemas']['Spending']

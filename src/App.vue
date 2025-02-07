@@ -7,10 +7,7 @@ const store = useBudgetSpendingsStore()
 const { spendings } = store
 const { budgets } = storeToRefs(store)
 
-console.log(budgets)
 const spendingsByBudget = spendings[budgets.value[0].id]
-
-console.log(spendingsByBudget)
 </script>
 
 <template>

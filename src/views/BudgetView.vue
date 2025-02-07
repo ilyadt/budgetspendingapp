@@ -11,15 +11,10 @@ const props = defineProps({
 })
 
 const daysCount = computed(() => {
-  return (
-    (new Date(props.budget.dateTo).getMilliseconds() -
-      new Date(props.budget.dateFrom).getMilliseconds()) /
-      1000 /
-      60 /
-      60 /
-      24 +
-    1
-  )
+  const fromMs = new Date(props.budget.dateFrom)
+  const toMs = new Date(props.budget.dateTo)
+
+  return (toMs.getTime() - fromMs.getTime()) / 1000 / 60 / 60 / 24 + 1
 })
 
 function getDate(i: number): Date {
