@@ -58,6 +58,6 @@ const budgetComp = computed(() => {
     <p style="padding-left: 0; margin-bottom: 0">
       <i>{{ dateFormat(getDate(i)) }}</i>
     </p>
-    <DaySpendingTable :daySpendings="spendingsByDate[dateISO(getDate(i))]" />
+    <DaySpendingTable :daySpendings="spendingsByDate[dateISO(getDate(i))] || []" />
   </div>
 </template>
