@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import IconMoveRow from './icons/IconMoveRow.vue'
 import { moneyFormat } from '@/helpers/money'
-import type { Spending } from '@/models/models'
+import type { ChangeSpendingEvent, Spending } from '@/models/models'
 import { customAlphabet } from 'nanoid/non-secure'
-import { alphanumeric, numbers } from 'nanoid-dictionary'
+import { alphanumeric } from 'nanoid-dictionary'
 import { ref } from 'vue'
+import { v4 as uuidv4 } from 'uuid'
 
-const genID = customAlphabet(alphanumeric, 10)
-const getVersion = customAlphabet(numbers, 5)
+const genSpendingID = customAlphabet(alphanumeric, 10)
+const genVersion = customAlphabet(alphanumeric, 5)
 
 const props = defineProps({
-  // day: {type: String, required: true},
-  // budgetId: {type: Number, required: true},
+  date: { type: String, required: true },
+  budgetId: { type: Number, required: true },
   daySpendings: { type: Array<Spending>, required: true },
 })
 
@@ -34,12 +35,12 @@ class SpendingRow {
   ) {}
 
   public static new(sort: number): SpendingRow {
-    const id = genID()
-    const version = getVersion()
+    const id = genSpendingID()
     const createdAt = new Date()
     const updatedAt = new Date(createdAt.getTime())
+    // версия появляется только после первого сохранения
 
-    return new SpendingRow(id, true, version, sort, 0, '', createdAt, updatedAt, true, '', '')
+    return new SpendingRow(id, true, '', sort, 0, '', createdAt, updatedAt, true, '', '')
   }
 }
 
@@ -78,11 +79,48 @@ function addNew(): void {
 }
 
 function saveChanges(spending: SpendingRow): void {
+  const now = new Date()
+
+  const isNew = spending.isNew
+  const description = spending.pendingDescription
+  const money = Number(Number(spending.pendingMoney).toFixed(2))
+  const prevVersion = spending.version
+  const version = genVersion()
+  const createdAt = isNew ? new Date(now) : spending.createdAt
+  const updatedAt = new Date(now)
+
   spending.pending = false
-  spending.description = spending.pendingDescription
-  spending.money = Number(Number(spending.pendingMoney).toFixed(2))
-  spending.updatedAt = new Date()
+  spending.description = description
+  spending.money = money
+  spending.updatedAt = updatedAt
+  if (isNew) {
+    spending.createdAt = createdAt
+  }
+  spending.version = version
   spending.isNew = false
+
+  const event: ChangeSpendingEvent = {
+    eventId: uuidv4(), // TODO: uuid
+    operation: isNew ? 'create' : 'update',
+    spending: {
+      id: spending.id,
+      date: props.date,
+      sort: spending.sort,
+      money: {
+        amount: money,
+        fraction: 0,
+        currency: '',
+      },
+      description: description,
+      createdAt: createdAt.toISOString(),
+      updatedAt: updatedAt.toISOString(),
+      version: version,
+      prevVersion: isNew ? undefined : prevVersion,
+      budgetId: props.budgetId,
+    },
+  }
+
+  console.log(event)
 }
 
 function cancelChanges(spending: SpendingRow): void {
@@ -95,8 +133,27 @@ function cancelChanges(spending: SpendingRow): void {
 }
 
 function deleteSpending(spending: SpendingRow): void {
+  const id = spending.id
+  const prevVersion = spending.version
+  const updatedAt = new Date()
+  const version = genVersion()
+
   const index = rowSpendings.value.findIndex((d) => d.id === spending.id)
   rowSpendings.value.splice(index, 1)
+
+  const event: ChangeSpendingEvent | object = {
+    eventId: uuidv4(),
+    operation: 'delete',
+    spending: {
+      id: id,
+      version: version,
+      prevVersion: prevVersion,
+      updatedAt: updatedAt,
+      budgetId: props.budgetId,
+    },
+  }
+
+  console.log(event)
 }
 
 function toPending(spending: SpendingRow): void {
@@ -117,13 +174,23 @@ function toPending(spending: SpendingRow): void {
             {{ daySpending.money }}
           </td>
           <td v-if="daySpending.pending" class="text-end">
-            <input v-model="daySpending.pendingMoney" />
+            <input
+              v-on:keyup.enter="saveChanges(daySpending)"
+              v-on:keyup.esc="cancelChanges(daySpending)"
+              v-model="daySpending.pendingMoney"
+            />
           </td>
 
           <td v-if="!daySpending.pending" @click="toPending(daySpending)">
             {{ daySpending.description }}
           </td>
-          <td v-if="daySpending.pending"><input v-model="daySpending.pendingDescription" /></td>
+          <td v-if="daySpending.pending">
+            <input
+              v-on:keyup.enter="saveChanges(daySpending)"
+              v-on:keyup.esc="cancelChanges(daySpending)"
+              v-model="daySpending.pendingDescription"
+            />
+          </td>
 
           <td v-if="!daySpending.pending">
             <button @click="deleteSpending(daySpending)" class="btn btn-warning">x</button>

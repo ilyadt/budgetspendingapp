@@ -17,3 +17,4 @@ import type { components } from '@/schemas'
 
 export type Budget = components['schemas']['Budget']
 export type Spending = components['schemas']['Spending']
+export type ChangeSpendingEvent = components['schemas']['SpendingChange']
