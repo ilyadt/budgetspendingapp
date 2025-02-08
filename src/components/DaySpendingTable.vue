@@ -29,7 +29,7 @@ class SpendingRow {
 
     // Pending
     public pending: boolean,
-    public pendingMoney: number,
+    public pendingMoney: string,
     public pendingDescription: string,
   ) {}
 
@@ -39,7 +39,7 @@ class SpendingRow {
     const createdAt = new Date()
     const updatedAt = new Date(createdAt.getTime())
 
-    return new SpendingRow(id, true, version, sort, 0, '', createdAt, updatedAt, true, 0, '')
+    return new SpendingRow(id, true, version, sort, 0, '', createdAt, updatedAt, true, '', '')
   }
 }
 
@@ -57,7 +57,7 @@ for (const sp of props.daySpendings) {
       new Date(Date.parse(sp.createdAt)),
       new Date(Date.parse(sp.updatedAt)),
       false,
-      0,
+      '',
       '',
     ),
   )
@@ -65,7 +65,7 @@ for (const sp of props.daySpendings) {
 
 rowSpendings.value.sort((a, b) => (a.sort < b.sort ? -1 : 1))
 
-function addNew() {
+function addNew(): void {
   let lastSort = 0
   if (rowSpendings.value.length > 0) {
     const lastIdx = rowSpendings.value.length - 1
@@ -80,7 +80,7 @@ function addNew() {
 function saveChanges(spending: SpendingRow): void {
   spending.pending = false
   spending.description = spending.pendingDescription
-  spending.money = spending.pendingMoney
+  spending.money = Number(Number(spending.pendingMoney).toFixed(2))
   spending.updatedAt = new Date()
   spending.isNew = false
 }
@@ -89,7 +89,20 @@ function cancelChanges(spending: SpendingRow): void {
   if (spending.isNew) {
     const index = rowSpendings.value.findIndex((d) => d.id === spending.id)
     rowSpendings.value.splice(index, 1) //remove element from array
+  } else {
+    spending.pending = false
   }
+}
+
+function deleteSpending(spending: SpendingRow): void {
+  const index = rowSpendings.value.findIndex((d) => d.id === spending.id)
+  rowSpendings.value.splice(index, 1)
+}
+
+function toPending(spending: SpendingRow): void {
+  spending.pendingDescription = spending.description
+  spending.pendingMoney = spending.money.toFixed(2)
+  spending.pending = true
 }
 </script>
 <template>
@@ -100,8 +113,22 @@ function cancelChanges(spending: SpendingRow): void {
           <td>
             <IconMoveRow />
           </td>
-          <td class="text-end">{{ daySpending.money }}</td>
-          <td>{{ daySpending.description }}</td>
+          <td v-if="!daySpending.pending" @click="toPending(daySpending)" class="text-end">
+            {{ daySpending.money }}
+          </td>
+          <td v-if="daySpending.pending" class="text-end">
+            <input v-model="daySpending.pendingMoney" />
+          </td>
+
+          <td v-if="!daySpending.pending" @click="toPending(daySpending)">
+            {{ daySpending.description }}
+          </td>
+          <td v-if="daySpending.pending"><input v-model="daySpending.pendingDescription" /></td>
+
+          <td v-if="!daySpending.pending">
+            <button @click="deleteSpending(daySpending)" class="btn btn-warning">x</button>
+          </td>
+
           <td v-if="daySpending.pending" @click="saveChanges(daySpending)">
             <button class="btn btn-success">save</button>
           </td>
