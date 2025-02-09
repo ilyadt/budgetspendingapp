@@ -1,13 +1,11 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
 import { useStorage } from '@vueuse/core'
 import createClient from 'openapi-fetch'
 import type { paths } from '../schemas'
 import type { Budget, Spending } from '@/models/models'
 
 export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
-  const lastUpdatedAt = ref(useStorage('lastUpdatedAt', 0))
-
+  const lastUpdatedAt = useStorage<number>('lastUpdatedAt', 0)
   const budgets = useStorage<Budget[]>('budgets', [])
   const spendings = useStorage<Record<string, Array<Spending>>>('spendings', {})
 

@@ -1,18 +1,19 @@
 <script setup lang="ts">
 import IconMoveRow from './icons/IconMoveRow.vue'
 import { moneyFormat } from '@/helpers/money'
-import type { ChangeSpendingEvent, Spending } from '@/models/models'
+import type { ChangeSpendingEvent, Spending, Budget } from '@/models/models'
 import { customAlphabet } from 'nanoid/non-secure'
 import { alphanumeric } from 'nanoid-dictionary'
-import { ref } from 'vue'
+import { ref, type PropType } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
+import { eventsUploaderInstance } from '@/services/eventsUploader'
 
 const genSpendingID = customAlphabet(alphanumeric, 10)
 const genVersion = customAlphabet(alphanumeric, 5)
 
 const props = defineProps({
   date: { type: String, required: true },
-  budgetId: { type: Number, required: true },
+  budget: { type: Object as PropType<Budget>, required: true },
   daySpendings: { type: Array<Spending>, required: true },
 })
 
@@ -107,7 +108,7 @@ function saveChanges(spending: SpendingRow): void {
       date: props.date,
       sort: spending.sort,
       money: {
-        amount: money,
+        amount: money * 10 ** props.budget.money.fraction,
         fraction: 0,
         currency: '',
       },
@@ -116,11 +117,11 @@ function saveChanges(spending: SpendingRow): void {
       updatedAt: updatedAt.toISOString(),
       version: version,
       prevVersion: isNew ? undefined : prevVersion,
-      budgetId: props.budgetId,
+      budgetId: props.budget.id,
     },
   }
 
-  console.log(event)
+  eventsUploaderInstance.AddEvent(event)
 }
 
 function cancelChanges(spending: SpendingRow): void {
@@ -141,19 +142,19 @@ function deleteSpending(spending: SpendingRow): void {
   const index = rowSpendings.value.findIndex((d) => d.id === spending.id)
   rowSpendings.value.splice(index, 1)
 
-  const event: ChangeSpendingEvent | object = {
+  const event: ChangeSpendingEvent = {
     eventId: uuidv4(),
     operation: 'delete',
     spending: {
       id: id,
       version: version,
       prevVersion: prevVersion,
-      updatedAt: updatedAt,
-      budgetId: props.budgetId,
+      updatedAt: updatedAt.toISOString(),
+      budgetId: props.budget.id,
     },
   }
 
-  console.log(event)
+  eventsUploaderInstance.AddEvent(event)
 }
 
 function toPending(spending: SpendingRow): void {

@@ -2,11 +2,11 @@
 import DaySpendingTable from '../components/DaySpendingTable.vue'
 import { dateFormat, dateFormatFromString, dateISO, dateISOFromString } from '@/helpers/date'
 import { moneyToString, minus } from '@/helpers/money'
-import type { Spending } from '@/models/models'
-import { toRaw, computed } from 'vue'
+import type { Budget, Spending } from '@/models/models'
+import { toRaw, computed, type PropType } from 'vue'
 
 const props = defineProps({
-  budget: { type: Object, required: true },
+  budget: { type: Object as PropType<Budget>, required: true },
   spendings: { type: Array<Spending>, required: true },
 })
 
@@ -59,7 +59,7 @@ const budgetComp = computed(() => {
       <i>{{ dateFormat(getDate(i)) }}</i>
     </p>
     <DaySpendingTable
-      :budgetId="budget.id"
+      :budget="budget"
       :date="dateISO(getDate(i))"
       :daySpendings="spendingsByDate[dateISO(getDate(i))] || []"
     />
