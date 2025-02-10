@@ -19,7 +19,7 @@ class EventsUploader {
   public AddEvent(event: ChangeSpendingEvent) {
     this.events.push(event)
 
-    this.storage.setItem(this.storageKey, JSON.stringify(this.events))
+    this.flush()
 
     this.sendEvents()
   }
@@ -42,6 +42,11 @@ class EventsUploader {
     }
 
     this.events = []
+    this.flush()
+  }
+
+  private flush() {
+    this.storage.setItem(this.storageKey, JSON.stringify(this.events))
   }
 }
 

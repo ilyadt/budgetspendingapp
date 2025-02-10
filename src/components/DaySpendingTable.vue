@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import IconMoveRow from './icons/IconMoveRow.vue'
 import { moneyFormat } from '@/helpers/money'
-import type { ChangeSpendingEvent, Spending, Budget } from '@/models/models'
+import type { ChangeSpendingEvent, Spending, Budget, SpendingDeleteEvent, SpendingUpdateEvent, SpendingCreateEvent } from '@/models/models'
 import { customAlphabet } from 'nanoid/non-secure'
 import { alphanumeric } from 'nanoid-dictionary'
 import { ref, type PropType } from 'vue'
@@ -100,25 +100,23 @@ function saveChanges(spending: SpendingRow): void {
   spending.version = version
   spending.isNew = false
 
-  const event: ChangeSpendingEvent = {
+  const event: SpendingCreateEvent | SpendingUpdateEvent = {
     eventId: uuidv4(), // TODO: uuid
-    operation: isNew ? 'create' : 'update',
-    spending: {
-      id: spending.id,
-      date: props.date,
-      sort: spending.sort,
-      money: {
-        amount: money * 10 ** props.budget.money.fraction,
-        fraction: 0,
-        currency: '',
-      },
-      description: description,
-      createdAt: createdAt.toISOString(),
-      updatedAt: updatedAt.toISOString(),
-      version: version,
-      prevVersion: isNew ? undefined : prevVersion,
-      budgetId: props.budget.id,
+    type: isNew ? 'create' : 'update',
+    spendingId: spending.id,
+    date: props.date,
+    sort: spending.sort,
+    money: {
+      amount: money * 10 ** props.budget.money.fraction,
+      fraction: props.budget.money.fraction,
+      currency: props.budget.money.currency,
     },
+    description: description,
+    createdAt: createdAt.toISOString(),
+    updatedAt: updatedAt.toISOString(),
+    newVersion: version,
+    prevVersion: prevVersion,
+    budgetId: props.budget.id,
   }
 
   eventsUploaderInstance.AddEvent(event)
@@ -142,16 +140,14 @@ function deleteSpending(spending: SpendingRow): void {
   const index = rowSpendings.value.findIndex((d) => d.id === spending.id)
   rowSpendings.value.splice(index, 1)
 
-  const event: ChangeSpendingEvent = {
+  const event: SpendingDeleteEvent = {
     eventId: uuidv4(),
-    operation: 'delete',
-    spending: {
-      id: id,
-      version: version,
-      prevVersion: prevVersion,
-      updatedAt: updatedAt.toISOString(),
-      budgetId: props.budget.id,
-    },
+    type: 'delete',
+    spendingId: id,
+    newVersion: version,
+    prevVersion: prevVersion,
+    updatedAt: updatedAt.toISOString(),
+    budgetId: props.budget.id,
   }
 
   eventsUploaderInstance.AddEvent(event)
