@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import IconMoveRow from './icons/IconMoveRow.vue'
 import { moneyFormat } from '@/helpers/money'
-import type { ChangeSpendingEvent, Spending, Budget, SpendingDeleteEvent, SpendingUpdateEvent, SpendingCreateEvent } from '@/models/models'
+import type {
+  Spending,
+  Budget,
+  SpendingDeleteEvent,
+  SpendingUpdateEvent,
+  SpendingCreateEvent,
+} from '@/models/models'
 import { customAlphabet } from 'nanoid/non-secure'
 import { alphanumeric } from 'nanoid-dictionary'
 import { ref, type PropType } from 'vue'

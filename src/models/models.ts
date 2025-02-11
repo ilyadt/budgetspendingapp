@@ -21,4 +21,7 @@ export type Spending = components['schemas']['Spending']
 export type SpendingCreateEvent = components['schemas']['SpendingCreateEvent']
 export type SpendingUpdateEvent = components['schemas']['SpendingUpdateEvent']
 export type SpendingDeleteEvent = components['schemas']['SpendingDeleteEvent']
-export type ChangeSpendingEvent = components['schemas']['SpendingCreateEvent'] | components['schemas']['SpendingUpdateEvent'] | SpendingDeleteEvent
+export type ChangeSpendingEvent =
+  | components['schemas']['SpendingCreateEvent']
+  | components['schemas']['SpendingUpdateEvent']
+  | SpendingDeleteEvent
