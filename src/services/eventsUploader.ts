@@ -17,6 +17,11 @@ class EventsUploader {
   }
 
   public AddEvent(event: ChangeSpendingEvent) {
+    // TODO:
+    // pendingEvents.push(event)->flush()->sendEvent(event)
+    // 1.Ok ->removeFromPending(event)->flush->NotifyServerOkEvent(event)
+    // 2.Net.Error ->addToPending(event)->flush
+    // 3.LogicError ->removeFromPending(event)->flush->NotifyServerError(event)->sendToErrorService(event)
     this.events.push(event)
 
     this.flush()
