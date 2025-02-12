@@ -23,8 +23,14 @@ jobs:
       - name: 📥 Install dependencies
         run: npm install
 
+      - name: Setup Pages
+        id: setupPages
+        uses: actions/configure-pages@v5
+
       - name: 🏗️ Build
         run: npm run build
+        env:
+          BASE_URL: ${{ steps.setupPages.outputs.base_path }}
 
       - name: 📂 List build output
         run: ls -l dist
@@ -34,9 +40,6 @@ jobs:
 
       - name: 🧹 Lint
         run: npm run lint
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
 
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
