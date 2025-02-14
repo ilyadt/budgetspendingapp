@@ -5,6 +5,9 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import { useBudgetSpendingsStore } from './stores/budgetSpendings'
 import BudgetView from './views/BudgetView.vue'
 
+import "bootstrap/dist/css/bootstrap.min.css"
+import "bootstrap"
+
 const app = createApp(App)
 
 const pinia = createPinia()
