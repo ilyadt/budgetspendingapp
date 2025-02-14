@@ -1,12 +1,12 @@
 import { createApp } from 'vue'
-import { createPinia, storeToRefs } from 'pinia'
+import { createPinia } from 'pinia'
 import App from './App.vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
-import { useBudgetSpendingsStore } from './stores/budgetSpendings'
 import BudgetView from './views/BudgetView.vue'
 
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
+import HomeView from './views/HomeView.vue'
 
 const app = createApp(App)
 
@@ -20,12 +20,8 @@ app.use(
     routes: [
       {
         path: '/',
-        redirect: () => {
-          const store = useBudgetSpendingsStore()
-          const { budgets } = storeToRefs(store)
-
-          return { name: 'budget', params: { budgetId: budgets.value[0].id }, query: {a:"b"} }
-        },
+        name: "home",
+        component: HomeView,
       },
       {
         path: '/budget/:budgetId(\\d+)?',
