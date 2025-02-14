@@ -9,7 +9,7 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
   const budgets = useStorage<Budget[]>('budgets', [])
   const spendings = useStorage<Record<string, Array<Spending>>>('spendings', {})
 
-  const client = createClient<paths>({ baseUrl: 'http://localhost:3333/' })
+  const client = createClient<paths>({ baseUrl: 'https://budgetd.mdm' })
 
   if (lastUpdatedAt.value < Date.now() - 1 * 60 * 1000) {
     updateBudgetSpendings()

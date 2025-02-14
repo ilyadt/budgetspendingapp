@@ -12,7 +12,7 @@ class EventsUploader {
 
   constructor() {
     this.storage = localStorage
-    this.client = createClient<paths>({ baseUrl: 'http://localhost:3333/' })
+    this.client = createClient<paths>({ baseUrl: 'https://budgetd.mdm' })
     this.events = JSON.parse(this.storage.getItem(this.storageKey) || '[]')
   }
 
