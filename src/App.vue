@@ -15,10 +15,10 @@ let budget: Budget = {
   money: {
     amount: 0,
     fraction: 0,
-    currency: ''
+    currency: '',
   },
   dateFrom: '',
-  dateTo: ''
+  dateTo: '',
 }
 
 if (budgets.value.length > 0) {
@@ -34,6 +34,11 @@ const spendingsByBudget = spendings[budget.id]
   </div>
   <!-- Нижняя навигация -->
   <nav class="navbar border-top fixed-bottom navbar-dark bg-light">
-    <RouterLink v-for="budget in budgets" :key="budget.id" :to="{name: 'budget', params: { budgetId: budget.id }}">{{ budget.alias }}</RouterLink>
+    <RouterLink
+      v-for="budget in budgets"
+      :key="budget.id"
+      :to="{ name: 'budget', params: { budgetId: budget.id } }"
+      >{{ budget.alias }}</RouterLink
+    >
   </nav>
 </template>

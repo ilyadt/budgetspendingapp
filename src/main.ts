@@ -4,8 +4,8 @@ import App from './App.vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import BudgetView from './views/BudgetView.vue'
 
-import "bootstrap/dist/css/bootstrap.min.css"
-import "bootstrap"
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap'
 import HomeView from './views/HomeView.vue'
 
 const app = createApp(App)
@@ -20,7 +20,7 @@ app.use(
     routes: [
       {
         path: '/',
-        name: "home",
+        name: 'home',
         component: HomeView,
       },
       {

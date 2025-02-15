@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import IconMoveRow from './icons/IconMoveRow.vue'
 import { moneyFormat } from '@/helpers/money'
 import type {
   Spending,
@@ -170,9 +169,6 @@ function toPending(spending: SpendingRow): void {
     <table class="table table-sm" style="margin-bottom: 0">
       <tbody>
         <tr v-for="daySpending in rowSpendings" :key="daySpending.id">
-          <td>
-            <IconMoveRow />
-          </td>
           <td v-if="!daySpending.pending" @click="toPending(daySpending)" class="text-end">
             {{ daySpending.money }}
           </td>
