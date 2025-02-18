@@ -18,6 +18,9 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}']
       },
+      manifest: {
+        theme_color: '#ffffff',
+      }
     })
   ],
   resolve: {
