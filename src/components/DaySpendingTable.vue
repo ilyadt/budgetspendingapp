@@ -11,10 +11,11 @@ import { customAlphabet } from 'nanoid/non-secure'
 import { alphanumeric } from 'nanoid-dictionary'
 import { ref, type PropType } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
-import { eventsUploaderInstance } from '@/services/eventsUploader'
+import { getEventsUploaderInstance } from '@/services/eventsUploader'
 
 const genSpendingID = customAlphabet(alphanumeric, 10)
 const genVersion = customAlphabet(alphanumeric, 5)
+const eventsUploaderInstance = getEventsUploaderInstance()
 
 const props = defineProps({
   date: { type: String, required: true },

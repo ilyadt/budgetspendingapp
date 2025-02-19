@@ -17,6 +17,6 @@ const status = useStatusStore()
 <template>
   <div class="container">
     <p>Status get_spendings: {{ status.statusGetSpendings }}</p>
-    <!-- <p>Status Err (net::ERR_NAME_NOT_RESOLVED). Pending events(4)</p> -->
+    <p>Status update_spendings: {{ status.statusUpdateSpendings }}. Pending events: {{ status.pendingEvents }}</p>
   </div>
 </template>

@@ -5,6 +5,8 @@ export const useStatusStore = defineStore('status', {
     return {
       statusGetSpendings: '',
       statusUpdateSpendings: '',
+
+      pendingEvents: 0,
     }
   },
 
@@ -15,6 +17,10 @@ export const useStatusStore = defineStore('status', {
 
     setGetSpendingStatus(s: string) {
       this.statusGetSpendings = s
-    }
+    },
+
+    setPendingEvents(n: number) {
+      this.pendingEvents = n
+    },
   },
 })
