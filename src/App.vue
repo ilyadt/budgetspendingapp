@@ -3,6 +3,7 @@ import { RouterLink, RouterView } from 'vue-router'
 import { useBudgetSpendingsStore } from '@/stores/budgetSpendings'
 import { storeToRefs } from 'pinia'
 import type { Budget } from './models/models'
+import StatusBar from './components/StatusBar.vue'
 
 const store = useBudgetSpendingsStore()
 const { spendings } = store
@@ -29,6 +30,7 @@ const spendingsByBudget = spendings[budget.id]
 </script>
 
 <template>
+  <StatusBar />
   <div class="container">
     <RouterView :budget="budget" :spendings="spendingsByBudget" />
   </div>

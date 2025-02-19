@@ -4,7 +4,12 @@ import createClient from 'openapi-fetch'
 import type { paths } from '../schemas'
 import type { Budget, Spending } from '@/models/models'
 
+import { useStatusStore } from '@/stores/status'
+
 export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
+  const status = useStatusStore()
+
+
   const lastUpdatedAt = useStorage<number>('lastUpdatedAt', 0)
   const budgets = useStorage<Budget[]>('budgets', [])
   const spendings = useStorage<Record<string, Array<Spending>>>('spendings', {})
@@ -28,6 +33,8 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
         throw error
       }
 
+      status.setGetSpendingStatus("ok")
+
       budgets.value = data.budgets
 
       const resSpendings: Record<string, Array<Spending>> = {}
@@ -46,7 +53,10 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
       spendings.value = resSpendings
 
       lastUpdatedAt.value = Date.now()
-    } catch (error) {
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        status.setGetSpendingStatus(error.message)
+      }
       console.error(error)
     }
   }
