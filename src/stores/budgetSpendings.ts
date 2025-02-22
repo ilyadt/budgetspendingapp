@@ -9,7 +9,6 @@ import { useStatusStore } from '@/stores/status'
 export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
   const status = useStatusStore()
 
-
   const lastUpdatedAt = useStorage<number>('lastUpdatedAt', 0)
   const budgets = useStorage<Budget[]>('budgets', [])
   const spendings = useStorage<Record<string, Array<Spending>>>('spendings', {})
@@ -33,7 +32,7 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
         throw error
       }
 
-      status.setGetSpendingStatus("ok")
+      status.setGetSpendingStatus('ok')
 
       budgets.value = data.budgets
 

@@ -12,6 +12,8 @@ class EventsUploader {
   private events: Array<ChangeSpendingEvent>
   private $statusStore
 
+  private timerHandler: number = 0
+
   constructor() {
     this.storage = localStorage
     this.$statusStore = useStatusStore()
@@ -30,6 +32,10 @@ class EventsUploader {
     this.$statusStore.setPendingEvents(this.events.length)
 
     this.flush()
+
+    if (this.timerHandler != 0) {
+      clearTimeout(this.timerHandler)
+    }
 
     this.sendEvents()
   }
@@ -52,14 +58,14 @@ class EventsUploader {
 
       this.events = []
       this.$statusStore.setPendingEvents(0)
-      this.$statusStore.setUpdateSpendingStatus("ok")
+      this.$statusStore.setUpdateSpendingStatus('ok')
       this.flush()
-    } catch(error) {
+    } catch (error) {
       console.log(error)
       if (error instanceof Error) {
         this.$statusStore.setUpdateSpendingStatus(error.message)
       }
-      setTimeout(this.sendEvents, 30 * 1000)
+      this.timerHandler = setTimeout(this.sendEvents, 30 * 1000)
     }
   }
 
@@ -72,7 +78,7 @@ let eventsUploaderInstance: EventsUploader
 
 export function getEventsUploaderInstance() {
   if (eventsUploaderInstance == null) {
-    eventsUploaderInstance = new EventsUploader();
+    eventsUploaderInstance = new EventsUploader()
   }
 
   return eventsUploaderInstance
