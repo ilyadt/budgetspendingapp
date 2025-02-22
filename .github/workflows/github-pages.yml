@@ -27,6 +27,12 @@ jobs:
         id: setupPages
         uses: actions/configure-pages@v5
 
+      - name: 🔍 Type check
+        run: npm run type-check
+
+      - name: 🧹 Lint
+        run: npm run lint
+
       - name: 🏗️ Build
         run: npm run build
         env:
@@ -34,12 +40,6 @@ jobs:
 
       - name: 📂 List build output
         run: ls -l dist
-
-      - name: 🔍 Type check
-        run: npm run type-check
-
-      - name: 🧹 Lint
-        run: npm run lint
 
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
