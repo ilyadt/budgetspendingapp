@@ -22,6 +22,6 @@ function reload() {
     <button @click="reload" class="btn btn-small btn-info">Refresh</button>
     <p>Status get_spendings: {{ status.statusGetSpendings }}</p>
     <p>Status update_spendings: {{ status.statusUpdateSpendings }}</p>
-    <p>Pending events: {{ status.pendingEvents }}</p>
+    <p>PendingEvents: {{ status.pendingEvents }}</p>
   </div>
 </template>
