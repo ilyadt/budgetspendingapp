@@ -18,10 +18,9 @@ import type { components } from '@/schemas'
 export type Budget = components['schemas']['Budget']
 export type Spending = components['schemas']['Spending']
 
-export type SpendingCreateEvent = components['schemas']['SpendingCreateEvent']
-export type SpendingUpdateEvent = components['schemas']['SpendingUpdateEvent']
-export type SpendingDeleteEvent = components['schemas']['SpendingDeleteEvent']
-export type ChangeSpendingEvent =
-  | components['schemas']['SpendingCreateEvent']
-  | components['schemas']['SpendingUpdateEvent']
-  | SpendingDeleteEvent
+export type SpendingCreateEvent = components['schemas']['SpendingCreateEvent'] & { status: string }
+export type SpendingUpdateEvent = components['schemas']['SpendingUpdateEvent'] & { status: string }
+export type SpendingDeleteEvent = components['schemas']['SpendingDeleteEvent'] & { status: string }
+
+// export type internalStatus
+export type ChangeSpendingEvent = SpendingCreateEvent | SpendingUpdateEvent | SpendingDeleteEvent

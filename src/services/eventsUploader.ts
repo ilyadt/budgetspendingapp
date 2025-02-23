@@ -20,6 +20,11 @@ class EventsUploader {
     this.client = createClient<paths>({ baseUrl: 'https://budgetd.mdm' })
     this.events = JSON.parse(this.storage.getItem(this.storageKey) || '[]')
     this.$statusStore.setPendingEvents(this.events.length)
+
+    // Try send on page refresh
+    if (this.events.length > 0) {
+      this.sendEvents()
+    }
   }
 
   public AddEvent(event: ChangeSpendingEvent) {
@@ -71,6 +76,10 @@ class EventsUploader {
 
   private flush() {
     this.storage.setItem(this.storageKey, JSON.stringify(this.events))
+  }
+
+  public getAllEvents(): Array<ChangeSpendingEvent> {
+    return this.events
   }
 }
 

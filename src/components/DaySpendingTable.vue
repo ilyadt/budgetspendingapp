@@ -123,6 +123,7 @@ function saveChanges(spending: SpendingRow): void {
     newVersion: version,
     prevVersion: prevVersion,
     budgetId: props.budget.id,
+    status: 'pending',
   }
 
   eventsUploaderInstance.AddEvent(event)
@@ -154,6 +155,7 @@ function deleteSpending(spending: SpendingRow): void {
     prevVersion: prevVersion,
     updatedAt: updatedAt.toISOString(),
     budgetId: props.budget.id,
+    status: 'pending',
   }
 
   eventsUploaderInstance.AddEvent(event)
