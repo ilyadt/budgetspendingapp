@@ -23,17 +23,11 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
 
   const client = createClient<paths>({ baseUrl: 'https://budgetd.mdm' })
 
-  // Если не было первой загрузки, то ждем окончания первой загрузки данных
-  // if (lastUpdatedAt.value == 0) {
-  //   await updateBudgetSpendings()
-  // }
+  // Update state async on startup
+  updateBudgetSpendings()
 
   // Применяем локальные изменения к стору(серверным данным)
   applySpendingChangeEvents()
-
-  if (lastUpdatedAt.value < Date.now() - 1 * 60 * 1000) {
-    updateBudgetSpendings()
-  }
 
   setInterval(function () {
     updateBudgetSpendings()

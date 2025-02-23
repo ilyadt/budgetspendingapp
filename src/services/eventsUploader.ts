@@ -51,14 +51,14 @@ class EventsUploader {
     }
 
     try {
-      const { error } = await this.client.POST('/budgets/spendings/bulk', {
+      const { response } = await this.client.POST('/budgets/spendings/bulk', {
         body: {
           updates: this.events,
         },
       })
 
-      if (error) {
-        throw error
+      if (response.status != 200) {
+        throw new Error('status: ' + response.status)
       }
 
       this.events = []
