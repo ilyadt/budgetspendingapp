@@ -20,8 +20,8 @@ function reload() {
 <template>
   <div class="container">
     <button @click="reload" class="btn btn-small btn-info">Refresh</button>
-    <p>Status get_spendings: {{ status.statusGetSpendings }}</p>
-    <p>Status update_spendings: {{ status.statusUpdateSpendings }}</p>
+    <p>Status GetSpendings: {{ status.statusGetSpendings }}</p>
+    <p>Status UpdateSpendings: {{ status.statusUpdateSpendings }}</p>
     <p>PendingEvents: {{ status.pendingEvents }}</p>
   </div>
 </template>
