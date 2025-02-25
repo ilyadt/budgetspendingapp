@@ -24,3 +24,5 @@ export type SpendingDeleteEvent = components['schemas']['SpendingDeleteEvent'] &
 
 // export type internalStatus
 export type ChangeSpendingEvent = SpendingCreateEvent | SpendingUpdateEvent | SpendingDeleteEvent
+
+export type UpdateSpendingsError = components['schemas']['UpdateSpendingsError']

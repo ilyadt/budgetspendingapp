@@ -96,6 +96,7 @@ export interface components {
             updates: (components["schemas"]["SpendingCreateEvent"] | components["schemas"]["SpendingUpdateEvent"] | components["schemas"]["SpendingDeleteEvent"])[];
         };
         UpdateSpendingsErrorsResponse: {
+            success: string[];
             errors: components["schemas"]["UpdateSpendingsError"][];
         };
         UpdateSpendingsError: {
@@ -191,7 +192,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["UpdateSpendingsErrorsResponse"];
+                };
             };
             /** @description errors */
             400: {
