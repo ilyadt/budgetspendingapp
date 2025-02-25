@@ -28,6 +28,9 @@ class EventsUploader {
     if (this.events.length > 0) {
       this.sendEvents()
     }
+
+    // Periodically clear applied events
+    setTimeout(this.deleteAppliedEvents.bind(this), 20*24*60*60*1000) // 20 дней
   }
 
   public AddEvent(event: ChangeSpendingEvent) {
@@ -37,7 +40,8 @@ class EventsUploader {
     // 2.Net.Error ->addToPending(event)->flush
     // 3.LogicError ->removeFromPending(event)->flush->NotifyServerError(event)->sendToErrorService(event)
     this.events.push(event)
-    this.$statusStore.setPendingEvents(this.events.length)
+    const pendingEvents = this.events.filter(e => e.status === 'pending')
+    this.$statusStore.setPendingEvents(pendingEvents.length)
 
     this.flush()
 
@@ -56,7 +60,7 @@ class EventsUploader {
     try {
       const { response, error, data } = await this.client.POST('/budgets/spendings/bulk', {
         body: {
-          updates: this.events,
+          updates: this.events.filter(e => e.status == 'pending'),
         },
       })
 
@@ -89,11 +93,10 @@ class EventsUploader {
           console.error('success unknown event: ' + s)
           continue
         }
-
-        this.events.splice(index, 1)
+        this.events[index].status = 'applied'
       }
 
-      this.$statusStore.setPendingEvents(this.events.length)
+      this.$statusStore.setPendingEvents(this.events.filter(e => e.status == 'pending').length)
       this.$statusStore.setUpdateSpendingStatus('ok')
       this.flush()
     } catch (error) {
@@ -101,12 +104,19 @@ class EventsUploader {
       if (error instanceof Error) {
         this.$statusStore.setUpdateSpendingStatus(error.message)
       }
-      this.timerHandler = setTimeout(this.sendEvents, 30 * 1000)
+      this.timerHandler = setTimeout(this.sendEvents.bind(this), 30 * 1000)
     }
   }
 
   private flush() {
     this.storage.setItem(this.storageKey, JSON.stringify(this.events))
+  }
+
+  private deleteAppliedEvents() {
+    // TODO: удалять те, которые были применены после последнего обновления,
+    // appliedTime + 10m(дельта лаг) < lastGetSpendingsTime
+    this.events = this.events.filter(e => e.status !== 'applied')
+    this.flush()
   }
 
   public getAllEvents(): Array<ChangeSpendingEvent> {
