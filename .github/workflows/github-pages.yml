@@ -31,6 +31,7 @@ jobs:
         run: npm run build
         env:
           BASE_URL: ${{ steps.setupPages.outputs.base_path }}
+          VITE_SERVER_URL: https://budgetd.duckdns.org
 
       - name: 📂 List build output
         run: ls -l dist

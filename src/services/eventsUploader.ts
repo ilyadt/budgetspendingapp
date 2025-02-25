@@ -17,7 +17,7 @@ class EventsUploader {
   constructor() {
     this.storage = localStorage
     this.$statusStore = useStatusStore()
-    this.client = createClient<paths>({ baseUrl: 'https://budgetd.mdm' })
+    this.client = createClient<paths>({ baseUrl: import.meta.env.VITE_SERVER_URL })
     this.events = JSON.parse(this.storage.getItem(this.storageKey) || '[]')
     this.$statusStore.setPendingEvents(this.events.length)
 

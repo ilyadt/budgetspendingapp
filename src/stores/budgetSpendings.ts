@@ -21,7 +21,7 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
   const budgets = useStorage<Budget[]>('budgets', [])
   const spendings = useStorage<Record<string, Array<Spending>>>('spendings', {})
 
-  const client = createClient<paths>({ baseUrl: 'https://budgetd.mdm' })
+  const client = createClient<paths>({ baseUrl: import.meta.env.VITE_SERVER_URL })
 
   // Update state async on startup
   updateBudgetSpendings()
