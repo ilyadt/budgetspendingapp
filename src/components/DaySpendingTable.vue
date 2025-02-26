@@ -176,38 +176,46 @@ function toPending(spending: SpendingRow): void {
     <table class="table table-sm" style="margin-bottom: 0">
       <tbody>
         <tr v-for="daySpending in rowSpendings" :key="daySpending.id">
-          <td v-if="!daySpending.pending" @click="toPending(daySpending)" class="text-end">
-            {{ daySpending.money }}
-          </td>
-          <td v-if="daySpending.pending" class="text-end">
-            <input
-              v-on:keyup.enter="saveChanges(daySpending)"
-              v-on:keyup.esc="cancelChanges(daySpending)"
-              v-model="daySpending.pendingMoney"
-            />
-          </td>
+          <template v-if="daySpending.pending">
+            <td class="text-end">
+              <input
+                v-on:keyup.enter="saveChanges(daySpending)"
+                v-on:keyup.esc="cancelChanges(daySpending)"
+                v-model="daySpending.pendingMoney"
+              />
+            </td>
 
-          <td v-if="!daySpending.pending" @click="toPending(daySpending)">
-            {{ daySpending.description }}
-          </td>
-          <td v-if="daySpending.pending">
-            <input
-              v-on:keyup.enter="saveChanges(daySpending)"
-              v-on:keyup.esc="cancelChanges(daySpending)"
-              v-model="daySpending.pendingDescription"
-            />
-          </td>
+            <td v-if="daySpending.pending">
+              <input
+                v-on:keyup.enter="saveChanges(daySpending)"
+                v-on:keyup.esc="cancelChanges(daySpending)"
+                v-model="daySpending.pendingDescription"
+              />
+            </td>
 
-          <td v-if="!daySpending.pending">
-            <button @click="deleteSpending(daySpending)" class="btn btn-warning">x</button>
-          </td>
+            <td v-if="daySpending.pending" @click="saveChanges(daySpending)">
+              <button class="btn btn-success">save</button>
+            </td>
 
-          <td v-if="daySpending.pending" @click="saveChanges(daySpending)">
-            <button class="btn btn-success">save</button>
-          </td>
-          <td v-if="daySpending.pending" @click="cancelChanges(daySpending)">
-            <button class="btn btn-danger">cancel</button>
-          </td>
+            <td v-if="daySpending.pending" @click="cancelChanges(daySpending)">
+              <button class="btn btn-danger">cancel</button>
+            </td>
+          </template>
+
+          <template v-else>
+            <td @click="toPending(daySpending)" class="text-end">
+              {{ daySpending.money }}
+            </td>
+
+            <td @click="toPending(daySpending)">
+              {{ daySpending.description }}
+            </td>
+
+            <td>
+              <button @click="deleteSpending(daySpending)" class="btn btn-warning">x</button>
+            </td>
+          </template>
+
         </tr>
       </tbody>
     </table>
