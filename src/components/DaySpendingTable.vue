@@ -218,11 +218,13 @@ function toPending(spending: SpendingRow): void {
             </td>
           </template>
         </tr>
+        <tr>
+          <td>
+            <button @click="addNew" class="btn btn-success btn-small  d-flex align-items-center" style="height: 30px;">+</button>
+          </td>
+        </tr>
       </tbody>
     </table>
-    <div class="row">
-      <button @click="addNew" class="btn btn-success btn-small custom-width">+</button>
-    </div>
   </div>
 </template>
 
