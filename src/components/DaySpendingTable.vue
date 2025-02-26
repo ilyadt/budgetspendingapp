@@ -202,6 +202,7 @@ function isToday(d: Date): boolean {
           <template v-if="daySpending.pending">
             <td class="text-end">
               <input
+                class="form-control cell-input"
                 v-on:keyup.enter="saveChanges(daySpending)"
                 v-on:keyup.esc="cancelChanges(daySpending)"
                 v-model="daySpending.pendingMoney"
@@ -210,6 +211,7 @@ function isToday(d: Date): boolean {
 
             <td>
               <input
+                class="form-control cell-input"
                 v-on:keyup.enter="saveChanges(daySpending)"
                 v-on:keyup.esc="cancelChanges(daySpending)"
                 v-model="daySpending.pendingDescription"
@@ -273,5 +275,10 @@ function isToday(d: Date): boolean {
 <style lang="css" scoped>
 .custom-width {
   width: 70px;
+}
+
+.cell-input {
+  border-radius: 0;
+  padding: 0.3rem 0.2rem;
 }
 </style>
