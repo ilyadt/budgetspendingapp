@@ -169,11 +169,16 @@ function toPending(spending: SpendingRow): void {
 }
 </script>
 <template>
-  <div class="row">
+  <div class="table-responsive" style="max-width: 100vw; overflow-x: auto">
     <p style="padding-left: 0; margin-bottom: 0">
       <i>{{ dateFormat(props.date) }}</i>
     </p>
-    <table class="table table-sm" style="margin-bottom: 0">
+    <table class="table table-bordered table-sm align-middle" style="table-layout: fixed; min-width: 376px;margin-bottom: 0">
+      <colgroup>
+        <col style="width: 60px;">
+        <col style="width: 200px">
+        <col style="width: 70px">
+      </colgroup>
       <tbody>
         <tr v-for="daySpending in rowSpendings" :key="daySpending.id">
           <template v-if="daySpending.pending">
@@ -185,7 +190,7 @@ function toPending(spending: SpendingRow): void {
               />
             </td>
 
-            <td v-if="daySpending.pending">
+            <td>
               <input
                 v-on:keyup.enter="saveChanges(daySpending)"
                 v-on:keyup.esc="cancelChanges(daySpending)"
@@ -193,12 +198,9 @@ function toPending(spending: SpendingRow): void {
               />
             </td>
 
-            <td v-if="daySpending.pending" @click="saveChanges(daySpending)">
-              <button class="btn btn-success">save</button>
-            </td>
-
-            <td v-if="daySpending.pending" @click="cancelChanges(daySpending)">
-              <button class="btn btn-danger">cancel</button>
+            <td>
+              <button class="btn btn-success d-flex align-items-center" style="height: 20px;" @click="saveChanges(daySpending)" >V</button>
+              <button class="btn btn-danger  d-flex align-items-center" style="height: 20px;" @click="cancelChanges(daySpending)">X</button>
             </td>
           </template>
 
@@ -212,10 +214,9 @@ function toPending(spending: SpendingRow): void {
             </td>
 
             <td>
-              <button @click="deleteSpending(daySpending)" class="btn btn-warning">x</button>
+              <button @click="deleteSpending(daySpending)" class="btn btn-warning d-flex align-items-center" style="height: 20px;">x</button>
             </td>
           </template>
-
         </tr>
       </tbody>
     </table>
