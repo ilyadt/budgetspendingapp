@@ -30,7 +30,7 @@ class EventsUploader {
     }
 
     // Periodically clear applied events
-    setTimeout(this.deleteAppliedEvents.bind(this), 20*24*60*60*1000) // 20 дней
+    setTimeout(this.deleteAppliedEvents.bind(this), 20 * 24 * 60 * 60 * 1000) // 20 дней
   }
 
   public AddEvent(event: ChangeSpendingEvent) {
@@ -40,7 +40,7 @@ class EventsUploader {
     // 2.Net.Error ->addToPending(event)->flush
     // 3.LogicError ->removeFromPending(event)->flush->NotifyServerError(event)->sendToErrorService(event)
     this.events.push(event)
-    const pendingEvents = this.events.filter(e => e.status === 'pending')
+    const pendingEvents = this.events.filter((e) => e.status === 'pending')
     this.$statusStore.setPendingEvents(pendingEvents.length)
 
     this.flush()
@@ -60,7 +60,7 @@ class EventsUploader {
     try {
       const { response, error, data } = await this.client.POST('/budgets/spendings/bulk', {
         body: {
-          updates: this.events.filter(e => e.status == 'pending'),
+          updates: this.events.filter((e) => e.status == 'pending'),
         },
       })
 
@@ -96,7 +96,7 @@ class EventsUploader {
         this.events[index].status = 'applied'
       }
 
-      this.$statusStore.setPendingEvents(this.events.filter(e => e.status == 'pending').length)
+      this.$statusStore.setPendingEvents(this.events.filter((e) => e.status == 'pending').length)
       this.$statusStore.setUpdateSpendingStatus('ok')
       this.flush()
     } catch (error) {
@@ -115,7 +115,7 @@ class EventsUploader {
   private deleteAppliedEvents() {
     // TODO: удалять те, которые были применены после последнего обновления,
     // appliedTime + 10m(дельта лаг) < lastGetSpendingsTime
-    this.events = this.events.filter(e => e.status !== 'applied')
+    this.events = this.events.filter((e) => e.status !== 'applied')
     this.flush()
   }
 

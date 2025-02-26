@@ -167,17 +167,35 @@ function toPending(spending: SpendingRow): void {
   spending.pendingMoney = spending.money.toFixed(2)
   spending.pending = true
 }
+
+const dayNames = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб']
+
+const today = new Date()
+
+function isToday(d: Date): boolean {
+  return today.toDateString() === d.toDateString()
+}
 </script>
 <template>
   <div class="table-responsive" style="max-width: 100vw; overflow-x: auto">
     <p style="padding-left: 0; margin-bottom: 0">
-      <i>{{ dateFormat(props.date) }}</i>
+      <template v-if="isToday(props.date)">
+        <b>
+          <i>{{ dateFormat(props.date) }} ({{ dayNames[props.date.getDay()] }})</i>
+        </b>
+      </template>
+      <template v-else>
+        <i>{{ dateFormat(props.date) }} ({{ dayNames[props.date.getDay()] }})</i>
+      </template>
     </p>
-    <table class="table table-bordered table-sm align-middle" style="table-layout: fixed; min-width: 376px;margin-bottom: 0">
+    <table
+      class="table table-bordered table-sm align-middle"
+      style="table-layout: fixed; min-width: 376px; margin-bottom: 0"
+    >
       <colgroup>
-        <col style="width: 60px;">
-        <col style="width: 200px">
-        <col style="width: 70px">
+        <col style="width: 60px" />
+        <col style="width: 200px" />
+        <col style="width: 70px" />
       </colgroup>
       <tbody>
         <tr v-for="daySpending in rowSpendings" :key="daySpending.id">
@@ -199,8 +217,20 @@ function toPending(spending: SpendingRow): void {
             </td>
 
             <td>
-              <button class="btn btn-success d-flex align-items-center" style="height: 20px;" @click="saveChanges(daySpending)" >V</button>
-              <button class="btn btn-danger  d-flex align-items-center" style="height: 20px;" @click="cancelChanges(daySpending)">X</button>
+              <button
+                class="btn btn-success d-flex align-items-center"
+                style="height: 20px"
+                @click="saveChanges(daySpending)"
+              >
+                V
+              </button>
+              <button
+                class="btn btn-danger d-flex align-items-center"
+                style="height: 20px"
+                @click="cancelChanges(daySpending)"
+              >
+                X
+              </button>
             </td>
           </template>
 
@@ -214,13 +244,25 @@ function toPending(spending: SpendingRow): void {
             </td>
 
             <td>
-              <button @click="deleteSpending(daySpending)" class="btn btn-warning d-flex align-items-center" style="height: 20px;">x</button>
+              <button
+                @click="deleteSpending(daySpending)"
+                class="btn btn-warning d-flex align-items-center"
+                style="height: 20px"
+              >
+                x
+              </button>
             </td>
           </template>
         </tr>
         <tr>
           <td>
-            <button @click="addNew" class="btn btn-success btn-small  d-flex align-items-center" style="height: 30px;">+</button>
+            <button
+              @click="addNew"
+              class="btn btn-success btn-small d-flex align-items-center"
+              style="height: 30px"
+            >
+              +
+            </button>
           </td>
         </tr>
       </tbody>
