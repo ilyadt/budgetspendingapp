@@ -12,13 +12,14 @@ import { alphanumeric } from 'nanoid-dictionary'
 import { ref, type PropType } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
 import { getEventsUploaderInstance } from '@/services/eventsUploader'
+import { dateFormat, dateISO } from '@/helpers/date'
 
 const genSpendingID = customAlphabet(alphanumeric, 10)
 const genVersion = customAlphabet(alphanumeric, 5)
 const eventsUploaderInstance = getEventsUploaderInstance()
 
 const props = defineProps({
-  date: { type: String, required: true },
+  date: { type: Date, required: true },
   budget: { type: Object as PropType<Budget>, required: true },
   daySpendings: { type: Array<Spending>, required: true },
 })
@@ -110,7 +111,7 @@ function saveChanges(spending: SpendingRow): void {
     eventId: uuidv4(), // TODO: uuid
     type: isNew ? 'create' : 'update',
     spendingId: spending.id,
-    date: props.date,
+    date: dateISO(props.date),
     sort: spending.sort,
     money: {
       amount: money * 10 ** props.budget.money.fraction,
@@ -169,6 +170,9 @@ function toPending(spending: SpendingRow): void {
 </script>
 <template>
   <div class="row">
+    <p style="padding-left: 0; margin-bottom: 0">
+      <i>{{ dateFormat(props.date) }}</i>
+    </p>
     <table class="table table-sm" style="margin-bottom: 0">
       <tbody>
         <tr v-for="daySpending in rowSpendings" :key="daySpending.id">

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import DaySpendingTable from '../components/DaySpendingTable.vue'
-import { dateFormat, dateFormatFromString, dateISO, dateISOFromString } from '@/helpers/date'
+import { dateFormatFromString, dateISO, dateISOFromString } from '@/helpers/date'
 import { moneyToString, minus } from '@/helpers/money'
 import type { Budget, Spending } from '@/models/models'
 import { toRaw, computed, type PropType } from 'vue'
@@ -55,12 +55,9 @@ const budgetComp = computed(() => {
     </p>
   </div>
   <div v-for="i in daysCount" :key="i" class="row">
-    <p style="padding-left: 0; margin-bottom: 0">
-      <i>{{ dateFormat(getDate(i)) }}</i>
-    </p>
     <DaySpendingTable
       :budget="budget"
-      :date="dateISO(getDate(i))"
+      :date="getDate(i)"
       :daySpendings="spendingsByDate[dateISO(getDate(i))] || []"
     />
   </div>
