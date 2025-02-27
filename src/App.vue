@@ -26,7 +26,8 @@ if (budgets.value.length > 0) {
   budget = budgets.value[0]
 }
 
-const spendingsByBudget = spendings[budget.id]
+
+const spendingsByBudget = spendings[budget.id] || []
 </script>
 
 <template>
@@ -34,8 +35,9 @@ const spendingsByBudget = spendings[budget.id]
   <div class="container">
     <RouterView :budget="budget" :spendings="spendingsByBudget" />
   </div>
+  <div style="height: 80px;"></div>
   <!-- Нижняя навигация -->
-  <nav class="navbar border-top fixed-bottom navbar-dark bg-light">
+  <nav class="navbar border-top fixed-bottom navbar-dark bg-light" style="padding-left: 20px; padding-right: 20px;">
     <RouterLink
       v-for="budget in budgets"
       :key="budget.id"
