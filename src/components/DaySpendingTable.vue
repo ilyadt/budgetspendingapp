@@ -190,12 +190,12 @@ function isToday(d: Date): boolean {
     </p>
     <table
       class="table table-bordered table-sm align-middle"
-      style="table-layout: fixed; min-width: 376px; margin-bottom: 0"
+      style="table-layout: fixed; min-width: 350px"
     >
       <colgroup>
-        <col style="width: 60px" />
-        <col style="width: 200px" />
         <col style="width: 70px" />
+        <col style="width: 190px" />
+        <col style="width: 65px" />
       </colgroup>
       <tbody>
         <tr v-for="daySpending in rowSpendings" :key="daySpending.id">
@@ -220,15 +220,15 @@ function isToday(d: Date): boolean {
 
             <td>
               <button
-                class="btn btn-success d-flex align-items-center"
-                style="height: 20px"
+                class="btn btn-success btn-sm p-1 m-1"
+                style="min-width: 20px; line-height: 1"
                 @click="saveChanges(daySpending)"
               >
                 V
               </button>
               <button
-                class="btn btn-danger d-flex align-items-center"
-                style="height: 20px"
+                class="btn btn-danger btn-sm p-1 m-1"
+                style="min-width: 20px; line-height: 1"
                 @click="cancelChanges(daySpending)"
               >
                 X
@@ -248,8 +248,8 @@ function isToday(d: Date): boolean {
             <td>
               <button
                 @click="deleteSpending(daySpending)"
-                class="btn btn-warning d-flex align-items-center"
-                style="height: 20px"
+                class="btn btn-warning btn-sm p-1 m-1"
+                style="min-width: 20px; line-height: 1"
               >
                 x
               </button>
@@ -273,10 +273,6 @@ function isToday(d: Date): boolean {
 </template>
 
 <style lang="css" scoped>
-.custom-width {
-  width: 70px;
-}
-
 .cell-input {
   border-radius: 0;
   padding: 0.3rem 0.2rem;
