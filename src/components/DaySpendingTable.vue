@@ -164,7 +164,7 @@ function deleteSpending(spending: SpendingRow): void {
 
 function toPending(spending: SpendingRow): void {
   spending.pendingDescription = spending.description
-  spending.pendingMoney = spending.money.toFixed(2)
+  spending.pendingMoney = spending.money.toString()
   spending.pending = true
 }
 
