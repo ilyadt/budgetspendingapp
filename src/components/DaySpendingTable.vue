@@ -175,6 +175,7 @@ const today = new Date()
 function isToday(d: Date): boolean {
   return today.toDateString() === d.toDateString()
 }
+
 </script>
 <template>
   <div class="table-responsive" style="max-width: 100vw; overflow-x: auto">
@@ -198,64 +199,68 @@ function isToday(d: Date): boolean {
         <col style="width: 65px" />
       </colgroup>
       <tbody>
-        <tr v-for="daySpending in rowSpendings" :key="daySpending.id">
+        <template v-for="daySpending in rowSpendings" :key="daySpending.id">
           <template v-if="daySpending.pending">
-            <td class="text-end">
-              <input
-                class="form-control cell-input"
-                v-on:keyup.enter="saveChanges(daySpending)"
-                v-on:keyup.esc="cancelChanges(daySpending)"
-                v-model="daySpending.pendingMoney"
-              />
-            </td>
+            <tr @blur="saveChanges(daySpending)" tabindex="-1">
+              <td class="text-end">
+                <input
+                  class="form-control cell-input"
+                  v-on:keyup.enter="saveChanges(daySpending)"
+                  v-on:keyup.esc="cancelChanges(daySpending)"
+                  v-model="daySpending.pendingMoney"
+                />
+              </td>
 
-            <td>
-              <input
-                class="form-control cell-input"
-                v-on:keyup.enter="saveChanges(daySpending)"
-                v-on:keyup.esc="cancelChanges(daySpending)"
-                v-model="daySpending.pendingDescription"
-              />
-            </td>
+              <td>
+                <input
+                  class="form-control cell-input"
+                  v-on:keyup.enter="saveChanges(daySpending)"
+                  v-on:keyup.esc="cancelChanges(daySpending)"
+                  v-model="daySpending.pendingDescription"
+                />
+              </td>
 
-            <td>
-              <button
-                class="btn btn-success btn-sm p-1 m-1"
-                style="min-width: 20px; line-height: 1"
-                @click="saveChanges(daySpending)"
-              >
-                V
-              </button>
-              <button
-                class="btn btn-danger btn-sm p-1 m-1"
-                style="min-width: 20px; line-height: 1"
-                @click="cancelChanges(daySpending)"
-              >
-                X
-              </button>
-            </td>
+              <td>
+                <button
+                  class="btn btn-success btn-sm p-1 m-1"
+                  style="min-width: 20px; line-height: 1"
+                  @click="saveChanges(daySpending)"
+                >
+                  V
+                </button>
+                <button
+                  class="btn btn-danger btn-sm p-1 m-1"
+                  style="min-width: 20px; line-height: 1"
+                  @click="cancelChanges(daySpending)"
+                >
+                  X
+                </button>
+              </td>
+            </tr>
           </template>
 
           <template v-else>
-            <td @click="toPending(daySpending)" class="text-end">
-              {{ daySpending.money }}
-            </td>
+            <tr>
+              <td @click="toPending(daySpending)" class="text-end">
+                {{ daySpending.money }}
+              </td>
 
-            <td @click="toPending(daySpending)">
-              {{ daySpending.description }}
-            </td>
+              <td @click="toPending(daySpending)">
+                {{ daySpending.description }}
+              </td>
 
-            <td>
-              <button
-                @click="deleteSpending(daySpending)"
-                class="btn btn-warning btn-sm p-1 m-1"
-                style="min-width: 20px; line-height: 1"
-              >
-                x
-              </button>
-            </td>
+              <td>
+                <button
+                  @click="deleteSpending(daySpending)"
+                  class="btn btn-warning btn-sm p-1 m-1"
+                  style="min-width: 20px; line-height: 1"
+                >
+                  x
+                </button>
+              </td>
+            </tr>
           </template>
-        </tr>
+        </template>
         <tr>
           <td>
             <button
