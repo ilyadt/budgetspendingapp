@@ -4,11 +4,9 @@ import type { Client } from 'openapi-fetch'
 import createClient from 'openapi-fetch'
 import { useStatusStore } from '@/stores/status'
 import { useUploadErrorsStore } from '@/stores/uploadErrors'
+import { useSpendingEventsStore } from '@/stores/spendingEvent'
 
 class EventsUploader {
-  private readonly storageKey = 'events_uploader__events'
-
-  private storage: Storage
   private client: Client<paths>
   private events: Array<ChangeSpendingEvent>
   private $statusStore
@@ -17,11 +15,10 @@ class EventsUploader {
   private timerHandler: number = 0
 
   constructor() {
-    this.storage = localStorage
     this.$statusStore = useStatusStore()
     this.$uploadErrorsStore = useUploadErrorsStore()
     this.client = createClient<paths>({ baseUrl: import.meta.env.VITE_SERVER_URL })
-    this.events = JSON.parse(this.storage.getItem(this.storageKey) || '[]')
+    this.events = useSpendingEventsStore().events
     this.$statusStore.setPendingEvents(this.events.length)
 
     // Try send on page refresh
@@ -42,8 +39,6 @@ class EventsUploader {
     this.events.push(event)
     const pendingEvents = this.events.filter((e) => e.status === 'pending')
     this.$statusStore.setPendingEvents(pendingEvents.length)
-
-    this.flush()
 
     if (this.timerHandler != 0) {
       clearTimeout(this.timerHandler)
@@ -98,7 +93,6 @@ class EventsUploader {
 
       this.$statusStore.setPendingEvents(this.events.filter((e) => e.status == 'pending').length)
       this.$statusStore.setUpdateSpendingStatus('ok')
-      this.flush()
     } catch (error) {
       console.log(error)
       if (error instanceof Error) {
@@ -108,15 +102,10 @@ class EventsUploader {
     }
   }
 
-  private flush() {
-    this.storage.setItem(this.storageKey, JSON.stringify(this.events))
-  }
-
   private deleteAppliedEvents() {
     // TODO: удалять те, которые были применены после последнего обновления,
     // appliedTime + 10m(дельта лаг) < lastGetSpendingsTime
     this.events = this.events.filter((e) => e.status !== 'applied')
-    this.flush()
   }
 
   public getAllEvents(): Array<ChangeSpendingEvent> {

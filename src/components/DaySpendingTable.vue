@@ -175,7 +175,6 @@ const today = new Date()
 function isToday(d: Date): boolean {
   return today.toDateString() === d.toDateString()
 }
-
 </script>
 <template>
   <div class="table-responsive" style="max-width: 100vw; overflow-x: auto">

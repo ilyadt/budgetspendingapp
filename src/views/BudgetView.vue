@@ -2,41 +2,53 @@
 import DaySpendingTable from '../components/DaySpendingTable.vue'
 import { dateFormatFromString, dateISO, dateISOFromString } from '@/helpers/date'
 import { moneyToString, minus } from '@/helpers/money'
-import type { Budget, Spending } from '@/models/models'
-import { toRaw, computed, type PropType } from 'vue'
+import type { Spending } from '@/models/models'
+import { useBudgetSpendingsStore } from '@/stores/budgetSpendings'
+import { computed } from 'vue'
 
 const props = defineProps({
-  budget: { type: Object as PropType<Budget>, required: true },
-  spendings: { type: Array<Spending>, required: true },
+  budgetId: { type: String, required: true },
+})
+
+const { budgets, spendings } = useBudgetSpendingsStore()
+
+const budget = computed(() => {
+  return budgets.filter((b) => String(b.id) == props.budgetId)[0]
 })
 
 const daysCount = computed(() => {
-  const fromMs = new Date(props.budget.dateFrom)
-  const toMs = new Date(props.budget.dateTo)
+  const fromMs = new Date(budget.value.dateFrom)
+  const toMs = new Date(budget.value.dateTo)
 
   return (toMs.getTime() - fromMs.getTime()) / 1000 / 60 / 60 / 24 + 1
 })
 
 function getDate(i: number): Date {
-  return new Date(new Date(props.budget.dateFrom).getTime() + (i - 1) * 24 * 60 * 60 * 1000)
+  return new Date(new Date(budget.value.dateFrom).getTime() + (i - 1) * 24 * 60 * 60 * 1000)
 }
 
-let moneyLeft = props.budget.money
+const moneyLeft = computed(() => {
+  let moneyLeft = budget.value.money
 
-const spendingsByDate: Record<string, Array<Spending>> = {}
-
-for (const sp of toRaw(props.spendings)) {
-  moneyLeft = minus(moneyLeft, sp.money)
-
-  if (spendingsByDate[dateISOFromString(sp.date)] == undefined) {
-    spendingsByDate[dateISOFromString(sp.date)] = []
+  for (const sp of spendings[budget.value.id] || []) {
+    moneyLeft = minus(moneyLeft, sp.money)
   }
 
-  spendingsByDate[dateISOFromString(sp.date)].push(sp)
-}
+  return moneyLeft
+})
 
-const budgetComp = computed(() => {
-  return props.budget
+const spendingsByDate = computed(() => {
+  const res: Record<string, Array<Spending>> = {}
+
+  for (const sp of spendings[budget.value.id] || []) {
+    if (res[dateISOFromString(sp.date)] == undefined) {
+      res[dateISOFromString(sp.date)] = []
+    }
+
+    res[dateISOFromString(sp.date)].push(sp)
+  }
+
+  return res
 })
 </script>
 
@@ -44,13 +56,13 @@ const budgetComp = computed(() => {
   <!-- Отображение бюджета с тратами -->
   <div>
     <p>
-      <b>Бюджет: {{ budget.name }}</b> <br />
+      <b>Бюджет #{{ budget.id }}: {{ budget.name }}</b> <br />
       <b
-        >{{ dateFormatFromString(budgetComp.dateFrom) }} &mdash;
-        {{ dateFormatFromString(budgetComp.dateTo) }}</b
+        >{{ dateFormatFromString(budget.dateFrom) }} &mdash;
+        {{ dateFormatFromString(budget.dateTo) }}</b
       ><br />
       <b>{{ moneyToString(moneyLeft) }} {{ moneyLeft.currency }}</b> (из
-      <b>{{ moneyToString(budgetComp.money) }} {{ budgetComp.money.currency }}</b
+      <b>{{ moneyToString(budget.money) }} {{ budget.money.currency }}</b
       >)
     </p>
   </div>

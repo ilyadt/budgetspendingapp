@@ -4,6 +4,7 @@ import createClient from 'openapi-fetch'
 import type { paths } from '../schemas'
 import type {
   Budget,
+  ChangeSpendingEvent,
   Spending,
   SpendingCreateEvent,
   SpendingDeleteEvent,
@@ -11,11 +12,12 @@ import type {
 } from '@/models/models'
 
 import { useStatusStore } from '@/stores/status'
-import { getEventsUploaderInstance } from '@/services/eventsUploader'
+import { useSpendingEventsStore } from './spendingEvent'
+import { watch } from 'vue'
 
 export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
   const status = useStatusStore()
-  const eventsUploader = getEventsUploaderInstance()
+  const events = useSpendingEventsStore().events
 
   const lastUpdatedAt = useStorage<number>('lastUpdatedAt', 0)
   const budgets = useStorage<Budget[]>('budgets', [])
@@ -27,7 +29,12 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
   updateBudgetSpendings()
 
   // Применяем локальные изменения к стору(серверным данным)
-  applySpendingChangeEvents()
+  applySpendingChangeEvents(events)
+
+  // Watch new event added to array / array changed
+  watch(events, (newVal) => {
+    applySpendingChangeEvents(newVal)
+  })
 
   setInterval(function () {
     updateBudgetSpendings()
@@ -70,55 +77,57 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
     }
   }
 
-  function applySpendingChangeEvents() {
-    const pendingEvents = eventsUploader.getAllEvents()
+  function applySpendingChangeEvents(events: ChangeSpendingEvent[]) {
+    for (const event of events) {
+      applySpendingChangeEvent(event)
+    }
+  }
 
-    for (const pendingEvent of pendingEvents) {
-      if (pendingEvent.type == 'update') {
-        const ev = pendingEvent as SpendingUpdateEvent
+  function applySpendingChangeEvent(pendingEvent: ChangeSpendingEvent) {
+    if (pendingEvent.type == 'update') {
+      const ev = pendingEvent as SpendingUpdateEvent
 
-        for (const [i, sp] of spendings.value[ev.budgetId].entries()) {
-          if (sp.id == ev.spendingId) {
-            spendings.value[ev.budgetId][i] = applySpendingUpdateEvent(sp, ev)
-          }
+      for (const [i, sp] of spendings.value[ev.budgetId].entries()) {
+        if (sp.id == ev.spendingId) {
+          spendings.value[ev.budgetId][i] = applySpendingUpdateEvent(sp, ev)
         }
       }
+    }
 
-      if (pendingEvent.type == 'create') {
-        const ev = pendingEvent as SpendingCreateEvent
+    if (pendingEvent.type == 'create') {
+      const ev = pendingEvent as SpendingCreateEvent
 
-        // Case of PendingEventNotDeleted yet (updated, status=applied)
-        let spExists = false
-        for (const sp of spendings.value[ev.budgetId]) {
-          if (sp.id == ev.spendingId) {
-            spExists = true
-          }
+      // Case of PendingEventNotDeleted yet (updated, status=applied)
+      let spExists = false
+      for (const sp of spendings.value[ev.budgetId]) {
+        if (sp.id == ev.spendingId) {
+          spExists = true
         }
-        if (spExists) {
-          continue
-        }
-
-        const sp: Spending = {
-          id: ev.spendingId,
-          date: ev.date,
-          sort: ev.sort,
-          money: ev.money,
-          description: ev.description,
-          createdAt: ev.createdAt,
-          updatedAt: ev.updatedAt,
-          version: ev.newVersion,
-        }
-
-        spendings.value[ev.budgetId].push(sp)
+      }
+      if (spExists) {
+        return
       }
 
-      if (pendingEvent.type == 'delete') {
-        const ev = pendingEvent as SpendingDeleteEvent
+      const sp: Spending = {
+        id: ev.spendingId,
+        date: ev.date,
+        sort: ev.sort,
+        money: ev.money,
+        description: ev.description,
+        createdAt: ev.createdAt,
+        updatedAt: ev.updatedAt,
+        version: ev.newVersion,
+      }
 
-        for (const [i, sp] of spendings.value[ev.budgetId].entries()) {
-          if (sp.id == ev.spendingId) {
-            spendings.value[ev.budgetId].splice(i, 1) // delete 1-element from i position
-          }
+      spendings.value[ev.budgetId].push(sp)
+    }
+
+    if (pendingEvent.type == 'delete') {
+      const ev = pendingEvent as SpendingDeleteEvent
+
+      for (const [i, sp] of spendings.value[ev.budgetId].entries()) {
+        if (sp.id == ev.spendingId) {
+          spendings.value[ev.budgetId].splice(i, 1) // delete 1-element from i position
         }
       }
     }
@@ -138,6 +147,9 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
       // возвращаем неизмененное состояние (пока что)
       // Ожидается, что при отправке запроса на бек будет ошибка несовместимости обновления
       // Возможно тут сразу нужно отправлять такое сообщение в ошибки
+      //
+      // TODO: при изменении(добавлении события / очистки) происходит полное применение всех событий к текущему состоянию
+      // что может вызывать ошибки двойного применения события
       console.error(ev)
 
       return res
