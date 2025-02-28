@@ -5,20 +5,19 @@ import StatusBar from './components/StatusBar.vue'
 
 const { budgets } = useBudgetSpendingsStore()
 
-import {ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 
 const route = useRoute()
 const componentKey = ref(0)
 watch(route, () => {
   componentKey.value += 1 // Changing the key forces the component to recreate
 })
-
 </script>
 
 <template>
   <StatusBar />
   <div class="container">
-    <RouterView :key="componentKey"/>
+    <RouterView :key="componentKey" />
   </div>
   <div style="height: 80px"></div>
   <!-- Нижняя навигация -->
@@ -30,7 +29,8 @@ watch(route, () => {
       v-for="budget in budgets"
       :key="budget.id"
       :to="{ name: 'budget', params: { budgetId: budget.id } }"
-      >{{ budget.alias }}</RouterLink>
-    <RouterLink :to="{name:'errors'}">Errs</RouterLink>
+      >{{ budget.alias }}</RouterLink
+    >
+    <RouterLink :to="{ name: 'errors' }">Errs</RouterLink>
   </nav>
 </template>
