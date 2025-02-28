@@ -9,8 +9,10 @@
 //
 
 import { useStatusStore } from '@/stores/status'
+import { useUploadErrorsStore } from '@/stores/uploadErrors';
 
 const status = useStatusStore()
+const uploadErrors = useUploadErrorsStore()
 
 // For IOS PWA
 function reload() {
@@ -23,5 +25,6 @@ function reload() {
     <p>Status GetSpendings: {{ status.statusGetSpendings }}</p>
     <p>Status UpdateSpendings: {{ status.statusUpdateSpendings }}</p>
     <p>PendingEvents: {{ status.pendingEvents }}</p>
+    <p>uploadErrors: {{ uploadErrors.errorEvents.length }}</p>
   </div>
 </template>

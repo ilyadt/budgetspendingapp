@@ -5,15 +5,16 @@ import { moneyToString, minus } from '@/helpers/money'
 import type { Spending } from '@/models/models'
 import { useBudgetSpendingsStore } from '@/stores/budgetSpendings'
 import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 
-const props = defineProps({
-  budgetId: { type: String, required: true },
-})
+const route = useRoute()
+
+const budgetId = route.params.budgetId
 
 const { budgets, spendings } = useBudgetSpendingsStore()
 
 const budget = computed(() => {
-  return budgets.filter((b) => String(b.id) == props.budgetId)[0]
+  return budgets.filter((b) => String(b.id) == budgetId)[0]
 })
 
 const daysCount = computed(() => {

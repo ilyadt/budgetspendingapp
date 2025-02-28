@@ -3,6 +3,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import BudgetView from './views/BudgetView.vue'
+import ErrorsView from './views/ErrorsView.vue'
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap'
@@ -26,6 +27,11 @@ app.use(
         path: '/budget/:budgetId(\\d+)?',
         name: 'budget',
         component: BudgetView,
+      },
+      {
+        path: '/errors',
+        name: 'errors',
+        component: ErrorsView,
       },
     ],
   }),
