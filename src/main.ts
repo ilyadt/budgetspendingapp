@@ -10,16 +10,15 @@ import 'bootstrap'
 import HomeView from './views/HomeView.vue'
 
 // Font Awesome
-import { library } from '@fortawesome/fontawesome-svg-core';
-import {faSync } from '@fortawesome/free-solid-svg-icons';
-library.add(faSync);
-
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faSync } from '@fortawesome/free-solid-svg-icons'
+library.add(faSync)
 
 const app = createApp(App)
 
 // Register FontAwesomeIcon component
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-app.component('font-awesome-icon', FontAwesomeIcon);
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+app.component('font-awesome-icon', FontAwesomeIcon)
 
 app.use(createPinia())
 

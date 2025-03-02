@@ -26,7 +26,11 @@ function reload() {
       <div class="col-3 border bg-light">Update: {{ status.statusUpdateSpendings }}</div>
       <div class="col-2 border bg-light">Pend: {{ status.pendingEvents }}</div>
       <div class="col-2 border bg-light">Errs: {{ uploadErrors.errorEvents.length }}</div>
-      <div class="col-2 border bg-light"><button @click="reload" class="btn btn-small btn-info"><font-awesome-icon :icon="['fas', 'sync']" /></button></div>
+      <div class="col-2 border bg-light">
+        <button @click="reload" class="btn btn-small btn-info">
+          <font-awesome-icon :icon="['fas', 'sync']" />
+        </button>
+      </div>
       <!-- <div class="col-2 border bg-light"><button @click="reload" class="btn btn-small btn-info"><i class="fas fa-sync-alt"></i></button></div> -->
     </div>
   </div>

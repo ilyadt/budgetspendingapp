@@ -13,25 +13,29 @@ const budgetId = route.params.budgetId
 
 const { budgets, spendings } = useBudgetSpendingsStore()
 
+const budg = budgets.find((b) => String(b.id) == budgetId)
+
+// TODO: redirect if budget not found
+
 const budget = computed(() => {
-  return budgets.filter((b) => String(b.id) == budgetId)[0]
+  return budg
 })
 
 const daysCount = computed(() => {
-  const fromMs = new Date(budget.value.dateFrom)
-  const toMs = new Date(budget.value.dateTo)
+  const fromMs = new Date(budget.value!.dateFrom)
+  const toMs = new Date(budget.value!.dateTo)
 
   return (toMs.getTime() - fromMs.getTime()) / 1000 / 60 / 60 / 24 + 1
 })
 
 function getDate(i: number): Date {
-  return new Date(new Date(budget.value.dateFrom).getTime() + (i - 1) * 24 * 60 * 60 * 1000)
+  return new Date(new Date(budget.value!.dateFrom).getTime() + (i - 1) * 24 * 60 * 60 * 1000)
 }
 
 const moneyLeft = computed(() => {
-  let moneyLeft = budget.value.money
+  let moneyLeft = budget.value!.money
 
-  for (const sp of spendings[budget.value.id] || []) {
+  for (const sp of spendings[budget.value!.id] || []) {
     moneyLeft = minus(moneyLeft, sp.money)
   }
 
@@ -41,7 +45,7 @@ const moneyLeft = computed(() => {
 const spendingsByDate = computed(() => {
   const res: Record<string, Array<Spending>> = {}
 
-  for (const sp of spendings[budget.value.id] || []) {
+  for (const sp of spendings[budget.value!.id] || []) {
     if (res[dateISOFromString(sp.date)] == undefined) {
       res[dateISOFromString(sp.date)] = []
     }
@@ -57,19 +61,19 @@ const spendingsByDate = computed(() => {
   <!-- Отображение бюджета с тратами -->
   <div>
     <p>
-      <b>Бюджет #{{ budget.id }}: {{ budget.name }}</b> <br />
+      <b>Бюджет #{{ budget!.id }}: {{ budget!.name }}</b> <br />
       <b
-        >{{ dateFormatFromString(budget.dateFrom) }} &mdash;
-        {{ dateFormatFromString(budget.dateTo) }}</b
+        >{{ dateFormatFromString(budget!.dateFrom) }} &mdash;
+        {{ dateFormatFromString(budget!.dateTo) }}</b
       ><br />
       <b>{{ moneyToString(moneyLeft) }} {{ moneyLeft.currency }}</b> (из
-      <b>{{ moneyToString(budget.money) }} {{ budget.money.currency }}</b
+      <b>{{ moneyToString(budget!.money) }} {{ budget!.money.currency }}</b
       >)
     </p>
   </div>
   <div v-for="i in daysCount" :key="i" class="row">
     <DaySpendingTable
-      :budget="budget"
+      :budget="budget!"
       :date="getDate(i)"
       :daySpendings="spendingsByDate[dateISO(getDate(i))] || []"
     />

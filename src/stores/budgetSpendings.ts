@@ -42,20 +42,19 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
 
   async function updateBudgetSpendings() {
     try {
-      const { data, error } = await client.GET('/budgets/spendings')
-      console.log(data)
-
-      if (error) {
-        throw error
+      const { data, response } = await client.GET('/budgets/spendings')
+      if (!response.ok) {
+        throw response.status
       }
+      console.log(data)
 
       status.setGetSpendingStatus('ok')
 
-      budgets.value = data.budgets
+      budgets.value = data!.budgets
 
       const resSpendings: Record<string, Array<Spending>> = {}
 
-      data.spendings.forEach((budgetSpendings) => {
+      data!.spendings.forEach((budgetSpendings) => {
         const budgetId = budgetSpendings.budgetId
 
         // Init with empty array (for push method to work)
@@ -86,6 +85,8 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
   function applySpendingChangeEvent(pendingEvent: ChangeSpendingEvent) {
     if (pendingEvent.type == 'update') {
       const ev = pendingEvent as SpendingUpdateEvent
+
+      spendings.value[ev.budgetId] = spendings.value[ev.budgetId] || []
 
       for (const [i, sp] of spendings.value[ev.budgetId].entries()) {
         if (sp.id == ev.spendingId) {
