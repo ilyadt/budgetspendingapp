@@ -175,6 +175,10 @@ const today = new Date()
 function isToday(d: Date): boolean {
   return today.toDateString() === d.toDateString()
 }
+
+function isFuture(d: Date): boolean {
+  return d.getTime() > today.getTime()
+}
 </script>
 <template>
   <div class="table-responsive" style="max-width: 100vw; overflow-x: auto">
@@ -184,13 +188,16 @@ function isToday(d: Date): boolean {
           <i>{{ dateFormat(props.date) }} ({{ dayNames[props.date.getDay()] }})</i>
         </b>
       </template>
+      <template v-else-if="isFuture(date)">
+        <i style="opacity: 40%;">{{ dateFormat(props.date) }} ({{ dayNames[props.date.getDay()] }})</i>
+      </template>
       <template v-else>
         <i>{{ dateFormat(props.date) }} ({{ dayNames[props.date.getDay()] }})</i>
       </template>
     </p>
     <table
       class="table table-bordered table-sm align-middle"
-      style="table-layout: fixed; min-width: 350px"
+      :style="{tableLayout: 'fixed', minWidth: '350px', opacity: isFuture(date) ? '40%' : '100%'}"
     >
       <colgroup>
         <col style="width: 70px" />
