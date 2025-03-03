@@ -19,7 +19,7 @@ class EventsUploader {
     this.$uploadErrorsStore = useUploadErrorsStore()
     this.client = createClient<paths>({ baseUrl: import.meta.env.VITE_SERVER_URL })
     this.events = useSpendingEventsStore().events
-    this.$statusStore.setPendingEvents(this.events.length)
+    this.$statusStore.setPendingEvents(this.events.filter((e) => e.status == 'pending').length)
 
     // Try send on page refresh
     if (this.events.length > 0) {
