@@ -205,28 +205,31 @@ function isFuture(d: Date): boolean {
         <col style="width: 65px" />
       </colgroup>
       <tbody>
-        <template v-for="daySpending in rowSpendings" :key="daySpending.id">
-          <template v-if="daySpending.pending">
-            <tr @blur="saveChanges(daySpending)" tabindex="-1">
-              <td class="text-end">
-                <input
-                  class="form-control cell-input"
-                  v-on:keyup.enter="saveChanges(daySpending)"
-                  v-on:keyup.esc="cancelChanges(daySpending)"
-                  v-model="daySpending.pendingMoney"
-                />
-              </td>
+          <tr v-for="daySpending in rowSpendings" :key="daySpending.id">
+            <td class="text-end">
+              <input
+                v-if="daySpending.pending"
+                class="form-control cell-input"
+                v-on:keyup.enter="saveChanges(daySpending)"
+                v-on:keyup.esc="cancelChanges(daySpending)"
+                v-model="daySpending.pendingMoney"
+              />
+              <span @click="toPending(daySpending)" v-else>{{ daySpending.money }}</span>
+            </td>
 
-              <td>
-                <input
-                  class="form-control cell-input"
-                  v-on:keyup.enter="saveChanges(daySpending)"
-                  v-on:keyup.esc="cancelChanges(daySpending)"
-                  v-model="daySpending.pendingDescription"
-                />
-              </td>
+            <td>
+              <input
+                v-if="daySpending.pending"
+                class="form-control cell-input"
+                v-on:keyup.enter="saveChanges(daySpending)"
+                v-on:keyup.esc="cancelChanges(daySpending)"
+                v-model="daySpending.pendingDescription"
+              />
+              <span @click="toPending(daySpending)" v-else>{{ daySpending.description }}</span>
+            </td>
 
-              <td>
+            <td>
+              <template v-if="daySpending.pending">
                 <button
                   class="btn btn-success btn-sm p-1 m-1"
                   style="min-width: 20px; line-height: 1"
@@ -241,21 +244,8 @@ function isFuture(d: Date): boolean {
                 >
                   X
                 </button>
-              </td>
-            </tr>
-          </template>
-
-          <template v-else>
-            <tr>
-              <td @click="toPending(daySpending)" class="text-end">
-                {{ daySpending.money }}
-              </td>
-
-              <td @click="toPending(daySpending)">
-                {{ daySpending.description }}
-              </td>
-
-              <td>
+              </template>
+              <template v-else>
                 <button
                   @click="deleteSpending(daySpending)"
                   class="btn btn-warning btn-sm p-1 m-1"
@@ -263,10 +253,9 @@ function isFuture(d: Date): boolean {
                 >
                   x
                 </button>
-              </td>
-            </tr>
-          </template>
-        </template>
+              </template>
+            </td>
+          </tr>
         <tr>
           <td>
             <button
