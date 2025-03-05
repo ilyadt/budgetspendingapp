@@ -75,7 +75,7 @@ for (const sp of props.daySpendings) {
 rowSpendings.value.sort((a, b) => (a.sort < b.sort ? -1 : 1))
 
 function addNew(): void {
-  let lastSort = 0
+  let lastSort = 100 // Начало сортировки с 100 (101 первая запись). Сортировки до у старых записей
   if (rowSpendings.value.length > 0) {
     const lastIdx = rowSpendings.value.length - 1
     lastSort = rowSpendings.value[lastIdx].sort
