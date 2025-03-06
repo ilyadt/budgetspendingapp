@@ -1,3 +1,5 @@
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+
 import { defineStore } from 'pinia'
 import { useStorage } from '@vueuse/core'
 import createClient from 'openapi-fetch'
@@ -42,7 +44,9 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
 
   async function updateBudgetSpendings() {
     try {
-      const { data, response } = await client.GET('/budgets/spendings')
+      const { data, response } = await client.GET('/budgets/spendings', {
+        signal: AbortSignal.timeout(5000),
+      })
       if (!response.ok) {
         throw response.status
       }
@@ -68,10 +72,8 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
       spendings.value = resSpendings
 
       lastUpdatedAt.value = Date.now()
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        status.setGetSpendingStatus(error.message)
-      }
+    } catch (error: any) {
+      status.setGetSpendingStatus(error.name + ' ' + error.message)
       console.error(error)
     }
   }

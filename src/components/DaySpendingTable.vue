@@ -189,7 +189,9 @@ function isFuture(d: Date): boolean {
         </b>
       </template>
       <template v-else-if="isFuture(date)">
-        <i style="opacity: 40%;">{{ dateFormat(props.date) }} ({{ dayNames[props.date.getDay()] }})</i>
+        <i style="opacity: 40%"
+          >{{ dateFormat(props.date) }} ({{ dayNames[props.date.getDay()] }})</i
+        >
       </template>
       <template v-else>
         <i>{{ dateFormat(props.date) }} ({{ dayNames[props.date.getDay()] }})</i>
@@ -197,7 +199,7 @@ function isFuture(d: Date): boolean {
     </p>
     <table
       class="table table-bordered table-sm align-middle"
-      :style="{tableLayout: 'fixed', minWidth: '350px', opacity: isFuture(date) ? '40%' : '100%'}"
+      :style="{ tableLayout: 'fixed', minWidth: '350px', opacity: isFuture(date) ? '40%' : '100%' }"
     >
       <colgroup>
         <col style="width: 70px" />
@@ -205,57 +207,57 @@ function isFuture(d: Date): boolean {
         <col style="width: 65px" />
       </colgroup>
       <tbody>
-          <tr v-for="daySpending in rowSpendings" :key="daySpending.id">
-            <td class="text-end">
-              <input
-                v-if="daySpending.pending"
-                class="form-control cell-input"
-                v-on:keyup.enter="saveChanges(daySpending)"
-                v-on:keyup.esc="cancelChanges(daySpending)"
-                v-model="daySpending.pendingMoney"
-              />
-              <span @click="toPending(daySpending)" v-else>{{ daySpending.money }}</span>
-            </td>
+        <tr v-for="daySpending in rowSpendings" :key="daySpending.id">
+          <td class="text-end">
+            <input
+              v-if="daySpending.pending"
+              class="form-control cell-input"
+              v-on:keyup.enter="saveChanges(daySpending)"
+              v-on:keyup.esc="cancelChanges(daySpending)"
+              v-model="daySpending.pendingMoney"
+            />
+            <span @click="toPending(daySpending)" v-else>{{ daySpending.money }}</span>
+          </td>
 
-            <td>
-              <input
-                v-if="daySpending.pending"
-                class="form-control cell-input"
-                v-on:keyup.enter="saveChanges(daySpending)"
-                v-on:keyup.esc="cancelChanges(daySpending)"
-                v-model="daySpending.pendingDescription"
-              />
-              <span @click="toPending(daySpending)" v-else>{{ daySpending.description }}</span>
-            </td>
+          <td>
+            <input
+              v-if="daySpending.pending"
+              class="form-control cell-input"
+              v-on:keyup.enter="saveChanges(daySpending)"
+              v-on:keyup.esc="cancelChanges(daySpending)"
+              v-model="daySpending.pendingDescription"
+            />
+            <span @click="toPending(daySpending)" v-else>{{ daySpending.description }}</span>
+          </td>
 
-            <td>
-              <template v-if="daySpending.pending">
-                <button
-                  class="btn btn-success btn-sm p-1 m-1"
-                  style="min-width: 20px; line-height: 1"
-                  @click="saveChanges(daySpending)"
-                >
-                  V
-                </button>
-                <button
-                  class="btn btn-danger btn-sm p-1 m-1"
-                  style="min-width: 20px; line-height: 1"
-                  @click="cancelChanges(daySpending)"
-                >
-                  X
-                </button>
-              </template>
-              <template v-else>
-                <button
-                  @click="deleteSpending(daySpending)"
-                  class="btn btn-warning btn-sm p-1 m-1"
-                  style="min-width: 20px; line-height: 1"
-                >
-                  x
-                </button>
-              </template>
-            </td>
-          </tr>
+          <td>
+            <template v-if="daySpending.pending">
+              <button
+                class="btn btn-danger btn-sm p-1 m-1"
+                style="min-width: 20px; line-height: 1"
+                @click="cancelChanges(daySpending)"
+              >
+                X
+              </button>
+              <button
+                class="btn btn-success btn-sm p-1 m-1"
+                style="min-width: 20px; line-height: 1"
+                @click="saveChanges(daySpending)"
+              >
+                V
+              </button>
+            </template>
+            <template v-else>
+              <button
+                @click="deleteSpending(daySpending)"
+                class="btn btn-warning btn-sm p-1 m-1"
+                style="min-width: 20px; line-height: 1"
+              >
+                x
+              </button>
+            </template>
+          </td>
+        </tr>
         <tr>
           <td>
             <button

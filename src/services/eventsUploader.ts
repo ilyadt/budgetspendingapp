@@ -1,3 +1,5 @@
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+
 import type { ChangeSpendingEvent } from '@/models/models'
 import type { paths } from '@/schemas'
 import type { Client } from 'openapi-fetch'
@@ -57,6 +59,7 @@ class EventsUploader {
         body: {
           updates: this.events.filter((e) => e.status == 'pending'),
         },
+        signal: AbortSignal.timeout(5000),
       })
 
       if (response.status != 200 && response.status != 400) {
@@ -93,11 +96,10 @@ class EventsUploader {
 
       this.$statusStore.setPendingEvents(this.events.filter((e) => e.status == 'pending').length)
       this.$statusStore.setUpdateSpendingStatus('ok')
-    } catch (error) {
+    } catch (error: any) {
+      this.$statusStore.setUpdateSpendingStatus(error.name + ' ' + error.message)
       console.log(error)
-      if (error instanceof Error) {
-        this.$statusStore.setUpdateSpendingStatus(error.message)
-      }
+
       this.timerHandler = setTimeout(this.sendEvents.bind(this), 30 * 1000)
     }
   }

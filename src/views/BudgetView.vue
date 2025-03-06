@@ -70,7 +70,7 @@ const spendingsByDate = computed(() => {
       <b>{{ moneyToString(budget!.money) }} {{ budget!.money.currency }}</b
       >)
     </p>
-    <p v-if="budget?.description" style="white-space: pre;"> {{ budget!.description }}</p>
+    <p v-if="budget?.description" style="white-space: pre">{{ budget!.description }}</p>
   </div>
   <div v-for="i in daysCount" :key="i" class="row">
     <DaySpendingTable
