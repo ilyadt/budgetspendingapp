@@ -54,6 +54,8 @@ export interface components {
             alias: string;
             /** @description полное название бюджета */
             name: string;
+            /** @description описание назначения бюджета, какие-то комментарии */
+            description?: string;
             money: components["schemas"]["Money"];
             /** Format: date */
             dateFrom: string;
