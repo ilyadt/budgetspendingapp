@@ -11,8 +11,8 @@ import HomeView from './views/HomeView.vue'
 
 // Font Awesome
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faSync } from '@fortawesome/free-solid-svg-icons'
-library.add(faSync)
+import { faSync, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons'
+library.add(faSync, faCheck, faXmark)
 
 const app = createApp(App)
 

@@ -237,14 +237,15 @@ function isFuture(d: Date): boolean {
                 style="min-width: 20px; line-height: 1"
                 @click="cancelChanges(daySpending)"
               >
-                X
+                <font-awesome-icon :icon="['fas', 'xmark']" />
               </button>
+              <span style="display:inline-block; width:5px;"></span>
               <button
                 class="btn btn-success btn-sm p-1 m-1"
                 style="min-width: 20px; line-height: 1"
                 @click="saveChanges(daySpending)"
               >
-                V
+              <font-awesome-icon :icon="['fas', 'check']" />
               </button>
             </template>
             <template v-else>
@@ -253,7 +254,7 @@ function isFuture(d: Date): boolean {
                 class="btn btn-warning btn-sm p-1 m-1"
                 style="min-width: 20px; line-height: 1"
               >
-                x
+              <font-awesome-icon :icon="['fas', 'xmark']" />
               </button>
             </template>
           </td>
