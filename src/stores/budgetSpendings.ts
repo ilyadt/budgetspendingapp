@@ -45,7 +45,7 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
   async function updateBudgetSpendings() {
     try {
       const { data, response } = await client.GET('/budgets/spendings', {
-        signal: AbortSignal.timeout(5000),
+        signal: AbortSignal.timeout(10_000),
       })
       if (!response.ok) {
         throw response.status

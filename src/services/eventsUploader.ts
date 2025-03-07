@@ -59,7 +59,7 @@ class EventsUploader {
         body: {
           updates: this.events.filter((e) => e.status == 'pending'),
         },
-        signal: AbortSignal.timeout(5000),
+        signal: AbortSignal.timeout(10_000),
       })
 
       if (response.status != 200 && response.status != 400) {
