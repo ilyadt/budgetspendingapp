@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 import { moneyFormat } from '@/helpers/money'
 import type {
   Spending,
@@ -139,6 +140,24 @@ function cancelChanges(spending: SpendingRow): void {
   }
 }
 
+let lastTap = 0
+
+function handleDoubleTouch($event: TouchEvent, fn: (arg: any) => void, arg: unknown) {
+  // Guard
+  if ($event.type !== 'touchstart') {
+    return
+  }
+
+  const currentEventTime = $event.timeStamp
+  const tapLength = currentEventTime - lastTap
+
+  if (tapLength < 200 && tapLength > 0) {
+    fn(arg)
+  }
+
+  lastTap = currentEventTime
+}
+
 function deleteSpending(spending: SpendingRow): void {
   const id = spending.id
   const prevVersion = spending.version
@@ -235,26 +254,28 @@ function isFuture(d: Date): boolean {
               <button
                 class="btn btn-danger btn-sm p-1 m-1"
                 style="min-width: 20px; line-height: 1"
-                @click="cancelChanges(daySpending)"
+                @dblclick="cancelChanges(daySpending)"
+                @touchstart="handleDoubleTouch($event, cancelChanges, daySpending)"
               >
                 <font-awesome-icon :icon="['fas', 'xmark']" />
               </button>
-              <span style="display:inline-block; width:5px;"></span>
+              <span style="display: inline-block; width: 5px"></span>
               <button
                 class="btn btn-success btn-sm p-1 m-1"
                 style="min-width: 20px; line-height: 1"
                 @click="saveChanges(daySpending)"
               >
-              <font-awesome-icon :icon="['fas', 'check']" />
+                <font-awesome-icon :icon="['fas', 'check']" />
               </button>
             </template>
             <template v-else>
               <button
-                @click="deleteSpending(daySpending)"
+                @dblclick="deleteSpending(daySpending)"
+                @touchstart="handleDoubleTouch($event, deleteSpending, daySpending)"
                 class="btn btn-warning btn-sm p-1 m-1"
                 style="min-width: 20px; line-height: 1"
               >
-              <font-awesome-icon :icon="['fas', 'xmark']" />
+                <font-awesome-icon :icon="['fas', 'xmark']" />
               </button>
             </template>
           </td>
