@@ -76,6 +76,11 @@ class EventsUploader {
           continue
         }
 
+        // race conditions
+        if (this.events[index].status === 'applied') {
+          continue
+        }
+
         this.$uploadErrorsStore.addEvent(this.events[index])
         this.events.splice(index, 1)
       }
@@ -83,8 +88,6 @@ class EventsUploader {
       // Success
       const success = data?.success || error?.success || []
       for (const s of success) {
-        // TODO:
-        // this.events[i].status = 'applied' || race conditions on init
         const index = this.events.findIndex((ev) => ev.eventId === s)
 
         if (index == -1) {
@@ -94,8 +97,7 @@ class EventsUploader {
         this.events[index].status = 'applied'
       }
 
-      this.$statusStore.setPendingEvents(this.events.filter((e) => e.status == 'pending').length)
-      this.$statusStore.setUpdateSpendingStatus('ok')
+      this.$statusStore.setPendingEvents(this.events.filter((e) => e.status == 'pending').length)      this.$statusStore.setUpdateSpendingStatus('ok')
     } catch (error: any) {
       this.$statusStore.setUpdateSpendingStatus(error.name + ' ' + error.message)
       console.log(error)
