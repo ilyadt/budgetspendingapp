@@ -97,7 +97,8 @@ class EventsUploader {
         this.events[index].status = 'applied'
       }
 
-      this.$statusStore.setPendingEvents(this.events.filter((e) => e.status == 'pending').length)      this.$statusStore.setUpdateSpendingStatus('ok')
+      this.$statusStore.setPendingEvents(this.events.filter((e) => e.status == 'pending').length)
+      this.$statusStore.setUpdateSpendingStatus('ok')
     } catch (error: any) {
       this.$statusStore.setUpdateSpendingStatus(error.name + ' ' + error.message)
       console.log(error)
