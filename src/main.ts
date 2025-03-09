@@ -9,12 +9,19 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap'
 import HomeView from './views/HomeView.vue'
 
+import * as Sentry from "@sentry/vue";
+
 // Font Awesome
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faSync, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons'
 library.add(faSync, faCheck, faXmark)
 
 const app = createApp(App)
+
+Sentry.init({
+  app,
+  dsn: import.meta.env.VITE_SENTRY_DSN,
+});
 
 // Register FontAwesomeIcon component
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
