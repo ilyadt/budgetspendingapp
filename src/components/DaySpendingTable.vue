@@ -218,7 +218,7 @@ function isFuture(d: Date): boolean {
     </p>
     <table
       class="table table-bordered table-sm align-middle"
-      :style="{ tableLayout: 'fixed', minWidth: '350px', opacity: isToday(date) ? '100%' : '50%'}"
+      :style="{ tableLayout: 'fixed', minWidth: '350px', opacity: isToday(date) ? '100%' : '50%' }"
     >
       <colgroup>
         <col style="width: 70px" />
