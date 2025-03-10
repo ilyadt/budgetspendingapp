@@ -87,6 +87,8 @@ function addNew(): void {
   rowSpendings.value.push(newSpending)
 }
 
+let lastTap = 0
+
 function saveChanges(spending: SpendingRow): void {
   const now = new Date()
 
@@ -129,6 +131,8 @@ function saveChanges(spending: SpendingRow): void {
   }
 
   eventsUploaderInstance.AddEvent(event)
+
+  lastTap = 0
 }
 
 function cancelChanges(spending: SpendingRow): void {
@@ -138,9 +142,9 @@ function cancelChanges(spending: SpendingRow): void {
   } else {
     spending.pending = false
   }
-}
 
-let lastTap = 0
+  lastTap = 0
+}
 
 function handleDoubleTouch($event: TouchEvent, fn: (arg: any) => void, arg: unknown) {
   // Guard
