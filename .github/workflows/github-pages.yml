@@ -33,6 +33,7 @@ jobs:
           BASE_URL: ${{ steps.setupPages.outputs.base_path }}
           VITE_SERVER_URL: https://budgetd.duckdns.org
           VITE_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          VITE_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       - name: 📂 List build output
         run: ls -l dist
