@@ -16,6 +16,7 @@ import type {
 import { useStatusStore } from '@/stores/status'
 import { useSpendingEventsStore } from './spendingEvent'
 import { watch } from 'vue'
+import * as Sentry from '@sentry/vue'
 
 export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
   const status = useStatusStore()
@@ -75,6 +76,7 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
     } catch (error: any) {
       status.setGetSpendingStatus(error.name + ' ' + error.message)
       console.error(error)
+      Sentry.captureException(error)
     }
   }
 
@@ -154,6 +156,7 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
       // TODO: при изменении(добавлении события / очистки) происходит полное применение всех событий к текущему состоянию
       // что может вызывать ошибки двойного применения события
       console.error(ev)
+      Sentry.captureException('event cannot be applied: ' + ev)
 
       return res
     }

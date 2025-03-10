@@ -7,6 +7,7 @@ import createClient from 'openapi-fetch'
 import { useStatusStore } from '@/stores/status'
 import { useUploadErrorsStore } from '@/stores/uploadErrors'
 import { useSpendingEventsStore } from '@/stores/spendingEvent'
+import * as Sentry from '@sentry/vue'
 
 class EventsUploader {
   private client: Client<paths>
@@ -73,6 +74,7 @@ class EventsUploader {
 
         if (index == -1) {
           console.error('unknown error event: ' + err.eventId)
+          Sentry.captureException('unknown error event: ' + err.eventId)
           continue
         }
 
@@ -92,6 +94,7 @@ class EventsUploader {
 
         if (index == -1) {
           console.error('success unknown event: ' + s)
+          Sentry.captureException('success unknown event: ' + s)
           continue
         }
         this.events[index].status = 'applied'
@@ -101,7 +104,8 @@ class EventsUploader {
       this.$statusStore.setUpdateSpendingStatus('ok')
     } catch (error: any) {
       this.$statusStore.setUpdateSpendingStatus(error.name + ' ' + error.message)
-      console.log(error)
+      console.error(error)
+      Sentry.captureException(error)
 
       this.timerHandler = setTimeout(this.sendEvents.bind(this), 30 * 1000)
     }
