@@ -83,6 +83,7 @@ class EventsUploader {
           continue
         }
 
+        Sentry.captureException('error uploading event: ' + err.error + ' ' + JSON.stringify(this.events[index]))
         this.$uploadErrorsStore.addEvent(this.events[index])
         this.events.splice(index, 1)
       }
