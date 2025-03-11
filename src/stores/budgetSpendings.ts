@@ -156,7 +156,7 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
       // TODO: при изменении(добавлении события / очистки) происходит полное применение всех событий к текущему состоянию
       // что может вызывать ошибки двойного применения события
       console.error(ev)
-      Sentry.captureException('event cannot be applied: ' + ev)
+      Sentry.captureException('event cannot be applied: ' + JSON.stringify(ev) + '. Spending: ' + JSON.stringify(sp))
 
       return res
     }
