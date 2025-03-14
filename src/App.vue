@@ -21,7 +21,7 @@ watch(route, () => {
   </div>
   <div style="height: 80px"></div>
   <!-- Нижняя навигация -->
-  <nav class="navbar fixed-bottom navbar-light bg-light border-top nav-scroll pe-0">
+  <nav class="navbar navbar-custom fixed-bottom navbar-light bg-light border-top nav-scroll p-0">
     <ul class="nav flex-nowrap">
       <li class="nav-item" v-for="budget in budgets" :key="budget.id">
         <RouterLink
@@ -38,7 +38,13 @@ watch(route, () => {
   </nav>
 </template>
 
-<style>
+<style scoped>
+
+.navbar-custom {
+  height: 70px;
+  align-items: start;
+}
+
 /* Fixed width items */
 .nav-item {
   flex: 0 0 50px; /* Don't grow, don't shrink, fixed base width */
