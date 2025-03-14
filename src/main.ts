@@ -6,15 +6,20 @@ import BudgetView from './views/BudgetView.vue'
 import ErrorsView from './views/ErrorsView.vue'
 
 import 'bootstrap/dist/css/bootstrap.min.css'
-import 'bootstrap'
+
 import HomeView from './views/HomeView.vue'
 
 import * as Sentry from "@sentry/vue";
 
 // Font Awesome
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faSync, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons'
-library.add(faSync, faCheck, faXmark)
+import { faSync, faCheck, faXmark, faHome } from '@fortawesome/free-solid-svg-icons'
+library.add(
+  faSync,
+  faCheck,
+  faXmark,
+  faHome,
+)
 
 const app = createApp(App)
 
