@@ -23,7 +23,7 @@ watch(route, () => {
   <!-- Нижняя навигация -->
   <nav class="navbar navbar-custom fixed-bottom navbar-light bg-light border-top nav-scroll p-0">
     <ul class="nav flex-nowrap">
-      <li class="btn-style" style="padding: 0 5px;">
+      <li class="btn-style" style="padding: 0px 5px 0 10px;">
         <RouterLink :to="{name: 'home'}" class="nav-link">
           <font-awesome-icon :icon="['fas', 'home']" />
         </RouterLink>
