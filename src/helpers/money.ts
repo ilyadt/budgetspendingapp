@@ -14,6 +14,10 @@ export function moneyFormat(money: Money): number {
   return money.amount / 10 ** money.fraction
 }
 
+export function moneyToStringWithCurrency(money: Money): string {
+  return moneyToString(money) + ' ' + money.currency
+}
+
 export function minus(m1: Money, m2: Money): Money {
   if (m1.currency != m2.currency) {
     throw new Error('currencies do not match')
