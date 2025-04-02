@@ -47,7 +47,13 @@ const now: Date = new Date((new Date).toDateString())
 const dayInMs = 1000*60*60*24
 
 function daysLeft(dateTo: Date): number {
-  return Math.floor((dateTo.getTime() - now.getTime()) / dayInMs) + 1
+  const left = Math.floor(dateTo.getTime()/dayInMs) - Math.floor(now.getTime()/dayInMs) + 1
+
+  if (left < 0) {
+    return 0
+  }
+
+  return left
 }
 
 function percentAmount(b: TemplateBudget): number {
@@ -55,14 +61,20 @@ function percentAmount(b: TemplateBudget): number {
 }
 
 function percentDays(b: TemplateBudget): number {
-  return Math.floor((now.getTime() - b.dateFrom.getTime()) / (b.dateTo.getTime() - b.dateFrom.getTime() + dayInMs) * 100)
+  const result = Math.floor((Math.floor(now.getTime()/dayInMs) - Math.floor(b.dateFrom.getTime()/dayInMs)) / (Math.floor(b.dateTo.getTime()/dayInMs) - Math.floor(b.dateFrom.getTime()/dayInMs) + 1) * 100)
+
+  if (result > 100) {
+    return 100
+  }
+
+  return result
 }
 
 </script>
 
 <template>
   <h1>Love you so much &hearts;</h1>
-  <div v-for="b in templateBudgets" v-bind:key="b.id" style="border-top: outset; margin-top: 5px;">
+  <div v-for="b in templateBudgets" v-bind:key="b.id" :style='{borderTop: "outset", marginTop: "5px", opacity: (b.dateTo > now) ? 1 : 0.5}'>
     <h4 style="margin-bottom: 0;">{{ b.name }} #{{ b.id }}</h4>
     <p  style="margin-bottom: 0px;">{{ dateFormat(b.dateFrom) }}-{{  dateFormat(b.dateTo) }}</p>
     <p  style="margin-bottom: 2px;">{{ moneyToStringWithCurrency(b.amount) }}</p>
