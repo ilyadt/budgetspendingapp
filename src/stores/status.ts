@@ -1,26 +1,29 @@
 import { defineStore } from 'pinia'
+import { useStorage } from '@vueuse/core'
 
-export const useStatusStore = defineStore('status', {
-  state: () => {
-    return {
-      statusGetSpendings: '',
-      statusUpdateSpendings: '',
+export const useStatusStore = defineStore('status', () => {
+  const statusGetSpendings = useStorage<string>('statusGetSpendings', '')
+  const statusUpdateSpendings = useStorage<string>('statusUpdateSpendings', '')
+  const pendingEvents = useStorage<number>('pendingEvents', 0)
 
-      pendingEvents: 0,
-    }
-  },
+  function setUpdateSpendingStatus(s: string) {
+    statusUpdateSpendings.value = s
+  }
 
-  actions: {
-    setUpdateSpendingStatus(s: string) {
-      this.statusUpdateSpendings = s
-    },
+  function setGetSpendingStatus(s: string) {
+    statusGetSpendings.value = s
+  }
 
-    setGetSpendingStatus(s: string) {
-      this.statusGetSpendings = s
-    },
+  function setPendingEvents(n: number) {
+    pendingEvents.value = n
+  }
 
-    setPendingEvents(n: number) {
-      this.pendingEvents = n
-    },
-  },
+  return {
+    statusGetSpendings,
+    statusUpdateSpendings,
+    pendingEvents,
+    setUpdateSpendingStatus,
+    setGetSpendingStatus,
+    setPendingEvents,
+  }
 })

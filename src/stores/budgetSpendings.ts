@@ -87,10 +87,13 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
   }
 
   function applySpendingChangeEvent(pendingEvent: ChangeSpendingEvent) {
+    // бюджет больше неактуален, удален
+    if (!spendings.value[pendingEvent.budgetId]) {
+      return
+    }
+
     if (pendingEvent.type == 'update') {
       const ev = pendingEvent as SpendingUpdateEvent
-
-      spendings.value[ev.budgetId] = spendings.value[ev.budgetId] || []
 
       for (const [i, sp] of spendings.value[ev.budgetId].entries()) {
         if (sp.id == ev.spendingId) {
