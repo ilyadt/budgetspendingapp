@@ -23,16 +23,13 @@ watch(route, () => {
   <!-- Нижняя навигация -->
   <nav class="navbar navbar-custom fixed-bottom navbar-light bg-light border-top nav-scroll p-0">
     <ul class="nav flex-nowrap">
-      <li class="btn-style" style="padding: 0px 5px 0 10px;">
-        <RouterLink :to="{name: 'home'}" class="nav-link">
+      <li class="btn-style" style="padding: 0px 5px 0 10px">
+        <RouterLink :to="{ name: 'home' }" class="nav-link">
           <font-awesome-icon :icon="['fas', 'home']" />
         </RouterLink>
       </li>
       <li class="btn-style" v-for="budget in budgets" :key="budget.id">
-        <RouterLink
-          :to="{ name: 'budget', params: { budgetId: budget.id } }"
-          class="nav-link"
-        >
+        <RouterLink :to="{ name: 'budget', params: { budgetId: budget.id } }" class="nav-link">
           {{ budget.alias }}
         </RouterLink>
       </li>
@@ -44,7 +41,6 @@ watch(route, () => {
 </template>
 
 <style scoped>
-
 .navbar-custom {
   height: 70px;
   align-items: start;
