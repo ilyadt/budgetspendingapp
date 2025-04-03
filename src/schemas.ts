@@ -54,6 +54,11 @@ export interface components {
             alias: string;
             /** @description полное название бюджета */
             name: string;
+            /**
+             * Format: uint64
+             * @description сортировка бюджетов
+             */
+            sort: number;
             /** @description описание назначения бюджета, какие-то комментарии */
             description?: string;
             money: components["schemas"]["Money"];
@@ -61,6 +66,8 @@ export interface components {
             dateFrom: string;
             /** Format: date */
             dateTo: string;
+            /** @description json формат дополнительных параметров для отображения */
+            params: string;
         };
         Money: {
             /** Format: int64 */

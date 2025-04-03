@@ -3,6 +3,7 @@ import { minus, Money, moneyToString } from '@/helpers/money';
 import { useBudgetSpendingsStore } from '@/stores/budgetSpendings';
 import { moneyToStringWithCurrency, moneyFormat } from '@/helpers/money'
 import { dateFormat } from '@/helpers/date'
+import type { Budget } from '@/models/models.ts'
 
 const { budgets, spendings } = useBudgetSpendingsStore()
 
@@ -17,6 +18,20 @@ interface TemplateBudget {
 }
 
 const templateBudgets: TemplateBudget[] = [];
+
+budgets.sort((a: Budget, b: Budget) => {
+  let aSort = a.sort
+  if (aSort == 0) {
+    aSort = 1e6
+  }
+
+  let bSort = b.sort
+  if (bSort == 0) {
+    bSort = 1e6
+  }
+
+  return aSort - bSort;
+})
 
 for (const b of budgets) {
   const sps = spendings[b.id] || []
@@ -43,7 +58,7 @@ for (const b of budgets) {
 }
 
 
-const now: Date = new Date((new Date).toDateString())
+const now: Date = new Date()
 const dayInMs = 1000*60*60*24
 
 function daysLeft(dateTo: Date): number {
@@ -76,7 +91,7 @@ function percentDays(b: TemplateBudget): number {
   <h1>Love you so much &hearts;</h1>
   <div v-for="b in templateBudgets" v-bind:key="b.id" :style='{borderTop: "outset", marginTop: "5px", opacity: (b.dateTo > now) ? 1 : 0.5}'>
     <h4 style="margin-bottom: 0;">{{ b.name }} #{{ b.id }}</h4>
-    <p  style="margin-bottom: 0px;">{{ dateFormat(b.dateFrom) }}-{{  dateFormat(b.dateTo) }}</p>
+    <p  style="margin-bottom: 0;">{{ dateFormat(b.dateFrom) }}-{{  dateFormat(b.dateTo) }}</p>
     <p  style="margin-bottom: 2px;">{{ moneyToStringWithCurrency(b.amount) }}</p>
     <p style="white-space:pre;font-size: 0.6rem;margin-bottom: 0;font-style: italic;">{{ b.description }}</p>
     <div class="row">
