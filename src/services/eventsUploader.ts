@@ -24,9 +24,9 @@ class EventsUploader {
     this.events = useSpendingEventsStore().events
     this.$statusStore.setPendingEvents(this.events.filter((e) => e.status == 'pending').length)
 
-    // Try send on page refresh
+    // Try to send on page refresh
     if (this.events.length > 0) {
-      this.sendEvents()
+      void this.sendEvents()
     }
 
     // Periodically clear applied events
@@ -47,7 +47,7 @@ class EventsUploader {
       clearTimeout(this.timerHandler)
     }
 
-    this.sendEvents()
+    void this.sendEvents()
   }
 
   public async sendEvents() {
@@ -118,10 +118,6 @@ class EventsUploader {
     // TODO: удалять те, которые были применены после последнего обновления,
     // appliedTime + 10m(дельта лаг) < lastGetSpendingsTime
     this.events = this.events.filter((e) => e.status !== 'applied')
-  }
-
-  public getAllEvents(): Array<ChangeSpendingEvent> {
-    return this.events
   }
 }
 
