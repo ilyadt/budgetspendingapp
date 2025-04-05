@@ -20,7 +20,7 @@ const genVersion = customAlphabet(alphanumeric, 5)
 const eventsUploaderInstance = getEventsUploaderInstance()
 
 const props = defineProps({
-  date: { type: Date, required: true },
+  date: { type: Date, required: true, default: Date },
   budget: { type: Object as PropType<Budget>, required: true },
   daySpendings: { type: Array<Spending>, required: true },
 })

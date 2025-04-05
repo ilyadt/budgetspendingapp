@@ -15,6 +15,7 @@ interface TemplateBudget {
   amount: Money
   description?: string
   amountSpent: Money
+  showPerDay?: boolean // Отображать расход в день
 }
 
 const templateBudgets: TemplateBudget[] = []
@@ -42,6 +43,8 @@ for (const b of budgets) {
     spentAmount += sp.money.amount
   }
 
+  const params = JSON.parse(b.params)
+
   templateBudgets.push({
     id: b.id,
     name: b.name,
@@ -54,6 +57,7 @@ for (const b of budgets) {
       fraction: b.money.fraction,
       currency: b.money.currency,
     },
+    showPerDay: params["perDay"]
   })
 }
 
@@ -109,8 +113,10 @@ function percentDays(b: TemplateBudget): number {
         <br />
         <b>{{ daysLeft(b.dateTo) }}</b> days left. Days:
         <br />
-        <b>{{ Math.floor(moneyFormat(minus(b.amount, b.amountSpent)) / daysLeft(b.dateTo)) }}</b>
-        {{ b.amount.currency }}/Day left
+        <p v-if="b.showPerDay">
+          <b>{{ Math.floor(moneyFormat(minus(b.amount, b.amountSpent)) / daysLeft(b.dateTo)) }}</b>
+          {{ b.amount.currency }}/Day left
+        </p>
       </div>
       <div class="dual-progress-container col-6">
         <div class="progress">
