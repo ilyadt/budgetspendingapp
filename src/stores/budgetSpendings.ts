@@ -14,7 +14,7 @@ import type {
 } from '@/models/models'
 
 import { useStatusStore } from '@/stores/status'
-import { useSpendingEventsStore } from './spendingEvent'
+import { useSpendingEventsStore } from './spendingEvents'
 import { watch } from 'vue'
 import * as Sentry from '@sentry/vue'
 

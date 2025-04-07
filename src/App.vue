@@ -5,6 +5,26 @@ import StatusBar from './components/StatusBar.vue'
 
 const { budgets } = useBudgetSpendingsStore()
 
+interface TemplateBudget {
+  id: number,
+  name: string,
+  sort: number,
+  alias: string,
+}
+
+const templateBudgets: TemplateBudget[] = []
+
+for (const budget of budgets) {
+  templateBudgets.push({
+    id: budget.id,
+    alias: budget.alias,
+    name: budget.name,
+    sort: budget.sort ? budget.sort : 1e6,
+  })
+}
+
+templateBudgets.sort((a, b) => a.sort - b.sort)
+
 import { ref, watch } from 'vue'
 
 const route = useRoute()
@@ -28,7 +48,7 @@ watch(route, () => {
           <font-awesome-icon :icon="['fas', 'home']" />
         </RouterLink>
       </li>
-      <li class="btn-style" v-for="budget in budgets" :key="budget.id">
+      <li class="btn-style" v-for="budget in templateBudgets" :key="budget.id">
         <RouterLink :to="{ name: 'budget', params: { budgetId: budget.id } }" class="nav-link">
           {{ budget.alias }}
         </RouterLink>

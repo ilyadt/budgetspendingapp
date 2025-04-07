@@ -6,7 +6,7 @@ import type { Client } from 'openapi-fetch'
 import createClient from 'openapi-fetch'
 import { useStatusStore } from '@/stores/status'
 import { useUploadErrorsStore } from '@/stores/uploadErrors'
-import { useSpendingEventsStore } from '@/stores/spendingEvent'
+import { useSpendingEventsStore } from '@/stores/spendingEvents'
 import * as Sentry from '@sentry/vue'
 
 class EventsUploader {

@@ -3,13 +3,13 @@ import { minus, Money, moneyToString } from '@/helpers/money'
 import { useBudgetSpendingsStore } from '@/stores/budgetSpendings'
 import { moneyToStringWithCurrency, moneyFormat } from '@/helpers/money'
 import { dateFormat } from '@/helpers/date'
-import type { Budget } from '@/models/models.ts'
 
 const { budgets, spendings } = useBudgetSpendingsStore()
 
 interface TemplateBudget {
   id: number
   name: string
+  sort: number
   dateFrom: Date
   dateTo: Date
   amount: Money
@@ -19,20 +19,6 @@ interface TemplateBudget {
 }
 
 const templateBudgets: TemplateBudget[] = []
-
-budgets.sort((a: Budget, b: Budget) => {
-  let aSort = a.sort
-  if (aSort == 0) {
-    aSort = 1e6
-  }
-
-  let bSort = b.sort
-  if (bSort == 0) {
-    bSort = 1e6
-  }
-
-  return aSort - bSort
-})
 
 for (const b of budgets) {
   const sps = spendings[b.id] || []
@@ -48,6 +34,7 @@ for (const b of budgets) {
   templateBudgets.push({
     id: b.id,
     name: b.name,
+    sort: b.sort ? b.sort : 1e6, // Empty sort means going to the end
     dateFrom: new Date(b.dateFrom),
     dateTo: new Date(b.dateTo),
     amount: b.money,
@@ -60,6 +47,8 @@ for (const b of budgets) {
     showPerDay: params["perDay"]
   })
 }
+
+templateBudgets.sort((a, b) => a.sort - b.sort)
 
 const now: Date = new Date()
 const dayInMs = 1000 * 60 * 60 * 24
