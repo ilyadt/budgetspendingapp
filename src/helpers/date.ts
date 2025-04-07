@@ -15,7 +15,7 @@ export function dateFormatFromString(dStr: string): string {
 }
 
 export function dateISO(d: Date): string {
-  return d.toISOString().split('T')[0]
+  return d.toISOString().split('T')[0]!
 }
 
 export function dateISOFromString(dStr: string): string {

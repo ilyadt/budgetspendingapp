@@ -71,7 +71,6 @@ class EventsUploader {
       const errs = error?.errors || []
       for (const err of errs) {
         const index = this.events.findIndex((ev) => ev.eventId === err.eventId)
-
         if (index == -1) {
           console.error('unknown error event: ' + err.eventId)
           Sentry.captureException('unknown error event: ' + err.eventId)
@@ -79,14 +78,14 @@ class EventsUploader {
         }
 
         // race conditions
-        if (this.events[index].status === 'applied') {
+        if (this.events[index]!.status === 'applied') {
           continue
         }
 
         Sentry.captureException(
           'error uploading event: ' + err.error + ' ' + JSON.stringify(this.events[index]),
         )
-        this.$uploadErrorsStore.addEvent(this.events[index])
+        this.$uploadErrorsStore.addEvent(this.events[index]!)
         this.events.splice(index, 1)
       }
 
@@ -100,7 +99,7 @@ class EventsUploader {
           Sentry.captureException('success unknown event: ' + s)
           continue
         }
-        this.events[index].status = 'applied'
+        this.events[index]!.status = 'applied'
       }
 
       this.$statusStore.setPendingEvents(this.events.filter((e) => e.status == 'pending').length)

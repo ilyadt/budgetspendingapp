@@ -66,7 +66,7 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
         resSpendings[budgetId] = resSpendings[budgetId] || []
 
         for (let i = 0; i < budgetSpendings.spendings.length; i++) {
-          resSpendings[budgetId].push(budgetSpendings.spendings[i])
+          resSpendings[budgetId].push(budgetSpendings.spendings[i]!)
         }
       })
 
@@ -95,9 +95,9 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
     if (pendingEvent.type == 'update') {
       const ev = pendingEvent as SpendingUpdateEvent
 
-      for (const [i, sp] of spendings.value[ev.budgetId].entries()) {
+      for (const [i, sp] of spendings.value[ev.budgetId]!.entries()) {
         if (sp.id == ev.spendingId) {
-          spendings.value[ev.budgetId][i] = applySpendingUpdateEvent(sp, ev)
+          spendings.value[ev.budgetId]![i] = applySpendingUpdateEvent(sp, ev)
         }
       }
     }
@@ -107,7 +107,7 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
 
       // Case of PendingEventNotDeleted yet (updated, status=applied)
       let spExists = false
-      for (const sp of spendings.value[ev.budgetId]) {
+      for (const sp of spendings.value[ev.budgetId]!) {
         if (sp.id == ev.spendingId) {
           spExists = true
         }
@@ -127,15 +127,15 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
         version: ev.newVersion,
       }
 
-      spendings.value[ev.budgetId].push(sp)
+      spendings.value[ev.budgetId]!.push(sp)
     }
 
     if (pendingEvent.type == 'delete') {
       const ev = pendingEvent as SpendingDeleteEvent
 
-      for (const [i, sp] of spendings.value[ev.budgetId].entries()) {
+      for (const [i, sp] of spendings.value[ev.budgetId]!.entries()) {
         if (sp.id == ev.spendingId) {
-          spendings.value[ev.budgetId].splice(i, 1) // delete 1-element from i position
+          spendings.value[ev.budgetId]!.splice(i, 1) // delete 1-element from i position
         }
       }
     }

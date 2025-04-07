@@ -50,7 +50,7 @@ const spendingsByDate = computed(() => {
       res[dateISOFromString(sp.date)] = []
     }
 
-    res[dateISOFromString(sp.date)].push(sp)
+    res[dateISOFromString(sp.date)]!.push(sp)
   }
 
   return res
