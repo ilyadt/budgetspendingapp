@@ -17,7 +17,6 @@ function payload(ev: ChangeSpendingEvent): string {
     case 'update': {
       const e = ev as SpendingUpdateEvent
       return moneyToString(e.money) + ' ' + e.description
-      break
     }
     case 'create': {
       const e = ev as SpendingCreateEvent

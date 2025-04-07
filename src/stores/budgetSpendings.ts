@@ -26,10 +26,10 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
   const budgets = useStorage<Budget[]>('budgets', [])
   const spendings = useStorage<Record<string, Array<Spending>>>('spendings', {})
 
-  const client = createClient<paths>({ baseUrl: import.meta.env.VITE_SERVER_URL })
+  const client = createClient<paths>({baseUrl: import.meta.env.VITE_SERVER_URL })
 
   // Update state async on startup
-  updateBudgetSpendings()
+  void updateBudgetSpendings()
 
   // Применяем локальные изменения к стору(серверным данным)
   applySpendingChangeEvents(events)
@@ -40,7 +40,7 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
   })
 
   setInterval(function () {
-    updateBudgetSpendings()
+    void updateBudgetSpendings()
   }, 60 * 1000)
 
   async function updateBudgetSpendings() {

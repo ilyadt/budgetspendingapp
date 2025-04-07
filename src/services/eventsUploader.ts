@@ -20,7 +20,7 @@ class EventsUploader {
   constructor() {
     this.$statusStore = useStatusStore()
     this.$uploadErrorsStore = useUploadErrorsStore()
-    this.client = createClient<paths>({ baseUrl: import.meta.env.VITE_SERVER_URL })
+    this.client = createClient<paths>({baseUrl: import.meta.env.VITE_SERVER_URL })
     this.events = useSpendingEventsStore().events
     this.$statusStore.setPendingEvents(this.events.filter((e) => e.status == 'pending').length)
 
