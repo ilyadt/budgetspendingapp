@@ -5,7 +5,7 @@ import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 // import vueDevTools from 'vite-plugin-vue-devtools'
 import { VitePWA } from 'vite-plugin-pwa'
-import { sentryVitePlugin } from '@sentry/vite-plugin'
+// import { sentryVitePlugin } from '@sentry/vite-plugin'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -33,11 +33,11 @@ export default defineConfig(({ mode }) => {
           ],
         },
       }),
-      sentryVitePlugin({
-        org: 'dim-2a',
-        project: 'go',
-        authToken: env.VITE_SENTRY_AUTH_TOKEN,
-      }),
+      // sentryVitePlugin({
+      //   org: 'dim-2a',
+      //   project: 'go',
+      //   authToken: env.VITE_SENTRY_AUTH_TOKEN,
+      // }),
     ],
     resolve: {
       alias: {
