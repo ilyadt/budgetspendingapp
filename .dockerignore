@@ -1,0 +1,7 @@
+.env
+node_modules
+dist
+.idea
+.github
+.vscode
+Dockerfile
