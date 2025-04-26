@@ -49,7 +49,7 @@ watch(route, () => {
         </RouterLink>
       </li>
       <li class="btn-style" v-for="budget in templateBudgets" :key="budget.id">
-        <RouterLink :to="{ name: 'budget', params: { budgetId: budget.id } }" class="nav-link">
+        <RouterLink :to="{ name: 'budget', params: { budgetId: budget.id } }" class="nav-link" activeClass="active">
           {{ budget.alias }}
         </RouterLink>
       </li>
@@ -108,5 +108,9 @@ watch(route, () => {
   color: white;
   border-color: #0d6efd;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.active {
+  background: aqua;
 }
 </style>
