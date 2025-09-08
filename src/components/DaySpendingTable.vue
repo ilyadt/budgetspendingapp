@@ -43,10 +43,11 @@ class SpendingRow {
     public pendingDescription: string,
   ) {}
 
-  public static new(sort: number): SpendingRow {
+  public static new(): SpendingRow {
     const id = genSpendingID()
     const createdAt = new Date()
     const updatedAt = new Date(createdAt.getTime())
+    const sort = Date.now();
     // версия появляется только после первого сохранения
 
     return new SpendingRow(id, true, '', sort, 0, '', createdAt, updatedAt, true, '', '')
@@ -73,18 +74,10 @@ for (const sp of props.daySpendings) {
   )
 }
 
-rowSpendings.value.sort((a, b) => (a.sort < b.sort ? -1 : 1))
+rowSpendings.value.sort((a, b) => a.sort - b.sort)
 
 function addNew(): void {
-  let lastSort = 100 // Начало сортировки с 100 (101 первая запись). Сортировки до у старых записей
-  if (rowSpendings.value.length > 0) {
-    const lastIdx = rowSpendings.value.length - 1
-    lastSort = rowSpendings.value[lastIdx]!.sort
-  }
-
-  const newSpending = SpendingRow.new(lastSort + 1)
-
-  rowSpendings.value.push(newSpending)
+  rowSpendings.value.push(SpendingRow.new())
 }
 
 let lastTap = 0

@@ -79,7 +79,7 @@ export interface components {
             id: string;
             /** Format: date */
             date: string;
-            /** Format: double */
+            /** Format: uint64 */
             sort: number;
             money: components["schemas"]["Money"];
             description: string;
@@ -105,10 +105,14 @@ export interface components {
             updates: (components["schemas"]["SpendingCreateEvent"] | components["schemas"]["SpendingUpdateEvent"] | components["schemas"]["SpendingDeleteEvent"])[];
         };
         UpdateSpendingsErrorsResponse: {
+            /** @description общая ошибка в запросе */
+            generalError?: string;
             success: string[];
             errors: components["schemas"]["UpdateSpendingsError"][];
         };
         UpdateSpendingsError: {
+            /** @description порядковый номер события */
+            number: number;
             eventId: string;
             error: string;
         };
@@ -117,35 +121,49 @@ export interface components {
             eventId: string;
             /** @enum {string} */
             type: "create" | "update" | "delete";
+            /** @description бюджет */
+            budgetId: number;
             spendingId: string;
-            /** @description предыдущая версия записи. Пустая, если запись создается */
-            prevVersion: string;
             /**
              * @description новая версия записи
              * @example 039dhafc
              */
             newVersion: string;
-            /** @description бюджет */
-            budgetId: number;
         };
         SpendingDeleteEvent: components["schemas"]["SpendingBaseEvent"] & {
+            /** @description предыдущая версия записи */
+            prevVersion: string;
             /** Format: date-time */
             updatedAt: string;
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "delete";
         };
         SpendingUpdateEvent: components["schemas"]["SpendingBaseEvent"] & {
+            /** @description предыдущая версия записи */
+            prevVersion: string;
             /** Format: date */
             date: string;
-            /** Format: double */
+            /** Format: uint64 */
             sort: number;
             money: components["schemas"]["Money"];
             description: string;
             /** Format: date-time */
             updatedAt: string;
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "update";
         };
         SpendingCreateEvent: components["schemas"]["SpendingBaseEvent"] & {
             /** Format: date */
             date: string;
-            /** Format: double */
+            /** Format: uint64 */
             sort: number;
             money: components["schemas"]["Money"];
             description: string;
@@ -153,6 +171,12 @@ export interface components {
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "create";
         };
     };
     responses: never;

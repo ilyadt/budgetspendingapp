@@ -110,8 +110,8 @@ components:
           type: string
           format: date
         sort:
-          type: number
-          format: double
+          type: integer
+          format: uint64
         money:
           $ref: '#/components/schemas/Money'
         description:
@@ -164,9 +164,19 @@ components:
               - $ref: '#/components/schemas/SpendingCreateEvent'
               - $ref: '#/components/schemas/SpendingUpdateEvent'
               - $ref: '#/components/schemas/SpendingDeleteEvent'
+            discriminator:
+              propertyName: type
+              mapping:
+                create: '#/components/schemas/SpendingCreateEvent'
+                update: '#/components/schemas/SpendingUpdateEvent'
+                delete: '#/components/schemas/SpendingDeleteEvent'
       required: ['updates']
     UpdateSpendingsErrorsResponse:
       properties:
+        generalError:
+          type: string
+          description: общая ошибка в запросе
+          x-go-type-skip-optional-pointer: true
         success:
           type: array
           items:
@@ -179,11 +189,14 @@ components:
       required: ['success', 'errors']
     UpdateSpendingsError:
       properties:
+        number:
+          type: integer
+          description: порядковый номер события
         eventId:
           type: string
         error:
           type: string
-      required: ['eventId', 'error']
+      required: ['number', 'eventId', 'error']
     SpendingBaseEvent:
       properties:
         eventId:
@@ -195,44 +208,47 @@ components:
             - create
             - update
             - delete
+        budgetId:
+          description: бюджет
+          type: integer
         spendingId:
-          type: string
-        prevVersion:
-          description: предыдущая версия записи. Пустая, если запись создается
           type: string
         newVersion:
            description: новая версия записи
            type: string
            example: '039dhafc'
-        budgetId:
-           description: бюджет
-           type: integer
       required:
         - eventId
         - type
         - spendingId
-        - prevVersion
         - newVersion
         - budgetId
     SpendingDeleteEvent:
       allOf:
         - $ref: '#/components/schemas/SpendingBaseEvent'
         - properties:
+            prevVersion:
+              description: предыдущая версия записи
+              type: string
             updatedAt:
               type: string
               format: date-time
           required:
             - updatedAt
+            - prevVersion
     SpendingUpdateEvent:
       allOf:
         - $ref: '#/components/schemas/SpendingBaseEvent'
         - properties:
+            prevVersion:
+              description: предыдущая версия записи
+              type: string
             date:
               type: string
               format: date
             sort:
-              type: number
-              format: double
+              type: integer
+              format: uint64
             money:
               $ref: '#/components/schemas/Money'
             description:
@@ -246,7 +262,7 @@ components:
             - money
             - description
             - updatedAt
-
+            - prevVersion
     SpendingCreateEvent:
       allOf:
         - $ref: '#/components/schemas/SpendingBaseEvent'
@@ -255,8 +271,8 @@ components:
               type: string
               format: date
             sort:
-              type: number
-              format: double
+              type: integer
+              format: uint64
             money:
               $ref: '#/components/schemas/Money'
             description:
@@ -268,7 +284,6 @@ components:
                 type: string
                 format: date-time
           required:
-            - operation
             - date
             - sort
             - money
