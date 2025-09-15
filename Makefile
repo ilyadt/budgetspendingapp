@@ -1,7 +1,7 @@
 include .env
 
 genapi: downloadoa
-	npx openapi-typescript openapi.gen.yaml -o ./src/schemas.ts
+	pnpx openapi-typescript openapi.gen.yaml -o ./src/schemas.ts
 
 downloadoa:
 	curl --request GET \
