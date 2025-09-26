@@ -160,13 +160,7 @@ export const Storage: StorageInterface = {
   },
 
   spendingsByBudgetIds(bids: number[]): Spending[] {
-    const res: Spending[] = []
-
-    for (const bid of bids) {
-      res.concat(this.spendingsByBudgetId(bid))
-    }
-
-    return res
+    return bids.flatMap(bid => this.spendingsByBudgetId(bid));
   },
 
   createSpending(bid: number, newSp: Spending): void {

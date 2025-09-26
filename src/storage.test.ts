@@ -134,6 +134,34 @@ describe('storage_test', () => {
     expect(() => Storage.spendingsByBudgetId(555)).toThrow(SyntaxError)
   })
 
+  test('spendings_by_budget_ids', () => {
+    expect(Storage.spendingsByBudgetIds([])).toEqual([])
+
+    Storage.storeBudgetsFromRemote([
+      makeBudget(1),
+      makeBudget(2),
+    ])
+
+    Storage.storeSpendingsFromRemote(1, [
+      makeApiSpending({id: 'sp11'}),
+      makeApiSpending({id: 'sp12'}),
+    ])
+
+    Storage.storeSpendingsFromRemote(2, [
+      makeApiSpending({id: 'sp21'}),
+      makeApiSpending({id: 'sp22'}),
+    ])
+
+    const res = Storage.spendingsByBudgetIds([1, 2])
+
+    expect(res).length(4)
+
+    expect(eq({id: 'sp11'}, res[0]!)).toBe(true)
+    expect(eq({id: 'sp12'}, res[1]!)).toBe(true)
+    expect(eq({id: 'sp21'}, res[2]!)).toBe(true)
+    expect(eq({id: 'sp22'}, res[3]!)).toBe(true)
+  })
+
   test(Storage.storeSpendingsFromRemote.name, () => {
     // Невозможно записать расходы в несуществующий бюджет
     expect(() => Storage.storeSpendingsFromRemote(1, [])).toThrow('not existing budget')
