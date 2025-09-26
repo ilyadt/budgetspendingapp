@@ -10,6 +10,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_SHA_SHORT: ${{ github.sha.substring(0, 7) }}
 
     steps:
       - name: 🛎️ Checkout code
@@ -37,7 +39,7 @@ jobs:
           VITE_SERVER_URL: https://budgetd.duckdns.org
           VITE_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           VITE_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          VITE_BUILD_COMMIT: ${{ github.sha::0:7 }}
+          VITE_BUILD_COMMIT: $GITHUB_SHA_SHORT
 
       - name: 📂 List build output
         run: ls -l dist
