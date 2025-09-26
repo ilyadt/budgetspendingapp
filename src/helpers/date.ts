@@ -23,3 +23,22 @@ export function dateISOFromString(dStr: string): string {
 
   return dateISO(d)
 }
+
+declare global {
+  interface Date {
+    lessThanSecondsAgo(seconds: number): boolean
+    moreThanSecondsAgo(seconds: number): boolean
+  }
+}
+
+Date.prototype.lessThanSecondsAgo = function (seconds: number): boolean {
+  const now = new Date()
+  const diffMs = now.getTime() - this.getTime()
+  return diffMs <= seconds * 1000
+}
+
+Date.prototype.moreThanSecondsAgo = function (seconds: number): boolean {
+  const now = new Date()
+  const diffMs = now.getTime() - this.getTime()
+  return diffMs > seconds * 1000
+}

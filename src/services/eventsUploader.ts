@@ -15,7 +15,7 @@ class EventsUploader {
   private $statusStore
   private $uploadErrorsStore
 
-  private timerHandler: number = 0
+  private timerHandler: ReturnType<typeof setTimeout> | null = null
 
   constructor() {
     this.$statusStore = useStatusStore()
@@ -43,7 +43,7 @@ class EventsUploader {
     const pendingEvents = this.events.filter((e) => e.status === 'pending')
     this.$statusStore.setPendingEvents(pendingEvents.length)
 
-    if (this.timerHandler != 0) {
+    if (this.timerHandler) {
       clearTimeout(this.timerHandler)
     }
 

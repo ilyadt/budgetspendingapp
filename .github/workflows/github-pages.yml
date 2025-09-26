@@ -27,6 +27,9 @@ jobs:
         id: setupPages
         uses: actions/configure-pages@v5
 
+      - name: Unit Tests
+        run: npm run test:unit
+
       - name: 🏗️ Build
         run: npm run build
         env:
