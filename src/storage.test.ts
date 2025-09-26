@@ -321,6 +321,29 @@ describe('storage_test', () => {
     vi.useRealTimers()
   })
 
+  // pending -> applied -> inDB
+  test(Storage.storeSpendingsFromRemote.name + ':applied', () => {
+    const getValue = () => localStorage.getItem(_test.lsSpendingsKey(1)) || '';
+
+    Storage.storeBudgetsFromRemote([makeBudget(1)])
+
+    Storage.createSpending(1, makeSpending({id: 'spX', version: 'ver1'}))
+
+    expect(getValue()).toContain(VersionStatus.Pending);
+
+    Storage.setStatusApplied(1, 'spX', 'ver1')
+
+    expect(getValue()).toContain(VersionStatus.Applied);
+
+    const revoked = Storage.storeSpendingsFromRemote(1, [
+      makeApiSpending({id: 'spX', version: 'ver1'})
+    ])
+
+    expect(revoked).toEqual([])
+
+    expect(getValue()).toContain(VersionStatus.InDb);
+  })
+
   test(Storage.storeSpendingsFromRemote.name + ':local_conflict', () => {
     Storage.storeBudgetsFromRemote([makeBudget(1)])
 
