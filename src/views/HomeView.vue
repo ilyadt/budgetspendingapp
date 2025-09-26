@@ -29,8 +29,6 @@ for (const b of budgets) {
     spentAmount += sp.money.amount
   }
 
-  const params = JSON.parse(b.params)
-
   templateBudgets.push({
     id: b.id,
     name: b.name,
@@ -44,7 +42,7 @@ for (const b of budgets) {
       fraction: b.money.fraction,
       currency: b.money.currency,
     },
-    showPerDay: params["perDay"]
+    showPerDay: b.params["perDay"] as boolean | undefined,
   })
 }
 

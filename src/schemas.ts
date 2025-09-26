@@ -67,7 +67,9 @@ export interface components {
             /** Format: date */
             dateTo: string;
             /** @description json формат дополнительных параметров для отображения */
-            params: string;
+            params: {
+                [key: string]: unknown;
+            };
         };
         Money: {
             /** Format: int64 */

@@ -28,7 +28,7 @@ describe('storage_test', () => {
         money: fromRUB(5_000),
         dateFrom: '2025-09-01',
         dateTo: '2025-09-31',
-        params: '{}',
+        params: {},
       },
       {
         id: 1,
@@ -38,7 +38,7 @@ describe('storage_test', () => {
         money: fromRUB(50_000),
         dateFrom: '2025-09-01',
         dateTo: '2025-10-01',
-        params: '{}', // TODO: api json format
+        params: {key: 'val'}, // TODO: api json format
       },
     ])
 
@@ -54,7 +54,7 @@ describe('storage_test', () => {
         money: fromRUB(50_000),
         dateFrom: '2025-09-01',
         dateTo: '2025-10-01', // TODO: dateTo -> Date()
-        params: '{}', // TODO: api json format
+        params: {key: 'val'},
       },
       {
         id: 2,
@@ -64,7 +64,7 @@ describe('storage_test', () => {
         money: fromRUB(5_000),
         dateFrom: '2025-09-01',
         dateTo: '2025-09-31',
-        params: '{}',
+        params: {},
       },
     ])
   })
@@ -79,7 +79,7 @@ describe('storage_test', () => {
         money: fromRUB(5_000),
         dateFrom: '2025-09-01',
         dateTo: '2025-09-31',
-        params: '{}',
+        params: {},
       },
       {
         id: 2,
@@ -89,7 +89,7 @@ describe('storage_test', () => {
         money: fromRUB(5_000),
         dateFrom: '2025-09-01',
         dateTo: '2025-09-31',
-        params: '{}',
+        params: {},
       },
     ])
 
@@ -106,7 +106,7 @@ describe('storage_test', () => {
         money: fromRUB(5_000),
         dateFrom: '2025-09-01',
         dateTo: '2025-09-31',
-        params: '{}',
+        params: {},
       },
       {
         id: 1,
@@ -116,7 +116,7 @@ describe('storage_test', () => {
         money: fromRUB(50_000),
         dateFrom: '2025-09-01',
         dateTo: '2025-10-01',
-        params: '{}', // TODO: api json format
+        params: {}, // TODO: api json format
       },
     ])
 
@@ -601,7 +601,7 @@ function makeBudget(id: number): Budget {
     },
     dateFrom: '',
     dateTo: '',
-    params: '',
+    params: {},
   }
 }
 

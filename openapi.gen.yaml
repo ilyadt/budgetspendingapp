@@ -78,8 +78,9 @@ components:
          type: string
          format: date
        params:
-         type: string
+         type: object
          description: json формат дополнительных параметров для отображения
+         additionalProperties: true
      required:
       - id
       - alias
