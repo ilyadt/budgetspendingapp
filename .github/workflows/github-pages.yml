@@ -37,7 +37,7 @@ jobs:
           VITE_SERVER_URL: https://budgetd.duckdns.org
           VITE_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           VITE_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          VITE_BUILD_COMMIT: ${{ github.sha }}
+          VITE_BUILD_COMMIT: ${{ github.sha::0:7 }}
 
       - name: 📂 List build output
         run: ls -l dist
