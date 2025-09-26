@@ -80,10 +80,12 @@ function percentDays(b: TemplateBudget): number {
 
   return result
 }
+
+const buildCommit = import.meta.env.VITE_BUILD_COMMIT
 </script>
 
 <template>
-  <h1>Love you so much &hearts;</h1>
+  <h1>Love you so much &hearts; <span style="font-size: small;">{{ buildCommit }}</span></h1>
   <div
     v-for="b in templateBudgets"
     v-bind:key="b.id"
