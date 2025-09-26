@@ -131,7 +131,7 @@ describe('storage_test', () => {
     expect(Storage.spendingsByBudgetId(555)).toEqual([])
 
     localStorage.setItem(_test.lsSpendingsKey(555), 'invalid value')
-    expect(() => Storage.spendingsByBudgetId(555)).toThrow('is not valid JSON')
+    expect(() => Storage.spendingsByBudgetId(555)).toThrow(SyntaxError)
   })
 
   test(Storage.storeSpendingsFromRemote.name, () => {
