@@ -125,9 +125,7 @@ function lsBudgetsKey(): string {
 
 export const Storage: StorageInterface = {
   getBudgets(): Budget[] {
-    const raw = localStorage.getItem(lsBudgetsKey())
-
-    return raw ? JSON.parse(raw) : []
+    return JSON.parse(localStorage.getItem(lsBudgetsKey()) ?? '[]')
   },
 
   spendingsByBudgetId(bid: number): Spending[] {
