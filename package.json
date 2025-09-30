@@ -28,7 +28,7 @@
     "nanoid": "^5.0.9",
     "nanoid-dictionary": "^4.3.0",
     "openapi-fetch": "^0.13.4",
-    "pinia": "^2.3.1",
+    "pinia": "^3.0.3",
     "pinia-plugin-persistedstate": "^4.5.0",
     "uuid": "^11.0.5",
     "vue": "^3.5.13",
