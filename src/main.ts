@@ -4,6 +4,7 @@ import App from './App.vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import BudgetView from './views/BudgetView.vue'
 import ErrorsView from './views/ErrorsView.vue'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 
@@ -27,7 +28,10 @@ Sentry.init({
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 app.component('font-awesome-icon', FontAwesomeIcon)
 
-app.use(createPinia())
+const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
+
+app.use(pinia)
 
 app.use(
   createRouter({

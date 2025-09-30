@@ -30,5 +30,5 @@ export function minus(m1: Money, m2: Money): Money {
 }
 
 export function fromRUB(amount: number): Money {
-  return new Money(amount, 2, 'RUB')
+  return new Money(amount * 100, 2, 'RUB')
 }

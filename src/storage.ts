@@ -25,7 +25,7 @@ export enum VersionStatus {
 
 type RevokedVersions = SpendingVersion[]
 
-interface SpendingVersion {
+export interface SpendingVersion {
   // Заполняется только, когда отдаются RevokedVersions
   spendingId?: string
   // Пока это не нужно
@@ -38,11 +38,11 @@ interface SpendingVersion {
   status: VersionStatus
   // Relevant for Applied only
   statusAt?: Date
-  date?: Date
+  date?: Date | string
   description?: string
   money?: Money
   sort?: number
-  updatedAt: Date
+  updatedAt: Date | string
   deleted?: boolean
 }
 
