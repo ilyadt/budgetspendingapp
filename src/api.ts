@@ -5,11 +5,13 @@ import { useStatusStore } from '@/stores/status'
 import * as Sentry from '@sentry/vue'
 import { useConflictVersionStore } from '@/stores/conflictVersions'
 
-const lsFetcherPrefix = 'fetcher'
-const lsFetcherUpdatedAt = lsFetcherPrefix + ':lastUpdatedAt'
-
-// Получение бюджетов и расходов по ним в каком-то интервале времени
+// Получение бюджетов и расходов по ним
 export const Fetcher = {
+  _lsFetcherPrefix: 'fetcher',
+  get _lsFetcherUpdatedAt() {
+    return this._lsFetcherPrefix + ':lastUpdatedAt'
+  },
+
   async initAndStart() {
     // Startup fetch data (no-blocking)
     const task = this.fetchAndStore()
@@ -67,16 +69,11 @@ export const Fetcher = {
   },
 
   getUpdatedAt(): number {
-    const val = localStorage.getItem(lsFetcherUpdatedAt)
+    const val = localStorage.getItem(this._lsFetcherUpdatedAt)
     return val ? Number(val) : 0
   },
 
   setUpdatedAt(t: number) {
-    localStorage.setItem(lsFetcherUpdatedAt, String(t))
+    localStorage.setItem(this._lsFetcherUpdatedAt, String(t))
   },
-}
-
-export const _test = {
-  lsFetcherPrefix,
-  lsFetcherUpdatedAt,
 }

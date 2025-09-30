@@ -1,6 +1,6 @@
 import { test, describe, beforeEach, afterEach, expect, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
-import { Fetcher, _test } from '@/api'
+import { Fetcher } from '@/api'
 import { Storage, VersionStatus, type Spending, type SpendingVersion } from '@/storage'
 import { useStatusStore } from './stores/status'
 import { useConflictVersionStore } from './stores/conflictVersions'
@@ -9,7 +9,7 @@ import { fromRUB } from './helpers/money'
 
 describe('fetcher', () => {
   beforeEach(() => {
-    clearLocalStorageByPrefix(_test.lsFetcherPrefix)
+    clearLocalStorageByPrefix(Fetcher._lsFetcherPrefix)
     setActivePinia(createPinia())
   })
 
