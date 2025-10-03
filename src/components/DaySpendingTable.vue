@@ -1,13 +1,7 @@
 <script setup lang="ts">
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 import { moneyFormat } from '@/helpers/money'
-import type {
-  Spending,
-  Budget,
-  SpendingDeleteEvent,
-  SpendingUpdateEvent,
-  SpendingCreateEvent,
-} from '@/models/models'
+import type { ApiSpending, ApiBudget, OldSpendingEvent } from '@/models/models'
 import { customAlphabet } from 'nanoid/non-secure'
 import { alphanumeric } from 'nanoid-dictionary'
 import { ref, type PropType } from 'vue'
@@ -21,8 +15,8 @@ const eventsUploaderInstance = getEventsUploaderInstance()
 
 const props = defineProps({
   date: { type: Date, required: true, default: Date },
-  budget: { type: Object as PropType<Budget>, required: true },
-  daySpendings: { type: Array<Spending>, required: true },
+  budget: { type: Object as PropType<ApiBudget>, required: true },
+  daySpendings: { type: Array<ApiSpending>, required: true },
 })
 
 class SpendingRow {
@@ -47,7 +41,7 @@ class SpendingRow {
     const id = genSpendingID()
     const createdAt = new Date()
     const updatedAt = new Date(createdAt.getTime())
-    const sort = Date.now();
+    const sort = Date.now()
     // версия появляется только после первого сохранения
 
     return new SpendingRow(id, true, '', sort, 0, '', createdAt, updatedAt, true, '', '')
@@ -103,27 +97,53 @@ function saveChanges(spending: SpendingRow): void {
   spending.version = version
   spending.isNew = false
 
-  const event: SpendingCreateEvent | SpendingUpdateEvent = {
-    eventId: uuidv4(), // TODO: uuid
-    type: isNew ? 'create' : 'update',
-    spendingId: spending.id,
-    date: dateISO(props.date),
-    sort: spending.sort,
-    money: {
-      amount: money * 10 ** props.budget.money.fraction,
-      fraction: props.budget.money.fraction,
-      currency: props.budget.money.currency,
-    },
-    description: description,
-    createdAt: createdAt.toISOString(),
-    updatedAt: updatedAt.toISOString(),
-    newVersion: version,
-    prevVersion: prevVersion,
-    budgetId: props.budget.id,
-    status: 'pending',
+  let ev: OldSpendingEvent
+
+  if (isNew) {
+    ev = {
+      eventId: uuidv4(),
+      type: 'create',
+      budgetId: props.budget.id,
+      spendingId: spending.id,
+      newVersion: version,
+      createData: {
+        date: dateISO(props.date),
+        sort: spending.sort,
+        money: {
+          amount: money * 10 ** props.budget.money.fraction,
+          fraction: props.budget.money.fraction,
+          currency: props.budget.money.currency,
+        },
+        description: description,
+        createdAt: createdAt.toISOString(),
+        updatedAt: updatedAt.toISOString(),
+      },
+      status: 'pending',
+    }
+  } else {
+    ev = {
+      eventId: uuidv4(),
+      type: 'update',
+      budgetId: props.budget.id,
+      spendingId: spending.id,
+      newVersion: version,
+      updateData: {
+        prevVersion: prevVersion,
+        date: dateISO(props.date),
+        sort: spending.sort,
+        money: {
+          amount: money * 10 ** props.budget.money.fraction,
+          fraction: props.budget.money.fraction,
+          currency: props.budget.money.currency,
+        },
+        description: description,
+        updatedAt: updatedAt.toISOString(),
+      },
+      status: 'pending',
+    }
   }
 
-  eventsUploaderInstance.AddEvent(event)
+  eventsUploaderInstance.AddEvent(ev)
 
   lastTap = 0
 }
@@ -164,14 +184,16 @@ function deleteSpending(spending: SpendingRow): void {
   const index = rowSpendings.value.findIndex((d) => d.id === spending.id)
   rowSpendings.value.splice(index, 1)
 
-  const event: SpendingDeleteEvent = {
+  const event: OldSpendingEvent = {
     eventId: uuidv4(),
     type: 'delete',
+    budgetId: props.budget.id,
     spendingId: id,
     newVersion: version,
-    prevVersion: prevVersion,
-    updatedAt: updatedAt.toISOString(),
-    budgetId: props.budget.id,
+    deleteData: {
+      prevVersion: prevVersion,
+      updatedAt: updatedAt.toISOString(),
+    },
     status: 'pending',
   }
 

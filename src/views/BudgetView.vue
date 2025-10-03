@@ -2,7 +2,7 @@
 import DaySpendingTable from '../components/DaySpendingTable.vue'
 import { dateFormatFromString, dateISO, dateISOFromString } from '@/helpers/date'
 import { moneyToString, minus } from '@/helpers/money'
-import type { Spending } from '@/models/models'
+import type { ApiSpending } from '@/models/models'
 import { useBudgetSpendingsStore } from '@/stores/budgetSpendings'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
@@ -43,7 +43,7 @@ const moneyLeft = computed(() => {
 })
 
 const spendingsByDate = computed(() => {
-  const res: Record<string, Array<Spending>> = {}
+  const res: Record<string, Array<ApiSpending>> = {}
 
   for (const sp of spendings[budget.value!.id] || []) {
     if (res[dateISOFromString(sp.date)] == undefined) {

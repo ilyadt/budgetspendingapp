@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia'
 import { useStorage } from '@vueuse/core'
-import type { ChangeSpendingEvent } from '@/models/models'
+import type { OldSpendingEvent } from '@/models/models'
 
 export const useUploadErrorsStore = defineStore('uploadErrors', () => {
-  const errorEvents = useStorage<ChangeSpendingEvent[]>('upload_errors', [])
+  const errorEvents = useStorage<OldSpendingEvent[]>('upload_errors', [])
 
-  function addEvent(ev: ChangeSpendingEvent) {
+  function addEvent(ev: OldSpendingEvent) {
     errorEvents.value.push(ev)
   }
 

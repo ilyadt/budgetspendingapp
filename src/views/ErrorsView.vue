@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { dateISOFromString } from '@/helpers/date'
 import { moneyToString } from '@/helpers/money'
-import type { ChangeSpendingEvent, SpendingCreateEvent, SpendingUpdateEvent } from '@/models/models'
+import type { OldSpendingEvent } from '@/models/models'
 import { useUploadErrorsStore } from '@/stores/uploadErrors'
 
 const errorsStore = useUploadErrorsStore()
@@ -12,15 +12,13 @@ function deleteError(evId: string) {
   errorsStore.deleteEvent(evId)
 }
 
-function payload(ev: ChangeSpendingEvent): string {
+function payload(ev: OldSpendingEvent): string {
   switch (ev.type) {
     case 'update': {
-      const e = ev as SpendingUpdateEvent
-      return moneyToString(e.money) + ' ' + e.description
+      return moneyToString(ev.updateData!.money) + ' ' + ev.updateData!.description
     }
     case 'create': {
-      const e = ev as SpendingCreateEvent
-      return moneyToString(e.money) + ' ' + e.description
+      return moneyToString(ev.createData!.money) + ' ' + ev.createData!.description
     }
     case 'delete': {
       return '<nothing to show>'
@@ -51,7 +49,8 @@ function payload(ev: ChangeSpendingEvent): string {
       <template v-for="err in errorsStore.errorEvents" :key="err.eventId">
         <tr>
           <td>
-            {{ dateISOFromString(err.updatedAt) }}
+            <!-- TODO: move updatedAt at the top level -->
+            {{ dateISOFromString(err.createData?.updatedAt || err.updateData?.updatedAt || err.deleteData!.updatedAt) }}
           </td>
           <td>
             {{ err.type }}

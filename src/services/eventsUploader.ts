@@ -1,6 +1,6 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 
-import type { ChangeSpendingEvent } from '@/models/models'
+import type { OldSpendingEvent } from '@/models/models'
 import type { paths } from '@/schemas'
 import type { Client } from 'openapi-fetch'
 import createClient from 'openapi-fetch'
@@ -11,7 +11,7 @@ import * as Sentry from '@sentry/vue'
 
 class EventsUploader {
   private client: Client<paths>
-  private events: Array<ChangeSpendingEvent>
+  private events: Array<OldSpendingEvent>
   private $statusStore
   private $uploadErrorsStore
 
@@ -20,7 +20,7 @@ class EventsUploader {
   constructor() {
     this.$statusStore = useStatusStore()
     this.$uploadErrorsStore = useUploadErrorsStore()
-    this.client = createClient<paths>({baseUrl: import.meta.env.VITE_SERVER_URL })
+    this.client = createClient<paths>({ baseUrl: import.meta.env.VITE_SERVER_URL })
     this.events = useSpendingEventsStore().events
     this.$statusStore.setPendingEvents(this.events.filter((e) => e.status == 'pending').length)
 
@@ -33,7 +33,7 @@ class EventsUploader {
     setTimeout(this.deleteAppliedEvents.bind(this), 20 * 24 * 60 * 60 * 1000) // 20 дней
   }
 
-  public AddEvent(event: ChangeSpendingEvent) {
+  public AddEvent(event: OldSpendingEvent) {
     // TODO:
     // pendingEvents.push(event)->flush()->sendEvent(event)
     // 1.Ok ->removeFromPending(event)->flush->NotifyServerOkEvent(event)

@@ -25,6 +25,7 @@
     "@vueuse/core": "^12.5.0",
     "axios": "^1.7.9",
     "bootstrap": "^5.3.3",
+    "date-fns": "^4.1.0",
     "nanoid": "^5.0.9",
     "nanoid-dictionary": "^4.3.0",
     "openapi-fetch": "^0.13.4",

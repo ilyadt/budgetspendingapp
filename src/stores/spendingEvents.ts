@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia'
 import { useStorage } from '@vueuse/core'
-import type { ChangeSpendingEvent } from '@/models/models'
+import type { OldSpendingEvent } from '@/models/models'
 
 export const useSpendingEventsStore = defineStore('spendingEvents', () => {
-  const events = useStorage<ChangeSpendingEvent[]>('spending_events', [])
+  const events = useStorage<OldSpendingEvent[]>('spending_events', [])
 
   return { events }
 })

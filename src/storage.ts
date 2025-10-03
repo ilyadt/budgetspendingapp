@@ -1,18 +1,6 @@
-import type { Budget, Spending as ApiSpending } from '@/models/models'
+import type { ApiBudget, ApiSpending, Spending } from '@/models/models'
 import type { Money } from './helpers/money'
 import '@/helpers/date' // For date prototypes
-
-export interface Spending {
-  id: string
-  version: string
-  parentVersion?: string
-  date: Date
-  sort: number
-  money: Money
-  description: string
-  createdAt: Date
-  updatedAt: Date
-}
 
 export enum VersionStatus {
   InDb = 'FROM_BACKEND', // версия, полученная с бека
@@ -67,7 +55,7 @@ interface StorageInterface {
   // -----------------------------------------------------------------
   // Методы получения данных из стора
 
-  getBudgets(): Budget[]
+  getBudgets(): ApiBudget[]
   spendingsByBudgetId(bid: number): Spending[]
   spendingsByBudgetIds(bids: number[]): Spending[]
 
@@ -99,7 +87,7 @@ interface StorageInterface {
   // Железная логика по сохранению бюджетов (перетирание всех данных по бюджету, даже spendings)
   // (если бюджет исчез, то предполагается, что в него никак нельзя добавить данные, поэтому все pending Spending's будут нерелевантны)
   // в дальнейшем можно предусмотреть возвращение удаленных Pending
-  storeBudgetsFromRemote(bs: Budget[]): void
+  storeBudgetsFromRemote(bs: ApiBudget[]): void
 
   // Поэлементное spendingID, сравнение текущих данных и новых.
   // Новые данные имеют точку правды, все несоответствующие pending переносятся в <Error Storage>.
@@ -124,7 +112,7 @@ function lsBudgetsKey(): string {
 }
 
 export const Storage: StorageInterface = {
-  getBudgets(): Budget[] {
+  getBudgets(): ApiBudget[] {
     return JSON.parse(localStorage.getItem(lsBudgetsKey()) ?? '[]')
   },
 
@@ -266,11 +254,11 @@ export const Storage: StorageInterface = {
     localStorage.setItem(lsSpendingsKey(bid), JSON.stringify(fromStore))
   },
 
-  storeBudgetsFromRemote(budgets: Budget[]): void {
+  storeBudgetsFromRemote(budgets: ApiBudget[]): void {
     budgets.sort((b1, b2) => b1.id - b2.id)
 
     const raw = localStorage.getItem(lsBudgetsKey())
-    const storageBudgets: Budget[] = raw ? JSON.parse(raw) : []
+    const storageBudgets: ApiBudget[] = raw ? JSON.parse(raw) : []
 
     const newIds = new Set(budgets.map((b) => b.id))
     const oldIds = new Set(storageBudgets.map((b) => b.id))
@@ -461,7 +449,7 @@ export const Storage: StorageInterface = {
 
 // Check budget exists
 function assertBudget(bid: number) {
-  const budgets: Budget[] = JSON.parse(localStorage.getItem(lsBudgetsKey()) ?? '[]')
+  const budgets: ApiBudget[] = JSON.parse(localStorage.getItem(lsBudgetsKey()) ?? '[]')
   const b = budgets.find((b) => b.id === bid)
   if (!b) {
     throw new Error('not existing budget')

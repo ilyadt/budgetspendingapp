@@ -1,26 +1,22 @@
-// export class Money {
-//   constructor(
-//     public amount: number,
-//     public fraction: number,
-//     public currency: string,
-//   ) {}
-// }
 
+import type { Money } from '@/helpers/money'
 import type { components } from '@/schemas'
 
-// export class Spending {
-//   constructor(
-//     public date: Date,
-//     public money: Money,
-//   ) {}
-// }
+export type ApiBudget = components['schemas']['Budget']
+export type ApiSpending = components['schemas']['Spending']
+export type ApiSpendingEvent = components['schemas']['SpendingEvent']
+export type ApiUpdateSpendingsErrorsResponse = components['schemas']['UpdateSpendingsErrorsResponse']
 
-export type Budget = components['schemas']['Budget']
-export type Spending = components['schemas']['Spending']
+export type OldSpendingEvent = ApiSpendingEvent & {status: string}
 
-export type SpendingCreateEvent = components['schemas']['SpendingCreateEvent'] & { status: string }
-export type SpendingUpdateEvent = components['schemas']['SpendingUpdateEvent'] & { status: string }
-export type SpendingDeleteEvent = components['schemas']['SpendingDeleteEvent'] & { status: string }
-
-// export type internalStatus
-export type ChangeSpendingEvent = SpendingCreateEvent | SpendingUpdateEvent | SpendingDeleteEvent
+export interface Spending {
+  id: string
+  version: string
+  parentVersion?: string
+  date: Date
+  sort: number
+  money: Money
+  description: string
+  createdAt: Date
+  updatedAt: Date
+}

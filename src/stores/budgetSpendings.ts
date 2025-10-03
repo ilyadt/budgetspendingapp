@@ -4,14 +4,7 @@ import { defineStore } from 'pinia'
 import { useStorage } from '@vueuse/core'
 import createClient from 'openapi-fetch'
 import type { paths } from '../schemas'
-import type {
-  Budget,
-  ChangeSpendingEvent,
-  Spending,
-  SpendingCreateEvent,
-  SpendingDeleteEvent,
-  SpendingUpdateEvent,
-} from '@/models/models'
+import type { ApiBudget, ApiSpending, OldSpendingEvent } from '@/models/models'
 
 import { useStatusStore } from '@/stores/status'
 import { useSpendingEventsStore } from './spendingEvents'
@@ -23,10 +16,10 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
   const events = useSpendingEventsStore().events
 
   const lastUpdatedAt = useStorage<number>('lastUpdatedAt', 0)
-  const budgets = useStorage<Budget[]>('budgets', [])
-  const spendings = useStorage<Record<string, Array<Spending>>>('spendings', {})
+  const budgets = useStorage<ApiBudget[]>('budgets', [])
+  const spendings = useStorage<Record<string, Array<ApiSpending>>>('spendings', {})
 
-  const client = createClient<paths>({baseUrl: import.meta.env.VITE_SERVER_URL })
+  const client = createClient<paths>({ baseUrl: import.meta.env.VITE_SERVER_URL })
 
   // Update state async on startup
   void updateBudgetSpendings()
@@ -57,7 +50,7 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
 
       budgets.value = data!.budgets
 
-      const resSpendings: Record<string, Array<Spending>> = {}
+      const resSpendings: Record<string, Array<ApiSpending>> = {}
 
       data!.spendings.forEach((budgetSpendings) => {
         const budgetId = budgetSpendings.budgetId
@@ -80,21 +73,19 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
     }
   }
 
-  function applySpendingChangeEvents(events: ChangeSpendingEvent[]) {
+  function applySpendingChangeEvents(events: OldSpendingEvent[]) {
     for (const event of events) {
       applySpendingChangeEvent(event)
     }
   }
 
-  function applySpendingChangeEvent(pendingEvent: ChangeSpendingEvent) {
+  function applySpendingChangeEvent(ev: OldSpendingEvent) {
     // бюджет больше неактуален, удален
-    if (!spendings.value[pendingEvent.budgetId]) {
+    if (!spendings.value[ev.budgetId]) {
       return
     }
 
-    if (pendingEvent.type == 'update') {
-      const ev = pendingEvent as SpendingUpdateEvent
-
+    if (ev.type == 'update') {
       for (const [i, sp] of spendings.value[ev.budgetId]!.entries()) {
         if (sp.id == ev.spendingId) {
           spendings.value[ev.budgetId]![i] = applySpendingUpdateEvent(sp, ev)
@@ -102,9 +93,7 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
       }
     }
 
-    if (pendingEvent.type == 'create') {
-      const ev = pendingEvent as SpendingCreateEvent
-
+    if (ev.type == 'create') {
       // Case of PendingEventNotDeleted yet (updated, status=applied)
       let spExists = false
       for (const sp of spendings.value[ev.budgetId]!) {
@@ -116,23 +105,21 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
         return
       }
 
-      const sp: Spending = {
+      const sp: ApiSpending = {
         id: ev.spendingId,
-        date: ev.date,
-        sort: ev.sort,
-        money: ev.money,
-        description: ev.description,
-        createdAt: ev.createdAt,
-        updatedAt: ev.updatedAt,
+        date: ev.createData!.date,
+        sort: ev.createData!.sort,
+        money: ev.createData!.money,
+        description: ev.createData!.description,
+        createdAt: ev.createData!.createdAt,
+        updatedAt: ev.createData!.updatedAt,
         version: ev.newVersion,
       }
 
       spendings.value[ev.budgetId]!.push(sp)
     }
 
-    if (pendingEvent.type == 'delete') {
-      const ev = pendingEvent as SpendingDeleteEvent
-
+    if (ev.type == 'delete') {
       for (const [i, sp] of spendings.value[ev.budgetId]!.entries()) {
         if (sp.id == ev.spendingId) {
           spendings.value[ev.budgetId]!.splice(i, 1) // delete 1-element from i position
@@ -141,15 +128,15 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
     }
   }
 
-  function applySpendingUpdateEvent(sp: Spending, ev: SpendingUpdateEvent): Spending {
+  function applySpendingUpdateEvent(sp: ApiSpending, ev: OldSpendingEvent): ApiSpending {
     const res = Object.assign({}, sp)
 
     // Применен на беке, но возможно обновление записи уехало далеко за это обновление
-    if (sp.version != ev.prevVersion && ev.status == 'applied') {
+    if (sp.version != ev.updateData!.prevVersion && ev.status == 'applied') {
       return res
     }
 
-    if (sp.version != ev.prevVersion && ev.status != 'applied') {
+    if (sp.version != ev.updateData!.prevVersion && ev.status != 'applied') {
       // новое состояние на беке не соответствует изменениям
       // логируем
       // возвращаем неизмененное состояние (пока что)
@@ -168,8 +155,8 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
 
     //  В остальных случаях возможно применить
     res.version = ev.newVersion
-    res.money = ev.money
-    res.description = ev.description
+    res.money = ev.updateData!.money
+    res.description = ev.updateData!.description
 
     return res
   }

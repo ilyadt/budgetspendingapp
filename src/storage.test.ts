@@ -1,7 +1,7 @@
 import { test, expect, describe, beforeEach, vi } from 'vitest'
 
-import type { Budget, Spending as ApiSpending } from '@/models/models'
-import { Storage, VersionStatus, type Spending, _test } from './storage'
+import type { ApiBudget, ApiSpending, Spending } from '@/models/models'
+import { Storage, VersionStatus, _test } from './storage'
 import { fromRUB } from './helpers/money'
 
 describe('storage_test', () => {
@@ -38,7 +38,7 @@ describe('storage_test', () => {
         money: fromRUB(50_000),
         dateFrom: '2025-09-01',
         dateTo: '2025-10-01',
-        params: {key: 'val'}, // TODO: api json format
+        params: { key: 'val' }, // TODO: api json format
       },
     ])
 
@@ -54,7 +54,7 @@ describe('storage_test', () => {
         money: fromRUB(50_000),
         dateFrom: '2025-09-01',
         dateTo: '2025-10-01', // TODO: dateTo -> Date()
-        params: {key: 'val'},
+        params: { key: 'val' },
       },
       {
         id: 2,
@@ -137,29 +137,26 @@ describe('storage_test', () => {
   test('spendings_by_budget_ids', () => {
     expect(Storage.spendingsByBudgetIds([])).toEqual([])
 
-    Storage.storeBudgetsFromRemote([
-      makeBudget(1),
-      makeBudget(2),
-    ])
+    Storage.storeBudgetsFromRemote([makeBudget(1), makeBudget(2)])
 
     Storage.storeSpendingsFromRemote(1, [
-      makeApiSpending({id: 'sp11'}),
-      makeApiSpending({id: 'sp12'}),
+      makeApiSpending({ id: 'sp11' }),
+      makeApiSpending({ id: 'sp12' }),
     ])
 
     Storage.storeSpendingsFromRemote(2, [
-      makeApiSpending({id: 'sp21'}),
-      makeApiSpending({id: 'sp22'}),
+      makeApiSpending({ id: 'sp21' }),
+      makeApiSpending({ id: 'sp22' }),
     ])
 
     const res = Storage.spendingsByBudgetIds([1, 2])
 
     expect(res).length(4)
 
-    expect(eq({id: 'sp11'}, res[0]!)).toBe(true)
-    expect(eq({id: 'sp12'}, res[1]!)).toBe(true)
-    expect(eq({id: 'sp21'}, res[2]!)).toBe(true)
-    expect(eq({id: 'sp22'}, res[3]!)).toBe(true)
+    expect(eq({ id: 'sp11' }, res[0]!)).toBe(true)
+    expect(eq({ id: 'sp12' }, res[1]!)).toBe(true)
+    expect(eq({ id: 'sp21' }, res[2]!)).toBe(true)
+    expect(eq({ id: 'sp22' }, res[3]!)).toBe(true)
   })
 
   test(Storage.storeSpendingsFromRemote.name, () => {
@@ -351,25 +348,25 @@ describe('storage_test', () => {
 
   // pending -> applied -> inDB
   test(Storage.storeSpendingsFromRemote.name + ':applied', () => {
-    const getValue = () => localStorage.getItem(_test.lsSpendingsKey(1)) || '';
+    const getValue = () => localStorage.getItem(_test.lsSpendingsKey(1)) || ''
 
     Storage.storeBudgetsFromRemote([makeBudget(1)])
 
-    Storage.createSpending(1, makeSpending({id: 'spX', version: 'ver1'}))
+    Storage.createSpending(1, makeSpending({ id: 'spX', version: 'ver1' }))
 
-    expect(getValue()).toContain(VersionStatus.Pending);
+    expect(getValue()).toContain(VersionStatus.Pending)
 
     Storage.setStatusApplied(1, 'spX', 'ver1')
 
-    expect(getValue()).toContain(VersionStatus.Applied);
+    expect(getValue()).toContain(VersionStatus.Applied)
 
     const revoked = Storage.storeSpendingsFromRemote(1, [
-      makeApiSpending({id: 'spX', version: 'ver1'})
+      makeApiSpending({ id: 'spX', version: 'ver1' }),
     ])
 
     expect(revoked).toEqual([])
 
-    expect(getValue()).toContain(VersionStatus.InDb);
+    expect(getValue()).toContain(VersionStatus.InDb)
   })
 
   test(Storage.storeSpendingsFromRemote.name + ':local_conflict', () => {
@@ -588,7 +585,7 @@ describe('storage_test', () => {
   })
 })
 
-function makeBudget(id: number): Budget {
+function makeBudget(id: number): ApiBudget {
   return {
     id: id,
     alias: '',
