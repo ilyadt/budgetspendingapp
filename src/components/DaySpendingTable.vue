@@ -84,8 +84,8 @@ function saveChanges(spending: SpendingRow): void {
   const money = Number(Number(spending.pendingMoney).toFixed(2))
   const prevVersion = spending.version
   const version = genVersion()
-  const createdAt = isNew ? new Date(now.getDate()) : spending.createdAt
-  const updatedAt = new Date(now.getDate())
+  const createdAt = isNew ? new Date(now) : spending.createdAt
+  const updatedAt = new Date(now)
 
   spending.pending = false
   spending.description = description
