@@ -161,16 +161,7 @@ components:
         updates:
           type: array
           items:
-            oneOf:
-              - $ref: '#/components/schemas/SpendingCreateEvent'
-              - $ref: '#/components/schemas/SpendingUpdateEvent'
-              - $ref: '#/components/schemas/SpendingDeleteEvent'
-            discriminator:
-              propertyName: type
-              mapping:
-                create: '#/components/schemas/SpendingCreateEvent'
-                update: '#/components/schemas/SpendingUpdateEvent'
-                delete: '#/components/schemas/SpendingDeleteEvent'
+            $ref: '#/components/schemas/SpendingEvent'
       required: ['updates']
     UpdateSpendingsErrorsResponse:
       properties:
@@ -198,7 +189,7 @@ components:
         error:
           type: string
       required: ['number', 'eventId', 'error']
-    SpendingBaseEvent:
+    SpendingEvent:
       properties:
         eventId:
           type: string
@@ -218,76 +209,78 @@ components:
            description: новая версия записи
            type: string
            example: '039dhafc'
+        createData:
+          $ref: '#/components/schemas/SpendingCreateData'
+        updateData:
+          $ref: '#/components/schemas/SpendingUpdateData'
+        deleteData:
+          $ref: '#/components/schemas/SpendingDeleteData'
       required:
         - eventId
         - type
         - spendingId
         - newVersion
         - budgetId
-    SpendingDeleteEvent:
-      allOf:
-        - $ref: '#/components/schemas/SpendingBaseEvent'
-        - properties:
-            prevVersion:
-              description: предыдущая версия записи
-              type: string
-            updatedAt:
-              type: string
-              format: date-time
-          required:
-            - updatedAt
-            - prevVersion
-    SpendingUpdateEvent:
-      allOf:
-        - $ref: '#/components/schemas/SpendingBaseEvent'
-        - properties:
-            prevVersion:
-              description: предыдущая версия записи
-              type: string
-            date:
-              type: string
-              format: date
-            sort:
-              type: integer
-              format: uint64
-            money:
-              $ref: '#/components/schemas/Money'
-            description:
-              type: string
-            updatedAt:
-                type: string
-                format: date-time
-          required:
-            - date
-            - sort
-            - money
-            - description
-            - updatedAt
-            - prevVersion
-    SpendingCreateEvent:
-      allOf:
-        - $ref: '#/components/schemas/SpendingBaseEvent'
-        - properties:
-            date:
-              type: string
-              format: date
-            sort:
-              type: integer
-              format: uint64
-            money:
-              $ref: '#/components/schemas/Money'
-            description:
-              type: string
-            createdAt:
-                type: string
-                format: date-time
-            updatedAt:
-                type: string
-                format: date-time
-          required:
-            - date
-            - sort
-            - money
-            - description
-            - createdAt
-            - updatedAt
+    SpendingCreateData:
+      description: Данные только, если тип события 'create'
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        sort:
+          type: integer
+          format: uint64
+        money:
+          $ref: '#/components/schemas/Money'
+        description:
+          type: string
+        createdAt:
+            type: string
+            format: date-time
+        updatedAt:
+            type: string
+            format: date-time
+      required:
+        - date
+        - sort
+        - money
+        - description
+        - createdAt
+        - updatedAt
+    SpendingUpdateData:
+      properties:
+        prevVersion:
+          description: предыдущая версия записи
+          type: string
+        date:
+          type: string
+          format: date
+        sort:
+          type: integer
+          format: uint64
+        money:
+          $ref: '#/components/schemas/Money'
+        description:
+          type: string
+        updatedAt:
+            type: string
+            format: date-time
+      required:
+        - date
+        - sort
+        - money
+        - description
+        - updatedAt
+        - prevVersion
+    SpendingDeleteData:
+      properties:
+        prevVersion:
+          description: предыдущая версия записи
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - updatedAt
+        - prevVersion

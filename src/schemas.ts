@@ -104,7 +104,7 @@ export interface components {
             spendings: components["schemas"]["SpendingsByBudget"][];
         };
         UpdateSpendingsBulkRequest: {
-            updates: (components["schemas"]["SpendingCreateEvent"] | components["schemas"]["SpendingUpdateEvent"] | components["schemas"]["SpendingDeleteEvent"])[];
+            updates: components["schemas"]["SpendingEvent"][];
         };
         UpdateSpendingsErrorsResponse: {
             /** @description общая ошибка в запросе */
@@ -118,7 +118,7 @@ export interface components {
             eventId: string;
             error: string;
         };
-        SpendingBaseEvent: {
+        SpendingEvent: {
             /** @description уникальный идентификатор события обновления */
             eventId: string;
             /** @enum {string} */
@@ -131,38 +131,12 @@ export interface components {
              * @example 039dhafc
              */
             newVersion: string;
+            createData?: components["schemas"]["SpendingCreateData"];
+            updateData?: components["schemas"]["SpendingUpdateData"];
+            deleteData?: components["schemas"]["SpendingDeleteData"];
         };
-        SpendingDeleteEvent: components["schemas"]["SpendingBaseEvent"] & {
-            /** @description предыдущая версия записи */
-            prevVersion: string;
-            /** Format: date-time */
-            updatedAt: string;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "delete";
-        };
-        SpendingUpdateEvent: components["schemas"]["SpendingBaseEvent"] & {
-            /** @description предыдущая версия записи */
-            prevVersion: string;
-            /** Format: date */
-            date: string;
-            /** Format: uint64 */
-            sort: number;
-            money: components["schemas"]["Money"];
-            description: string;
-            /** Format: date-time */
-            updatedAt: string;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "update";
-        };
-        SpendingCreateEvent: components["schemas"]["SpendingBaseEvent"] & {
+        /** @description Данные только, если тип события 'create' */
+        SpendingCreateData: {
             /** Format: date */
             date: string;
             /** Format: uint64 */
@@ -173,12 +147,24 @@ export interface components {
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "create";
+        };
+        SpendingUpdateData: {
+            /** @description предыдущая версия записи */
+            prevVersion: string;
+            /** Format: date */
+            date: string;
+            /** Format: uint64 */
+            sort: number;
+            money: components["schemas"]["Money"];
+            description: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        SpendingDeleteData: {
+            /** @description предыдущая версия записи */
+            prevVersion: string;
+            /** Format: date-time */
+            updatedAt: string;
         };
     };
     responses: never;
