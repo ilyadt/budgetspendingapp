@@ -3,7 +3,7 @@ import { useStorage } from '@vueuse/core'
 import type { OldSpendingEvent } from '@/models/models'
 
 export const useUploadErrorsStore = defineStore('uploadErrors', () => {
-  const errorEvents = useStorage<OldSpendingEvent[]>('upload_errors', [])
+  const errorEvents = useStorage<OldSpendingEvent[]>('upload_errors_v2', [])
 
   function addEvent(ev: OldSpendingEvent) {
     errorEvents.value.push(ev)
