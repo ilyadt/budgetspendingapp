@@ -127,6 +127,11 @@ components:
            description: версионирование изменений записи (во избежания перетирания чужих изменений)
            type: string
            example: '039dhafc'
+        versions:
+          description: все версии c первой по последнюю
+          type: array
+          items:
+            type: string
       required:
         - id
         - date
@@ -136,6 +141,7 @@ components:
         - createdAt
         - updatedAt
         - version
+        - versions
     SpendingsByBudget:
       properties:
         budgetId:

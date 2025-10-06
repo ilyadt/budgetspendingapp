@@ -176,6 +176,7 @@ describe('storage_test', () => {
           createdAt: '2025-09-03T15:23:22Z',
           updatedAt: '2025-09-03T15:23:22Z',
           version: '32kl4j3',
+          versions: ['32kl4j3'],
         },
       ])
 
@@ -209,6 +210,7 @@ describe('storage_test', () => {
           createdAt: '2025-09-04T10:00:00Z',
           updatedAt: '2025-09-04T10:00:00Z',
           version: 'ver1',
+          versions: ['ver1'],
         },
         {
           id: 'sp1',
@@ -219,6 +221,7 @@ describe('storage_test', () => {
           createdAt: '2025-09-03T15:23:22Z',
           updatedAt: '2025-09-03T15:23:22Z',
           version: 'ver2',
+          versions: ['ver1', 'ver2'],
         },
       ])
 
@@ -626,6 +629,7 @@ function makeApiSpending(sp: Partial<ApiSpending> = {}): ApiSpending {
     createdAt: sp.createdAt ?? '',
     updatedAt: sp.updatedAt ?? '',
     version: sp.version ?? '',
+    versions: sp.versions ?? [],
   }
 }
 

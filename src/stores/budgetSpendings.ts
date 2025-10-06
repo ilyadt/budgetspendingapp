@@ -114,6 +114,7 @@ export const useBudgetSpendingsStore = defineStore('budgetSpendings', () => {
         createdAt: ev.createData!.createdAt,
         updatedAt: ev.createData!.updatedAt,
         version: ev.newVersion,
+        versions: [ev.newVersion],
       }
 
       spendings.value[ev.budgetId]!.push(sp)

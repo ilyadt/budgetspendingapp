@@ -659,5 +659,6 @@ function makeApiSpending(sp: Partial<ApiSpending> = {}): ApiSpending {
     createdAt: sp.createdAt ?? '',
     updatedAt: sp.updatedAt ?? '',
     version: sp.version ?? '',
+    versions: sp.versions ?? [],
   }
 }

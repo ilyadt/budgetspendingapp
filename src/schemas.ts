@@ -94,6 +94,8 @@ export interface components {
              * @example 039dhafc
              */
             version: string;
+            /** @description все версии c первой по последнюю */
+            versions: string[];
         };
         SpendingsByBudget: {
             budgetId: number;
