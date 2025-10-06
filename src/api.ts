@@ -133,7 +133,7 @@ export const Uploader = {
       budgetId: bid,
       spendingId: upd.id,
       updateData: {
-        prevVersion: upd.parentVersion!,
+        prevVersion: upd.prevVersion!,
         date: format(upd.date, 'yyyy-MM-dd'),
         sort: upd.sort,
         money: upd.money,
@@ -153,7 +153,7 @@ export const Uploader = {
       budgetId: bid,
       spendingId: del.id,
       deleteData: {
-        prevVersion: del.parentVersion!,
+        prevVersion: del.prevVersion!,
         updatedAt: del.updatedAt.toISOString(),
       },
     }

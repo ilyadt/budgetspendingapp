@@ -377,8 +377,8 @@ describe('storage_test', () => {
 
     Storage.storeSpendingsFromRemote(1, [makeApiSpending({ id: 'sp1', version: 'ver1' })])
 
-    Storage.updateSpending(1, makeSpending({ id: 'sp1', version: 'ver2', parentVersion: 'ver1' }))
-    Storage.updateSpending(1, makeSpending({ id: 'sp1', version: 'ver3', parentVersion: 'ver2' }))
+    Storage.updateSpending(1, makeSpending({ id: 'sp1', version: 'ver2', prevVersion: 'ver1' }))
+    Storage.updateSpending(1, makeSpending({ id: 'sp1', version: 'ver3', prevVersion: 'ver2' }))
 
     const revoked = Storage.storeSpendingsFromRemote(1, [
       makeApiSpending({ id: 'sp1', version: 'ver4' }),
@@ -479,7 +479,7 @@ describe('storage_test', () => {
 
     expect(() => Storage.updateSpending(1, sp2)).toThrow('invalid parent version')
 
-    sp2.parentVersion = sp.version
+    sp2.prevVersion = sp.version
 
     Storage.updateSpending(1, sp2)
 
@@ -533,7 +533,7 @@ describe('storage_test', () => {
 
     expect(() => Storage.deleteSpending(1, spDel)).toThrow('parent version is invalid')
 
-    spDel.parentVersion = 'ver1'
+    spDel.prevVersion = 'ver1'
 
     Storage.deleteSpending(1, spDel)
 
@@ -609,7 +609,7 @@ function makeSpending(sp: Partial<Spending> = {}): Spending {
   return {
     id: sp.id ?? '',
     version: sp.version ?? '',
-    parentVersion: sp.parentVersion ?? undefined,
+    prevVersion: sp.prevVersion ?? undefined,
     date: sp.date ?? new Date(0),
     sort: sp.sort ?? 0,
     money: sp.money ?? fromRUB(0),

@@ -123,7 +123,7 @@ describe('fetcher', () => {
     Storage.updateSpending(23, {
       id: 'nHSPMxURHX',
       version: 'pending_2', // версия локальная
-      parentVersion: 'ver_server_1',
+      prevVersion: 'ver_server_1',
       date: new Date('2025-05-01'),
       description: 'кофе',
       createdAt: new Date('2025-09-29T14:00:25.085Z'),
@@ -299,7 +299,7 @@ describe('updater', () => {
     const promise = Uploader.updateSpending(22, {
       id: 'sp1',
       version: 'ver2',
-      parentVersion: 'ver1',
+      prevVersion: 'ver1',
       date: new Date('2025-10-03'),
       sort: 777,
       money: fromRUB(20_000),
@@ -370,7 +370,7 @@ describe('updater', () => {
     const promise = Uploader.deleteSpending(22, {
       id: 'sp1',
       version: 'ver2',
-      parentVersion: 'ver1',
+      prevVersion: 'ver1',
       date: new Date('2025-10-03'), // TODO: remove
       sort: 777, // TODO: remove
       money: fromRUB(20_000), // TODO: remove

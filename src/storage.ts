@@ -22,7 +22,7 @@ export interface SpendingVersion {
   version: string // хеш версии (рандомные), для того, чтобы строить правильные связи ver1 -> ver2 -> ver3
 
   // Пока это не нужно, ограничимся проверками на добавление / изменение
-  // parentVersionHash: string | null, // хеш родительской версии для того, чтобы применять (как в блокчейне)
+  // prevVersionHash: string | null, // хеш родительской версии для того, чтобы применять (как в блокчейне)
   status: VersionStatus
   // Relevant for Applied only
   statusAt?: Date
@@ -205,7 +205,7 @@ export const Storage: StorageInterface = {
       throw new Error('spending cannot be changed')
     }
 
-    if (upd.parentVersion != lastVer.version) {
+    if (upd.prevVersion != lastVer.version) {
       throw new Error('invalid parent version')
     }
 
@@ -240,7 +240,7 @@ export const Storage: StorageInterface = {
       throw new Error('spending cannot be changed')
     }
 
-    if (del.parentVersion != lastVer.version) {
+    if (del.prevVersion != lastVer.version) {
       throw new Error('parent version is invalid')
     }
 

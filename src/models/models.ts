@@ -12,7 +12,7 @@ export type OldSpendingEvent = ApiSpendingEvent & {status: string}
 export interface Spending {
   id: string
   version: string
-  parentVersion?: string
+  prevVersion?: string
   date: Date
   sort: number
   money: Money
