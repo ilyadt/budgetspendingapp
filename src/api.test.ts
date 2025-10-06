@@ -598,7 +598,8 @@ const jsonResponse = `
               "money":{ "amount": 8500, "currency": "RUB", "fraction": 2 },
               "sort": 101,
               "updatedAt": "2025-09-29T14:02:23.304Z",
-              "version": "JZRm7"
+              "version": "JZRm7",
+              "versions": ["some"]
           }
         ]
     },

@@ -352,8 +352,12 @@ export const Storage: StorageInterface = {
       const idx = localSpVersioned.versions.findIndex((v) => v.version == remoteSp.version)
       let versions: SpendingVersion[]
 
-      if (idx == -1) {
+      if (idx >= 0) {
+        versions = localSpVersioned.versions.slice(idx) // оставляем только версии начинающиеся с remote
+        versions[0]!.status = VersionStatus.InDb
+      } else {
         const revokedToPush = localSpVersioned.versions
+          .filter(sp => !remoteSp.versions.includes(sp.version)) // исключаем версии, которые примерены на беке
           .filter((sp) => sp.status == VersionStatus.Pending)
           .map((v) => ({ ...v, spendingId: localSpVersioned.id }))
 
@@ -371,9 +375,6 @@ export const Storage: StorageInterface = {
             deleted: false,
           },
         ]
-      } else {
-        versions = localSpVersioned.versions.slice(idx) // оставляем только версии начинающиеся с remote
-        versions[0]!.status = VersionStatus.InDb
       }
 
       localSpVersioned.versions = versions
