@@ -6,7 +6,7 @@ import * as Sentry from '@sentry/vue'
 import { useConflictVersionStore } from '@/stores/conflictVersions'
 import { v4 as uuidv4 } from 'uuid'
 import { format } from 'date-fns'
-import type { Spending, ApiSpendingEvent } from './models/models'
+import type { Spending, ApiSpendingEvent, DelSpending } from './models/models'
 
 function createApiClient() {
   return createClient<paths>({ baseUrl: import.meta.env.VITE_SERVER_URL })
@@ -29,7 +29,7 @@ export const Fetcher = {
     }
 
     // Every 60 seconds
-    setInterval(this.fetchAndStore, 60 * 1000)
+    setInterval(() => this.fetchAndStore(), 60 * 1000)
   },
 
   async fetchAndStore() {
@@ -65,8 +65,6 @@ export const Fetcher = {
 
       status.setGetSpendingStatus(err.name + ' ' + err.message)
 
-      console.error(error)
-
       Sentry.captureException(error)
     }
   },
@@ -92,7 +90,7 @@ export const Uploader = {
   init(): ReturnType<typeof setInterval> {
     this.loadEvents()
 
-    const intervalId = setInterval(async () => {
+    const task = async () => {
       const events = this.getEvents()
 
       if (events.length == 0) {
@@ -100,7 +98,12 @@ export const Uploader = {
       }
 
       await this.processEvents(events)
-    }, 30_000)
+    }
+
+    // Initially run
+    task()
+
+    const intervalId = setInterval(task, 30_000)
 
     return intervalId
   },
@@ -145,7 +148,7 @@ export const Uploader = {
     return this.saveAndProcess(ev)
   },
 
-  deleteSpending(bid: number, del: Spending) {
+  deleteSpending(bid: number, del: DelSpending) {
     const ev: ApiSpendingEvent = {
       eventId: uuidv4(),
       type: 'delete',
@@ -206,14 +209,6 @@ export const Uploader = {
   async processEvents(events: ApiSpendingEvent[]) {
     const { success, conflict } = await this.sendEvents(events)
 
-    // Удаляем все success и conflict из внутренних events
-    const leftEvents = events.filter(
-      (e) =>
-        !success.some((s) => s.eventId === e.eventId) &&
-        !conflict.some((c) => c.eventId === e.eventId),
-    )
-    this.saveEvents(leftEvents)
-
     // Помечаем все события во внешнем Storage
     const storage = Storage
     const conflictVersion = useConflictVersionStore()
@@ -226,10 +221,19 @@ export const Uploader = {
       const revoked = storage.revokeConflictVersion(ev.budgetId, ev.spendingId, ev.newVersion)
       conflictVersion.add(...revoked)
     }
+
+    // Удаляем все success и conflict из внутренних events
+    const leftEvents = events.filter(
+      (e) =>
+        !success.some((s) => s.eventId === e.eventId) &&
+        !conflict.some((c) => c.eventId === e.eventId),
+    )
+    this.saveEvents(leftEvents)
   },
 
   loadEvents(): void {
     this._events = JSON.parse(localStorage.getItem(this._lsEventsKey) || '[]')
+    useStatusStore().setPendingEvents(this._events.length)
   },
 
   getEvents(): ApiSpendingEvent[] {
@@ -239,5 +243,6 @@ export const Uploader = {
   saveEvents(events: ApiSpendingEvent[]) {
     this._events = events
     localStorage.setItem(this._lsEventsKey, JSON.stringify(events))
+    useStatusStore().setPendingEvents(this._events.length)
   },
 }

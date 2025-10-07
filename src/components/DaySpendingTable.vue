@@ -1,22 +1,20 @@
 <script setup lang="ts">
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 import { moneyFormat } from '@/helpers/money'
-import type { ApiSpending, ApiBudget, OldSpendingEvent } from '@/models/models'
+import type { ApiBudget, Spending } from '@/models/models'
 import { customAlphabet } from 'nanoid/non-secure'
 import { alphanumeric } from 'nanoid-dictionary'
 import { ref, type PropType } from 'vue'
-import { v4 as uuidv4 } from 'uuid'
-import { getEventsUploaderInstance } from '@/services/eventsUploader'
-import { dateFormat, dateISO } from '@/helpers/date'
+import { dateFormat } from '@/helpers/date'
+import { Facade } from '@/facade'
 
 const genSpendingID = customAlphabet(alphanumeric, 10)
 const genVersion = customAlphabet(alphanumeric, 5)
-const eventsUploaderInstance = getEventsUploaderInstance()
 
 const props = defineProps({
   date: { type: Date, required: true, default: Date },
   budget: { type: Object as PropType<ApiBudget>, required: true },
-  daySpendings: { type: Array<ApiSpending>, required: true },
+  daySpendings: { type: Array<Spending>, required: true },
 })
 
 class SpendingRow {
@@ -59,8 +57,8 @@ for (const sp of props.daySpendings) {
       sp.sort,
       moneyFormat(sp.money),
       sp.description,
-      new Date(Date.parse(sp.createdAt)),
-      new Date(Date.parse(sp.updatedAt)),
+      sp.createdAt,
+      sp.updatedAt,
       false,
       '',
       '',
@@ -83,7 +81,6 @@ function saveChanges(spending: SpendingRow): void {
   const description = spending.pendingDescription
   const money = Number(Number(spending.pendingMoney).toFixed(2))
   const prevVersion = spending.version
-  const version = genVersion()
   const createdAt = isNew ? new Date(now) : spending.createdAt
   const updatedAt = new Date(now)
 
@@ -94,56 +91,42 @@ function saveChanges(spending: SpendingRow): void {
   if (isNew) {
     spending.createdAt = createdAt
   }
-  spending.version = version
+  spending.version = genVersion()
   spending.isNew = false
 
-  let ev: OldSpendingEvent
-
   if (isNew) {
-    ev = {
-      eventId: uuidv4(),
-      type: 'create',
-      budgetId: props.budget.id,
-      spendingId: spending.id,
-      newVersion: version,
-      createData: {
-        date: dateISO(props.date),
-        sort: spending.sort,
-        money: {
-          amount: money * 10 ** props.budget.money.fraction,
-          fraction: props.budget.money.fraction,
-          currency: props.budget.money.currency,
-        },
-        description: description,
-        createdAt: createdAt.toISOString(),
-        updatedAt: updatedAt.toISOString(),
+    Facade.createSpending(props.budget.id, {
+      id: spending.id,
+      version: spending.version,
+      prevVersion: prevVersion,
+      date: props.date,
+      sort: spending.sort,
+      money: {
+        amount: money * 10 ** props.budget.money.fraction,
+        fraction: props.budget.money.fraction,
+        currency: props.budget.money.currency,
       },
-      status: 'pending',
-    }
+      description: spending.description,
+      createdAt: spending.createdAt,
+      updatedAt: spending.updatedAt,
+    })
   } else {
-    ev = {
-      eventId: uuidv4(),
-      type: 'update',
-      budgetId: props.budget.id,
-      spendingId: spending.id,
-      newVersion: version,
-      updateData: {
-        prevVersion: prevVersion,
-        date: dateISO(props.date),
-        sort: spending.sort,
-        money: {
-          amount: money * 10 ** props.budget.money.fraction,
-          fraction: props.budget.money.fraction,
-          currency: props.budget.money.currency,
-        },
-        description: description,
-        updatedAt: updatedAt.toISOString(),
+    Facade.updateSpending(props.budget.id, {
+      id: spending.id,
+      version: spending.version,
+      prevVersion: prevVersion,
+      date: props.date,
+      sort: spending.sort,
+      money: {
+        amount: money * 10 ** props.budget.money.fraction,
+        fraction: props.budget.money.fraction,
+        currency: props.budget.money.currency,
       },
-      status: 'pending',
-    }
+      description: spending.description,
+      createdAt: spending.createdAt,
+      updatedAt: spending.updatedAt,
+    })
   }
-
-  eventsUploaderInstance.AddEvent(ev)
 
   lastTap = 0
 }
@@ -176,28 +159,15 @@ function handleDoubleTouch($event: TouchEvent, fn: (arg: any) => void, arg: unkn
 }
 
 function deleteSpending(spending: SpendingRow): void {
-  const id = spending.id
-  const prevVersion = spending.version
-  const updatedAt = new Date()
-  const version = genVersion()
+  Facade.deleteSpending(props.budget.id, {
+    id: spending.id,
+    version: genVersion(),
+    prevVersion: spending.version,
+    updatedAt: new Date(),
+  })
 
   const index = rowSpendings.value.findIndex((d) => d.id === spending.id)
   rowSpendings.value.splice(index, 1)
-
-  const event: OldSpendingEvent = {
-    eventId: uuidv4(),
-    type: 'delete',
-    budgetId: props.budget.id,
-    spendingId: id,
-    newVersion: version,
-    deleteData: {
-      prevVersion: prevVersion,
-      updatedAt: updatedAt.toISOString(),
-    },
-    status: 'pending',
-  }
-
-  eventsUploaderInstance.AddEvent(event)
 }
 
 function toPending(spending: SpendingRow): void {

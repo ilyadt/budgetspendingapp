@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { Facade } from '@/facade'
 import DaySpendingTable from '../components/DaySpendingTable.vue'
-import { dateFormatFromString, dateISO, dateISOFromString } from '@/helpers/date'
+import { dateFormatFromString, dateISO } from '@/helpers/date'
 import { moneyToString, minus } from '@/helpers/money'
-import type { ApiSpending } from '@/models/models'
-import { useBudgetSpendingsStore } from '@/stores/budgetSpendings'
+import type { Spending } from '@/models/models'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -11,7 +11,8 @@ const route = useRoute()
 
 const budgetId = route.params.budgetId
 
-const { budgets, spendings } = useBudgetSpendingsStore()
+const budgets = Facade.getBudgets()
+const spendings = Facade.spendingsByBudgetId(Number(budgetId))
 
 const budg = budgets.find((b) => String(b.id) == budgetId)
 
@@ -35,7 +36,7 @@ function getDate(i: number): Date {
 const moneyLeft = computed(() => {
   let moneyLeft = budget.value!.money
 
-  for (const sp of spendings[budget.value!.id] || []) {
+  for (const sp of spendings) {
     moneyLeft = minus(moneyLeft, sp.money)
   }
 
@@ -43,14 +44,14 @@ const moneyLeft = computed(() => {
 })
 
 const spendingsByDate = computed(() => {
-  const res: Record<string, Array<ApiSpending>> = {}
+  const res: Record<string, Array<Spending>> = {}
 
-  for (const sp of spendings[budget.value!.id] || []) {
-    if (res[dateISOFromString(sp.date)] == undefined) {
-      res[dateISOFromString(sp.date)] = []
+  for (const sp of spendings) {
+    if (res[dateISO(sp.date)] == undefined) {
+      res[dateISO(sp.date)] = []
     }
 
-    res[dateISOFromString(sp.date)]!.push(sp)
+    res[dateISO(sp.date)]!.push(sp)
   }
 
   return res

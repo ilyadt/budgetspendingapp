@@ -1,7 +1,7 @@
 import { test, expect, describe, beforeEach, vi } from 'vitest'
 
 import type { ApiBudget, ApiSpending, Spending } from '@/models/models'
-import { Storage, VersionStatus, _test } from './storage'
+import { Storage, VersionStatus, _test, formatVersionPayload, type SpendingVersion } from './storage'
 import { fromRUB } from './helpers/money'
 
 describe('storage_test', () => {
@@ -38,7 +38,7 @@ describe('storage_test', () => {
         money: fromRUB(50_000),
         dateFrom: '2025-09-01',
         dateTo: '2025-10-01',
-        params: { key: 'val' }, // TODO: api json format
+        params: { key: 'val' },
       },
     ])
 
@@ -116,7 +116,7 @@ describe('storage_test', () => {
         money: fromRUB(50_000),
         dateFrom: '2025-09-01',
         dateTo: '2025-10-01',
-        params: {}, // TODO: api json format
+        params: {},
       },
     ])
 
@@ -166,7 +166,7 @@ describe('storage_test', () => {
     Storage.storeBudgetsFromRemote([makeBudget(1)])
 
     {
-      const errors = Storage.storeSpendingsFromRemote(1, [
+      const revokedVersions = Storage.storeSpendingsFromRemote(1, [
         {
           id: 'sp1',
           date: '2025-09-03',
@@ -180,7 +180,7 @@ describe('storage_test', () => {
         },
       ])
 
-      expect(errors).toEqual([])
+      expect(revokedVersions).toEqual([])
 
       const sps = Storage.spendingsByBudgetId(1)
 
@@ -200,7 +200,7 @@ describe('storage_test', () => {
 
     // Сохранение в правильном порядке (sp.id ASC)
     {
-      const errors = Storage.storeSpendingsFromRemote(1, [
+      const revokedVersions = Storage.storeSpendingsFromRemote(1, [
         {
           id: 'sp2',
           date: '2025-09-04',
@@ -225,7 +225,7 @@ describe('storage_test', () => {
         },
       ])
 
-      expect(errors).toEqual([])
+      expect(revokedVersions).toEqual([])
       const sps = Storage.spendingsByBudgetId(1)
 
       // Проверяем так же сортировку
@@ -647,3 +647,30 @@ function eq<T extends object>(partial: Partial<T>, full: T): boolean {
     return full[key] === partial[key]
   })
 }
+
+test('formatVersionPayload', () => {
+  expect(formatVersionPayload(undefined)).toBeNull()
+
+  const version1: SpendingVersion = {
+    version: '3239db',
+    status: VersionStatus.Pending,
+    updatedAt: '',
+    deleted: true,
+  }
+  expect(formatVersionPayload(version1)).toBeNull()
+
+  const version2: SpendingVersion = {
+    version: '3239d8',
+    status: VersionStatus.Pending,
+    updatedAt: '',
+    date: new Date('2024-03-23T00:00:00Z'),
+    money: {
+      amount: 12_00,
+      fraction: 2,
+      currency: 'EUR'
+    },
+    description: 'бигмак',
+  }
+
+  expect(formatVersionPayload(version2)).toEqual("23.03: 12 EUR бигмак")
+})

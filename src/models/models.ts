@@ -5,9 +5,7 @@ import type { components } from '@/schemas'
 export type ApiBudget = components['schemas']['Budget']
 export type ApiSpending = components['schemas']['Spending']
 export type ApiSpendingEvent = components['schemas']['SpendingEvent']
-export type ApiUpdateSpendingsErrorsResponse = components['schemas']['UpdateSpendingsErrorsResponse']
-
-export type OldSpendingEvent = ApiSpendingEvent & {status: string}
+export type ApiUpdateSpendingsErrorsResponse = components['schemas']['UpdateSpendingsErrorsResponse'] 
 
 export interface Spending {
   id: string
@@ -20,3 +18,5 @@ export interface Spending {
   createdAt: Date
   updatedAt: Date
 }
+
+export type DelSpending = Pick<Spending, 'id' | 'version' | 'prevVersion' | 'updatedAt'>

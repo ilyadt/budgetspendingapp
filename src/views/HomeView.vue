@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { minus, Money, moneyToString } from '@/helpers/money'
-import { useBudgetSpendingsStore } from '@/stores/budgetSpendings'
 import { moneyToStringWithCurrency, moneyFormat } from '@/helpers/money'
 import { dateFormat } from '@/helpers/date'
+import { Facade } from '@/facade'
 
-const { budgets, spendings } = useBudgetSpendingsStore()
+const budgets = Facade.getBudgets()
 
 interface TemplateBudget {
   id: number
@@ -21,7 +21,7 @@ interface TemplateBudget {
 const templateBudgets: TemplateBudget[] = []
 
 for (const b of budgets) {
-  const sps = spendings[b.id] || []
+  const sps = Facade.spendingsByBudgetId(b.id)
 
   let spentAmount = 0
 

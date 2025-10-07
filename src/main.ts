@@ -5,6 +5,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import BudgetView from './views/BudgetView.vue'
 import ErrorsView from './views/ErrorsView.vue'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import { Fetcher, Uploader } from './api'
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 
@@ -56,5 +57,8 @@ app.use(
     ],
   }),
 )
+
+await Fetcher.initAndStart()
+Uploader.init()
 
 app.mount('#app')

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { RouterLink, RouterView, useRoute } from 'vue-router'
-import { useBudgetSpendingsStore } from '@/stores/budgetSpendings'
 import StatusBar from './components/StatusBar.vue'
+import { Facade } from './facade'
 
-const { budgets } = useBudgetSpendingsStore()
+const budgets = Facade.getBudgets()
 
 interface TemplateBudget {
   id: number,

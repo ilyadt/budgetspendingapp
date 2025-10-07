@@ -1,6 +1,7 @@
-import type { ApiBudget, ApiSpending, Spending } from '@/models/models'
-import type { Money } from './helpers/money'
+import type { ApiBudget, ApiSpending, Spending, DelSpending } from '@/models/models'
+import { moneyToStringWithCurrency, type Money } from './helpers/money'
 import '@/helpers/date' // For date prototypes
+import { format } from 'date-fns'
 
 export enum VersionStatus {
   InDb = 'FROM_BACKEND', // версия, полученная с бека
@@ -11,11 +12,19 @@ export enum VersionStatus {
   Applied = 'APPLIED',
 }
 
-type RevokedVersions = SpendingVersion[]
+type RevokedVersions = RevokedVersion[]
+
+export interface RevokedVersion {
+  version: string
+  budgetId: number
+  spendingId: string
+  versionDt: Date
+  revokedAt: Date
+  from: string | null // null - created
+  to: string | null // null - deleted
+}
 
 export interface SpendingVersion {
-  // Заполняется только, когда отдаются RevokedVersions
-  spendingId?: string
   // Пока это не нужно
   // version: number, // порядковый номер версии 1,2,3,4,5 ....
   // TODO: version -> versionHash (более точное название)
@@ -30,7 +39,7 @@ export interface SpendingVersion {
   description?: string
   money?: Money
   sort?: number
-  updatedAt: Date | string
+  updatedAt: Date | string // заменить на versionDt
   deleted?: boolean
 }
 
@@ -222,7 +231,7 @@ export const Storage: StorageInterface = {
     localStorage.setItem(lsSpendingsKey(bid), JSON.stringify(fromStore))
   },
 
-  deleteSpending(bid: number, del: Spending): void {
+  deleteSpending(bid: number, del: DelSpending): void {
     assertBudget(bid)
 
     const fromStore: SpendingVersioned[] = JSON.parse(
@@ -272,7 +281,7 @@ export const Storage: StorageInterface = {
     localStorage.setItem(lsBudgetsKey(), JSON.stringify(budgets))
   },
 
-  storeSpendingsFromRemote(bid: number, remoteSps: ApiSpending[]): SpendingVersion[] {
+  storeSpendingsFromRemote(bid: number, remoteSps: ApiSpending[]): RevokedVersions {
     assertBudget(bid)
 
     const localSps: SpendingVersioned[] = JSON.parse(
@@ -286,7 +295,7 @@ export const Storage: StorageInterface = {
 
     const result: SpendingVersioned[] = []
 
-    const revoked: SpendingVersion[] = []
+    const revoked: RevokedVersions = []
 
     // RemoteOnly:
     // создаем локальную версию из нее
@@ -325,15 +334,10 @@ export const Storage: StorageInterface = {
       }
 
       // Locally or Remote deleted
-      const spDeleted =
-        ver1.status == VersionStatus.InDb ||
-        (ver1.status == VersionStatus.Applied && ver1StatusAt.moreThanSecondsAgo(15))
+      const spDeleted = ver1.status == VersionStatus.InDb || (ver1.status == VersionStatus.Applied && ver1StatusAt.moreThanSecondsAgo(15))
       if (spDeleted) {
-        const revokedToPush = spVersioned.versions
-          .filter((v) => v.status == VersionStatus.Pending)
-          .map((v) => ({ ...v, spendingId: spVersioned.id }))
-
-        revoked.push(...revokedToPush)
+        const revokedVersions = makeRevokeVersions(bid, spVersioned.id, spVersioned.versions, v => v.status == VersionStatus.Pending)
+        revoked.push(...revokedVersions)
       }
     }
 
@@ -356,12 +360,9 @@ export const Storage: StorageInterface = {
         versions = localSpVersioned.versions.slice(idx) // оставляем только версии начинающиеся с remote
         versions[0]!.status = VersionStatus.InDb
       } else {
-        const revokedToPush = localSpVersioned.versions
-          .filter(sp => !remoteSp.versions.includes(sp.version)) // исключаем версии, которые примерены на беке
-          .filter((sp) => sp.status == VersionStatus.Pending)
-          .map((v) => ({ ...v, spendingId: localSpVersioned.id }))
+        const revokedVersions = makeRevokeVersions(bid, localSpVersioned.id, localSpVersioned.versions, v => v.status == VersionStatus.Pending)
+        revoked.push(...revokedVersions)
 
-        revoked.push(...revokedToPush)
 
         versions = [
           {
@@ -430,7 +431,7 @@ export const Storage: StorageInterface = {
       return []
     }
 
-    const revokedVersions = spVersioned.versions.slice(idx)
+    const revokedVersions = makeRevokeVersions(bid, spId, spVersioned.versions, (v) => v.version == version)
 
     spVersioned.versions = spVersioned.versions.slice(0, idx)
 
@@ -439,10 +440,6 @@ export const Storage: StorageInterface = {
     }
 
     localStorage.setItem(lsSpendingsKey(bid), JSON.stringify(fromStore))
-
-    for (const revVer of revokedVersions) {
-      revVer.spendingId = spVersioned.id
-    }
 
     return revokedVersions
   },
@@ -455,6 +452,40 @@ function assertBudget(bid: number) {
   if (!b) {
     throw new Error('not existing budget')
   }
+}
+
+export function makeRevokeVersions(bid: number, spID: string, spVersions: SpendingVersion[] , fromIdx: (spVer: SpendingVersion) => boolean): RevokedVersions {
+  const idx = spVersions.findIndex(fromIdx)
+  if (idx == -1) {
+    return []
+  }
+
+  const revoked: RevokedVersions = []
+
+  for (let i = idx; i < spVersions.length; i++) {
+    const curr = spVersions[i]!
+    const prev = spVersions[i - 1]
+
+    revoked.push({
+      version: curr.version,
+      budgetId: bid,
+      spendingId: spID,
+      versionDt: new Date(curr.updatedAt),
+      revokedAt: new Date(),
+      from: formatVersionPayload(prev),
+      to: formatVersionPayload(curr),
+    })
+  }
+
+  return revoked
+}
+
+export function formatVersionPayload(ver?: SpendingVersion): string | null {
+  if (!ver || ver.deleted) {
+    return null
+  }
+
+  return `${format(ver.date!, 'dd.MM')}: ${moneyToStringWithCurrency(ver.money!)} ${ver.description!}`
 }
 
 export const _test = {

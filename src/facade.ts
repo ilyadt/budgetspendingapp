@@ -1,5 +1,5 @@
 import { Uploader } from './api'
-import type { ApiBudget, Spending } from '@/models/models'
+import type { ApiBudget, DelSpending, Spending } from '@/models/models'
 import { Storage } from './storage'
 
 class FacadeImpl {
@@ -28,7 +28,7 @@ class FacadeImpl {
     this.composite.updateSpending(bid, upd)
   }
 
-  deleteSpending(bid: number, del: Spending): void {
+  deleteSpending(bid: number, del: DelSpending): void {
     this.composite.deleteSpending(bid, del)
   }
 }
@@ -36,7 +36,7 @@ class FacadeImpl {
 export interface CudSpending {
   createSpending(bid: number, newSp: Spending): void
   updateSpending(bid: number, upd: Spending): void
-  deleteSpending(bid: number, del: Spending): void
+  deleteSpending(bid: number, del: DelSpending): void
 }
 
 function createComposite(subjects: CudSpending[]): CudSpending {

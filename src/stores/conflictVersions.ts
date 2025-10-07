@@ -1,14 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { SpendingVersion } from '@/storage'
+import type { RevokedVersion } from '@/storage'
 
 // Spending Conflict Versions
 export const useConflictVersionStore = defineStore(
   'conflictVersions',
   () => {
-    const conflictVersions = ref<SpendingVersion[]>([])
+    const conflictVersions = ref<RevokedVersion[]>([])
 
-    function add(...ver: SpendingVersion[]) {
+    function add(...ver: RevokedVersion[]) {
       conflictVersions.value.push(...ver)
     }
 

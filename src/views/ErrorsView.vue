@@ -1,32 +1,13 @@
 <script setup lang="ts">
-import { dateISOFromString } from '@/helpers/date'
-import { moneyToString } from '@/helpers/money'
-import type { OldSpendingEvent } from '@/models/models'
-import { useUploadErrorsStore } from '@/stores/uploadErrors'
+import { useConflictVersionStore } from '@/stores/conflictVersions'
 
-const errorsStore = useUploadErrorsStore()
+const conflictVersions = useConflictVersionStore()
 
 // время|тип|payload|error|action
-
-function deleteError(evId: string) {
-  errorsStore.deleteEvent(evId)
+function deleteError(versionId: string) {
+  conflictVersions.remove(versionId)
 }
 
-function payload(ev: OldSpendingEvent): string {
-  switch (ev.type) {
-    case 'update': {
-      return moneyToString(ev.updateData!.money) + ' ' + ev.updateData!.description
-    }
-    case 'create': {
-      return moneyToString(ev.createData!.money) + ' ' + ev.createData!.description
-    }
-    case 'delete': {
-      return '<nothing to show>'
-    }
-  }
-
-  return ''
-}
 </script>
 
 <template>
@@ -39,29 +20,23 @@ function payload(ev: OldSpendingEvent): string {
     <thead>
       <tr>
         <th style="width: 80px">date</th>
-        <th style="width: 70px">type</th>
-        <th style="width: 70px">payload</th>
-        <th style="width: 70px">error</th>
+        <th style="width: 210px">payload</th>
         <th style="width: 30px"></th>
       </tr>
     </thead>
     <tbody>
-      <template v-for="err in errorsStore.errorEvents" :key="err.eventId">
+      <template v-for="ver in conflictVersions.conflictVersions" :key="ver.version">
         <tr>
           <td>
             <!-- TODO: move updatedAt at the top level -->
-            {{ dateISOFromString(err.createData?.updatedAt || err.updateData?.updatedAt || err.deleteData!.updatedAt) }}
+            {{ ver.versionDt }}
           </td>
           <td>
-            {{ err.type }}
+            {{ ver.from + ' -> ' + ver.to }}
           </td>
-          <td>
-            {{ payload(err) }}
-          </td>
-          <td>error</td>
           <td>
             <button
-              @click="deleteError(err.eventId)"
+              @click="deleteError(ver.version)"
               class="btn btn-warning btn-sm p-1 m-1"
               style="min-width: 20px; line-height: 1"
             >

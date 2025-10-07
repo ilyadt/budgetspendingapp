@@ -8,11 +8,11 @@
 // Для каждого метода свой recover (последний из отправленных)
 //
 
+import { useConflictVersionStore } from '@/stores/conflictVersions'
 import { useStatusStore } from '@/stores/status'
-import { useUploadErrorsStore } from '@/stores/uploadErrors'
 
 const status = useStatusStore()
-const uploadErrors = useUploadErrorsStore()
+const conflictVersions = useConflictVersionStore()
 
 // For IOS PWA
 function reload() {
@@ -25,7 +25,7 @@ function reload() {
       <div class="col-3 border bg-light">Get: {{ status.statusGetSpendings }}</div>
       <div class="col-3 border bg-light">Update: {{ status.statusUpdateSpendings }}</div>
       <div class="col-2 border bg-light">Pend: {{ status.pendingEvents }}</div>
-      <div class="col-2 border bg-light">Errs: {{ uploadErrors.errorEvents.length }}</div>
+      <div class="col-2 border bg-light">Errs: {{ conflictVersions.conflictVersions.length }}</div>
       <div class="col-2 border bg-light">
         <button @click="reload" class="btn btn-small btn-info">
           <font-awesome-icon :icon="['fas', 'sync']" />

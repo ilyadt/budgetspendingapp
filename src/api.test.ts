@@ -1,7 +1,7 @@
 import { test, describe, beforeEach, afterEach, expect, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { Fetcher, Uploader } from '@/api'
-import { Storage, VersionStatus, type SpendingVersion } from '@/storage'
+import { Storage, type RevokedVersion } from '@/storage'
 import { useStatusStore } from './stores/status'
 import { useConflictVersionStore } from './stores/conflictVersions'
 import type {
@@ -149,23 +149,19 @@ describe('fetcher', () => {
 
     await Fetcher.fetchAndStore()
 
-    const conflictVersionsStore = useConflictVersionStore()
-
-    const expConflicted: SpendingVersion[] = [
+    const expConflicted: RevokedVersion[] = [
       {
         version: 'pending_2',
-        // TODO: budgetID
+        budgetId: 23,
         spendingId: 'nHSPMxURHX',
-        date: '2025-05-01T00:00:00.000Z', // TODO: удалить часть с Time
-        description: 'кофе',
-        status: VersionStatus.Pending, // TODO remove it
-        sort: 101,
-        money: fromRUB(90),
-        updatedAt: '2025-09-29T15:02:23.304Z',
+        versionDt: new Date('2025-09-29T15:02:23.304Z'),
+        revokedAt: new Date(777),
+        from: "01.05: 85 RUB кофе",
+        to: "01.05: 90 RUB кофе",
       },
     ]
 
-    expect(conflictVersionsStore.conflictVersions).toEqual(expConflicted)
+    expect(useConflictVersionStore().conflictVersions).toEqual(expConflicted)
   })
 })
 
@@ -250,27 +246,25 @@ describe('updater', () => {
   test('uploader:update', async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const spyUuid = vi.spyOn(uuid, 'v4' as any).mockReturnValue('event_id_uuid_v4')
-    const revokedVersions = [
+    const revokedVersions: RevokedVersion[] = [
       {
-        spendingId: 'sp1',
         version: 'ver2',
-        status: VersionStatus.Pending,
-        date: '2025-10-03',
-        description: 'dyson',
-        money: fromRUB(20_000),
-        sort: 777,
-        updatedAt: '2025-10-03T12:22:22.023Z',
+        budgetId: 22,
+        spendingId: 'sp1',
+        versionDt: new Date('2025-10-03T12:22:22.023Z'),
+        revokedAt: new Date(),
+        from: '<..>',
+        to: '<..>'
       },
       {
         // третья версия была сверху, поэтому она тоже становится revoked
-        spendingId: 'sp1',
         version: 'ver3',
-        status: VersionStatus.Pending,
-        date: '2025-10-03',
-        description: 'dyson sypersonic',
-        money: fromRUB(20_000),
-        sort: 777,
-        updatedAt: '2025-10-03T12:31:22.023Z',
+        budgetId: 23,
+        spendingId: 'sp1',
+        versionDt: new Date('2025-10-03T12:31:22.023Z'),
+        revokedAt: new Date(),
+        from: '<..>',
+        to: '<..>'
       },
     ]
     const spyRevokeConflictVersion = vi
@@ -371,11 +365,6 @@ describe('updater', () => {
       id: 'sp1',
       version: 'ver2',
       prevVersion: 'ver1',
-      date: new Date('2025-10-03'), // TODO: remove
-      sort: 777, // TODO: remove
-      money: fromRUB(20_000), // TODO: remove
-      description: 'dyson', // TODO: remove
-      createdAt: new Date('2025-10-02T12:22:22.023Z'), // TODO: remove
       updatedAt: new Date('2025-10-03T12:22:22.023Z'),
     })
 
@@ -412,10 +401,14 @@ describe('updater', () => {
   })
 
   test('uploader:loadEvents', async () => {
+    const statusStore = useStatusStore()
+
+    statusStore.setPendingEvents(777)
     {
       const t = Uploader.init()
       clearInterval(t)
       expect(Uploader.getEvents()).length(0)
+      expect(statusStore.pendingEvents).toEqual(0)
     }
 
     {
@@ -442,9 +435,11 @@ describe('updater', () => {
         expect(events).length(2)
         expect(events[0]!.eventId).toEqual('ev1')
         expect(events[1]!.eventId).toEqual('ev2')
+        expect(statusStore.pendingEvents).toEqual(2)
       }
 
       Uploader._events = []
+      statusStore.setPendingEvents(777)
 
       const t = Uploader.init()
       clearInterval(t)
@@ -455,6 +450,7 @@ describe('updater', () => {
         expect(events).length(2)
         expect(events[0]!.eventId).toEqual('ev1')
         expect(events[1]!.eventId).toEqual('ev2')
+        expect(statusStore.pendingEvents).toEqual(2)
       }
     }
   })
