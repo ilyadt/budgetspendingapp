@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/* eslint-disable  @typescript-eslint/no-explicit-any */
+ 
 import { moneyFormat } from '@/helpers/money'
 import type { ApiBudget, Spending } from '@/models/models'
 import { customAlphabet } from 'nanoid/non-secure'
@@ -72,8 +72,6 @@ function addNew(): void {
   rowSpendings.value.push(SpendingRow.new())
 }
 
-let lastTap = 0
-
 function saveChanges(spending: SpendingRow): void {
   const now = new Date()
 
@@ -127,38 +125,26 @@ function saveChanges(spending: SpendingRow): void {
       updatedAt: spending.updatedAt,
     })
   }
-
-  lastTap = 0
 }
 
 function cancelChanges(spending: SpendingRow): void {
+  if (!window.confirm(`Отменить изменение?`)) {
+    return
+  }
+
   if (spending.isNew) {
     const index = rowSpendings.value.findIndex((d) => d.id === spending.id)
     rowSpendings.value.splice(index, 1) //remove element from array
   } else {
     spending.pending = false
   }
-
-  lastTap = 0
-}
-
-function handleDoubleTouch($event: TouchEvent, fn: (arg: any) => void, arg: unknown) {
-  // Guard
-  if ($event.type !== 'touchstart') {
-    return
-  }
-
-  const currentEventTime = $event.timeStamp
-  const tapLength = currentEventTime - lastTap
-
-  if (tapLength < 200 && tapLength > 0) {
-    fn(arg)
-  }
-
-  lastTap = currentEventTime
 }
 
 function deleteSpending(spending: SpendingRow): void {
+  if (!window.confirm(`Удалить запись "${spending.description}" ?`)) {
+    return
+  }
+
   Facade.deleteSpending(props.budget.id, {
     id: spending.id,
     version: genVersion(),
@@ -243,8 +229,7 @@ function isFuture(d: Date): boolean {
               <button
                 class="btn btn-danger btn-sm p-1 m-1"
                 style="min-width: 20px; line-height: 1"
-                @dblclick="cancelChanges(daySpending)"
-                @touchstart="handleDoubleTouch($event, cancelChanges, daySpending)"
+                @click="cancelChanges(daySpending)"
               >
                 <font-awesome-icon :icon="['fas', 'xmark']" />
               </button>
@@ -259,8 +244,7 @@ function isFuture(d: Date): boolean {
             </template>
             <template v-else>
               <button
-                @dblclick="deleteSpending(daySpending)"
-                @touchstart="handleDoubleTouch($event, deleteSpending, daySpending)"
+                @click="deleteSpending(daySpending)"
                 class="btn btn-warning btn-sm p-1 m-1"
                 style="min-width: 20px; line-height: 1"
               >
