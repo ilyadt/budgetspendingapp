@@ -156,8 +156,8 @@ describe('fetcher', () => {
         spendingId: 'nHSPMxURHX',
         versionDt: new Date('2025-09-29T15:02:23.304Z'),
         revokedAt: new Date(777),
-        from: "01.05: 85 RUB кофе",
-        to: "01.05: 90 RUB кофе",
+        from: '01.05: 85 RUB кофе',
+        to: '01.05: 90 RUB кофе',
       },
     ]
 
@@ -254,7 +254,7 @@ describe('updater', () => {
         versionDt: new Date('2025-10-03T12:22:22.023Z'),
         revokedAt: new Date(),
         from: '<..>',
-        to: '<..>'
+        to: '<..>',
       },
       {
         // третья версия была сверху, поэтому она тоже становится revoked
@@ -264,12 +264,10 @@ describe('updater', () => {
         versionDt: new Date('2025-10-03T12:31:22.023Z'),
         revokedAt: new Date(),
         from: '<..>',
-        to: '<..>'
+        to: '<..>',
       },
     ]
-    const spyRevokeConflictVersion = vi
-      .spyOn(Storage, 'revokeConflictVersion')
-      .mockReturnValue(revokedVersions)
+    const spyRevokeConflictVersion = vi.spyOn(Storage, 'revokeConflictVersion').mockReturnValue(revokedVersions)
 
     vi.stubGlobal(
       'fetch',

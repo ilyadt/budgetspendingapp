@@ -6,10 +6,10 @@ import { Facade } from './facade'
 const budgets = Facade.getBudgets()
 
 interface TemplateBudget {
-  id: number,
-  name: string,
-  sort: number,
-  alias: string,
+  id: number
+  name: string
+  sort: number
+  alias: string
 }
 
 const templateBudgets: TemplateBudget[] = []

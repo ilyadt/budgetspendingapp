@@ -139,15 +139,9 @@ describe('storage_test', () => {
 
     Storage.storeBudgetsFromRemote([makeBudget(1), makeBudget(2)])
 
-    Storage.storeSpendingsFromRemote(1, [
-      makeApiSpending({ id: 'sp11' }),
-      makeApiSpending({ id: 'sp12' }),
-    ])
+    Storage.storeSpendingsFromRemote(1, [makeApiSpending({ id: 'sp11' }), makeApiSpending({ id: 'sp12' })])
 
-    Storage.storeSpendingsFromRemote(2, [
-      makeApiSpending({ id: 'sp21' }),
-      makeApiSpending({ id: 'sp22' }),
-    ])
+    Storage.storeSpendingsFromRemote(2, [makeApiSpending({ id: 'sp21' }), makeApiSpending({ id: 'sp22' })])
 
     const res = Storage.spendingsByBudgetIds([1, 2])
 
@@ -363,9 +357,7 @@ describe('storage_test', () => {
 
     expect(getValue()).toContain(VersionStatus.Applied)
 
-    const revoked = Storage.storeSpendingsFromRemote(1, [
-      makeApiSpending({ id: 'spX', version: 'ver1' }),
-    ])
+    const revoked = Storage.storeSpendingsFromRemote(1, [makeApiSpending({ id: 'spX', version: 'ver1' })])
 
     expect(revoked).toEqual([])
 
@@ -380,9 +372,7 @@ describe('storage_test', () => {
     Storage.updateSpending(1, makeSpending({ id: 'sp1', version: 'ver2', prevVersion: 'ver1' }))
     Storage.updateSpending(1, makeSpending({ id: 'sp1', version: 'ver3', prevVersion: 'ver2' }))
 
-    const revoked = Storage.storeSpendingsFromRemote(1, [
-      makeApiSpending({ id: 'sp1', version: 'ver4' }),
-    ])
+    const revoked = Storage.storeSpendingsFromRemote(1, [makeApiSpending({ id: 'sp1', version: 'ver4' })])
 
     // Перетирание локальных изменений
     expect(revoked).length(2)
@@ -424,9 +414,7 @@ describe('storage_test', () => {
 
     expect(sps).toEqual([sp1])
 
-    expect(() => Storage.createSpending(1, makeSpending({ id: 'sp1' }))).toThrow(
-      'spending already exists',
-    )
+    expect(() => Storage.createSpending(1, makeSpending({ id: 'sp1' }))).toThrow('spending already exists')
 
     {
       const sp0 = makeSpending({ id: 'sp0' })
@@ -443,15 +431,11 @@ describe('storage_test', () => {
   })
 
   test(Storage.updateSpending, () => {
-    expect(() => Storage.updateSpending(1, makeSpending({ id: 'xxxx' }))).toThrow(
-      'not existing budget',
-    )
+    expect(() => Storage.updateSpending(1, makeSpending({ id: 'xxxx' }))).toThrow('not existing budget')
 
     Storage.storeBudgetsFromRemote([makeBudget(1)])
 
-    expect(() => Storage.updateSpending(1, makeSpending({ id: 'xxxx' }))).toThrow(
-      'spending not found',
-    )
+    expect(() => Storage.updateSpending(1, makeSpending({ id: 'xxxx' }))).toThrow('spending not found')
 
     const sp: Spending = {
       id: 'wqerdop',
@@ -502,15 +486,11 @@ describe('storage_test', () => {
   })
 
   test(Storage.deleteSpending, () => {
-    expect(() => Storage.deleteSpending(1, makeSpending({ id: 'xxxx' }))).toThrow(
-      'not existing budget',
-    )
+    expect(() => Storage.deleteSpending(1, makeSpending({ id: 'xxxx' }))).toThrow('not existing budget')
 
     Storage.storeBudgetsFromRemote([makeBudget(1)])
 
-    expect(() => Storage.deleteSpending(1, makeSpending({ id: 'xxxx' }))).toThrow(
-      'spending not found',
-    )
+    expect(() => Storage.deleteSpending(1, makeSpending({ id: 'xxxx' }))).toThrow('spending not found')
 
     const sp: Spending = {
       id: 'id1',
@@ -537,12 +517,8 @@ describe('storage_test', () => {
 
     Storage.deleteSpending(1, spDel)
 
-    expect(() => Storage.deleteSpending(1, makeSpending({ id: 'id1' }))).toThrow(
-      'spending cannot be changed',
-    )
-    expect(() => Storage.updateSpending(1, makeSpending({ id: 'id1' }))).toThrow(
-      'spending cannot be changed',
-    )
+    expect(() => Storage.deleteSpending(1, makeSpending({ id: 'id1' }))).toThrow('spending cannot be changed')
+    expect(() => Storage.updateSpending(1, makeSpending({ id: 'id1' }))).toThrow('spending cannot be changed')
 
     expect(Storage.spendingsByBudgetId(1)).toEqual([])
   })
@@ -643,7 +619,7 @@ function clearLocalStorageByPrefix(prefix: string) {
 }
 
 function eq<T extends object>(partial: Partial<T>, full: T): boolean {
-  return (Object.keys(partial) as Array<keyof T>).every((key) => {
+  return (Object.keys(partial) as Array<keyof T>).every(key => {
     return full[key] === partial[key]
   })
 }
@@ -667,10 +643,10 @@ test('formatVersionPayload', () => {
     money: {
       amount: 12_00,
       fraction: 2,
-      currency: 'EUR'
+      currency: 'EUR',
     },
     description: 'бигмак',
   }
 
-  expect(formatVersionPayload(version2)).toEqual("23.03: 12 EUR бигмак")
+  expect(formatVersionPayload(version2)).toEqual('23.03: 12 EUR бигмак')
 })

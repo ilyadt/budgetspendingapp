@@ -7,16 +7,12 @@ const conflictVersions = useConflictVersionStore()
 function deleteError(versionId: string) {
   conflictVersions.remove(versionId)
 }
-
 </script>
 
 <template>
   <div>Errors</div>
 
-  <table
-    class="table table-bordered table-sm align-middle"
-    style="table-layout: fixed; min-width: 350px"
-  >
+  <table class="table table-bordered table-sm align-middle" style="table-layout: fixed; min-width: 350px">
     <thead>
       <tr>
         <th style="width: 80px">date</th>

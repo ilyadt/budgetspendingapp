@@ -13,7 +13,7 @@ export const useConflictVersionStore = defineStore(
     }
 
     function remove(ver: string) {
-      const idx = conflictVersions.value.findIndex((v) => v.version == ver)
+      const idx = conflictVersions.value.findIndex(v => v.version == ver)
       if (idx !== -1) {
         conflictVersions.value.splice(idx, 1)
       }

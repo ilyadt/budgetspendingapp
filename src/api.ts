@@ -51,10 +51,7 @@ export const Fetcher = {
       Storage.storeBudgetsFromRemote(data!.budgets)
 
       for (const apiSpsByBudget of data!.spendings) {
-        const revoked = Storage.storeSpendingsFromRemote(
-          apiSpsByBudget.budgetId,
-          apiSpsByBudget.spendings,
-        )
+        const revoked = Storage.storeSpendingsFromRemote(apiSpsByBudget.budgetId, apiSpsByBudget.spendings)
 
         conflictVersions.add(...revoked)
       }
@@ -183,11 +180,11 @@ export const Uploader = {
       statusStore.setUpdateSpendingStatus('ok')
 
       const successIds = data?.success ?? []
-      const conflictIds = data?.errors.map((e) => e.eventId) ?? []
+      const conflictIds = data?.errors.map(e => e.eventId) ?? []
 
       return {
-        success: events.filter((e) => successIds.includes(e.eventId)),
-        conflict: events.filter((e) => conflictIds.includes(e.eventId)),
+        success: events.filter(e => successIds.includes(e.eventId)),
+        conflict: events.filter(e => conflictIds.includes(e.eventId)),
       }
     } catch (error: unknown) {
       const err = error instanceof Error ? error : new Error(String(error))
@@ -224,9 +221,7 @@ export const Uploader = {
 
     // Удаляем все success и conflict из внутренних events
     const leftEvents = events.filter(
-      (e) =>
-        !success.some((s) => s.eventId === e.eventId) &&
-        !conflict.some((c) => c.eventId === e.eventId),
+      e => !success.some(s => s.eventId === e.eventId) && !conflict.some(c => c.eventId === e.eventId),
     )
     this.saveEvents(leftEvents)
   },

@@ -1,5 +1,4 @@
 <script setup lang="ts">
- 
 import { moneyFormat } from '@/helpers/money'
 import type { ApiBudget, Spending } from '@/models/models'
 import { customAlphabet } from 'nanoid/non-secure'
@@ -133,7 +132,7 @@ function cancelChanges(spending: SpendingRow): void {
   }
 
   if (spending.isNew) {
-    const index = rowSpendings.value.findIndex((d) => d.id === spending.id)
+    const index = rowSpendings.value.findIndex(d => d.id === spending.id)
     rowSpendings.value.splice(index, 1) //remove element from array
   } else {
     spending.pending = false
@@ -152,7 +151,7 @@ function deleteSpending(spending: SpendingRow): void {
     updatedAt: new Date(),
   })
 
-  const index = rowSpendings.value.findIndex((d) => d.id === spending.id)
+  const index = rowSpendings.value.findIndex(d => d.id === spending.id)
   rowSpendings.value.splice(index, 1)
 }
 
@@ -183,9 +182,7 @@ function isFuture(d: Date): boolean {
         </b>
       </template>
       <template v-else-if="isFuture(date)">
-        <i style="opacity: 40%"
-          >{{ dateFormat(props.date) }} ({{ dayNames[props.date.getDay()] }})</i
-        >
+        <i style="opacity: 40%">{{ dateFormat(props.date) }} ({{ dayNames[props.date.getDay()] }})</i>
       </template>
       <template v-else>
         <i>{{ dateFormat(props.date) }} ({{ dayNames[props.date.getDay()] }})</i>
@@ -255,11 +252,7 @@ function isFuture(d: Date): boolean {
         </tr>
         <tr>
           <td>
-            <button
-              @click="addNew"
-              class="btn btn-success btn-small d-flex align-items-center"
-              style="height: 30px"
-            >
+            <button @click="addNew" class="btn btn-success btn-small d-flex align-items-center" style="height: 30px">
               +
             </button>
           </td>

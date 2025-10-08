@@ -42,13 +42,13 @@ export interface CudSpending {
 function createComposite(subjects: CudSpending[]): CudSpending {
   return {
     createSpending(bid, newSp) {
-      subjects.forEach((s) => s.createSpending(bid, newSp))
+      subjects.forEach(s => s.createSpending(bid, newSp))
     },
     updateSpending(bid, upd) {
-      subjects.forEach((s) => s.updateSpending(bid, upd))
+      subjects.forEach(s => s.updateSpending(bid, upd))
     },
     deleteSpending(bid, del) {
-      subjects.forEach((s) => s.deleteSpending(bid, del))
+      subjects.forEach(s => s.deleteSpending(bid, del))
     },
   }
 }

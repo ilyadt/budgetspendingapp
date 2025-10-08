@@ -126,9 +126,7 @@ export const Storage: StorageInterface = {
   },
 
   spendingsByBudgetId(bid: number): Spending[] {
-    const fromStore: SpendingVersioned[] = JSON.parse(
-      localStorage.getItem(lsSpendingsKey(bid)) || '[]',
-    )
+    const fromStore: SpendingVersioned[] = JSON.parse(localStorage.getItem(lsSpendingsKey(bid)) || '[]')
 
     const res: Spending[] = []
 
@@ -155,16 +153,14 @@ export const Storage: StorageInterface = {
   },
 
   spendingsByBudgetIds(bids: number[]): Spending[] {
-    return bids.flatMap(bid => this.spendingsByBudgetId(bid));
+    return bids.flatMap(bid => this.spendingsByBudgetId(bid))
   },
 
   createSpending(bid: number, newSp: Spending): void {
     assertBudget(bid)
 
-    const spendingsFromLS: SpendingVersioned[] = JSON.parse(
-      localStorage.getItem(lsSpendingsKey(bid)) ?? '[]',
-    )
-    const idx = spendingsFromLS.findIndex((s) => s.id >= newSp.id)
+    const spendingsFromLS: SpendingVersioned[] = JSON.parse(localStorage.getItem(lsSpendingsKey(bid)) ?? '[]')
+    const idx = spendingsFromLS.findIndex(s => s.id >= newSp.id)
 
     // Дополнительная проверка. Предполагается, что ID создается на клиенте всегда уникальный
     if (idx !== -1 && spendingsFromLS[idx]!.id === newSp.id) {
@@ -198,11 +194,9 @@ export const Storage: StorageInterface = {
   updateSpending(bid: number, upd: Spending): void {
     assertBudget(bid)
 
-    const fromStore: SpendingVersioned[] = JSON.parse(
-      localStorage.getItem(lsSpendingsKey(bid)) ?? '[]',
-    )
+    const fromStore: SpendingVersioned[] = JSON.parse(localStorage.getItem(lsSpendingsKey(bid)) ?? '[]')
 
-    const sp = fromStore.find((s) => s.id == upd.id)
+    const sp = fromStore.find(s => s.id == upd.id)
 
     if (!sp) {
       throw new Error('spending not found')
@@ -234,11 +228,9 @@ export const Storage: StorageInterface = {
   deleteSpending(bid: number, del: DelSpending): void {
     assertBudget(bid)
 
-    const fromStore: SpendingVersioned[] = JSON.parse(
-      localStorage.getItem(lsSpendingsKey(bid)) ?? '[]',
-    )
+    const fromStore: SpendingVersioned[] = JSON.parse(localStorage.getItem(lsSpendingsKey(bid)) ?? '[]')
 
-    const sp = fromStore.find((s) => s.id == del.id)
+    const sp = fromStore.find(s => s.id == del.id)
     if (!sp) {
       throw new Error('spending not found')
     }
@@ -269,10 +261,10 @@ export const Storage: StorageInterface = {
     const raw = localStorage.getItem(lsBudgetsKey())
     const storageBudgets: ApiBudget[] = raw ? JSON.parse(raw) : []
 
-    const newIds = new Set(budgets.map((b) => b.id))
-    const oldIds = new Set(storageBudgets.map((b) => b.id))
+    const newIds = new Set(budgets.map(b => b.id))
+    const oldIds = new Set(storageBudgets.map(b => b.id))
 
-    const toDeleteBids = new Set([...oldIds].filter((id) => !newIds.has(id)))
+    const toDeleteBids = new Set([...oldIds].filter(id => !newIds.has(id)))
 
     for (const delId of toDeleteBids) {
       localStorage.removeItem(lsSpendingsKey(delId))
@@ -284,14 +276,12 @@ export const Storage: StorageInterface = {
   storeSpendingsFromRemote(bid: number, remoteSps: ApiSpending[]): RevokedVersions {
     assertBudget(bid)
 
-    const localSps: SpendingVersioned[] = JSON.parse(
-      localStorage.getItem(lsSpendingsKey(bid)) ?? '[]',
-    )
+    const localSps: SpendingVersioned[] = JSON.parse(localStorage.getItem(lsSpendingsKey(bid)) ?? '[]')
 
-    const remoteSpsIds = new Set(remoteSps.map((s) => s.id))
-    const localSpsIds = new Set(localSps.map((s) => s.id))
+    const remoteSpsIds = new Set(remoteSps.map(s => s.id))
+    const localSpsIds = new Set(localSps.map(s => s.id))
 
-    const remoteOnlyIds = new Set([...remoteSpsIds].filter((id) => !localSpsIds.has(id)))
+    const remoteOnlyIds = new Set([...remoteSpsIds].filter(id => !localSpsIds.has(id)))
 
     const result: SpendingVersioned[] = []
 
@@ -299,7 +289,7 @@ export const Storage: StorageInterface = {
 
     // RemoteOnly:
     // создаем локальную версию из нее
-    for (const sp of remoteSps.filter((sp) => remoteOnlyIds.has(sp.id))) {
+    for (const sp of remoteSps.filter(sp => remoteOnlyIds.has(sp.id))) {
       result.push({
         id: sp.id,
         createdAt: new Date(sp.createdAt),
@@ -321,9 +311,9 @@ export const Storage: StorageInterface = {
     // LocalOnly:
     // 1. Если создана локально (local: ver=1:status=PENDING), то оставляем. Или ver1,status=APPLIED, time<15s -> сохранена, но недоступна еще для чтения
     // 2. В обратном случае (=запись была удалена в нашей системе / в другой) все PENDING в ErrorStorage и не добавляем в res.
-    const localOnlyIds = new Set([...localSpsIds].filter((id) => !remoteSpsIds.has(id)))
+    const localOnlyIds = new Set([...localSpsIds].filter(id => !remoteSpsIds.has(id)))
 
-    for (const spVersioned of localSps.filter((sp) => localOnlyIds.has(sp.id))) {
+    for (const spVersioned of localSps.filter(sp => localOnlyIds.has(sp.id))) {
       const ver1 = spVersioned.versions[0]!
       const ver1StatusAt = new Date(ver1.statusAt!)
       const spCreatedLocally =
@@ -334,35 +324,46 @@ export const Storage: StorageInterface = {
       }
 
       // Locally or Remote deleted
-      const spDeleted = ver1.status == VersionStatus.InDb || (ver1.status == VersionStatus.Applied && ver1StatusAt.moreThanSecondsAgo(15))
+      const spDeleted =
+        ver1.status == VersionStatus.InDb ||
+        (ver1.status == VersionStatus.Applied && ver1StatusAt.moreThanSecondsAgo(15))
       if (spDeleted) {
-        const revokedVersions = makeRevokeVersions(bid, spVersioned.id, spVersioned.versions, v => v.status == VersionStatus.Pending)
+        const revokedVersions = makeRevokeVersions(
+          bid,
+          spVersioned.id,
+          spVersioned.versions,
+          v => v.status == VersionStatus.Pending,
+        )
         revoked.push(...revokedVersions)
       }
     }
 
     // Remote and Local
 
-    const remoteById: Map<string, ApiSpending> = new Map(remoteSps.map((sp) => [sp.id, sp]))
-    const localById: Map<string, SpendingVersioned> = new Map(localSps.map((sp) => [sp.id, sp]))
+    const remoteById: Map<string, ApiSpending> = new Map(remoteSps.map(sp => [sp.id, sp]))
+    const localById: Map<string, SpendingVersioned> = new Map(localSps.map(sp => [sp.id, sp]))
 
-    const intersectIds = new Set([...remoteSpsIds].filter((id) => localSpsIds.has(id)))
-    const pairs: [SpendingVersioned, ApiSpending][] = [...intersectIds].map((id) => [
+    const intersectIds = new Set([...remoteSpsIds].filter(id => localSpsIds.has(id)))
+    const pairs: [SpendingVersioned, ApiSpending][] = [...intersectIds].map(id => [
       localById.get(id)!,
       remoteById.get(id)!,
     ])
 
     for (const [localSpVersioned, remoteSp] of pairs) {
-      const idx = localSpVersioned.versions.findIndex((v) => v.version == remoteSp.version)
+      const idx = localSpVersioned.versions.findIndex(v => v.version == remoteSp.version)
       let versions: SpendingVersion[]
 
       if (idx >= 0) {
         versions = localSpVersioned.versions.slice(idx) // оставляем только версии начинающиеся с remote
         versions[0]!.status = VersionStatus.InDb
       } else {
-        const revokedVersions = makeRevokeVersions(bid, localSpVersioned.id, localSpVersioned.versions, v => v.status == VersionStatus.Pending)
+        const revokedVersions = makeRevokeVersions(
+          bid,
+          localSpVersioned.id,
+          localSpVersioned.versions,
+          v => v.status == VersionStatus.Pending,
+        )
         revoked.push(...revokedVersions)
-
 
         versions = [
           {
@@ -391,17 +392,15 @@ export const Storage: StorageInterface = {
   },
 
   setStatusApplied(bid: number, spId: string, version: string): void {
-    const fromStore: SpendingVersioned[] = JSON.parse(
-      localStorage.getItem(lsSpendingsKey(bid)) ?? '[]',
-    )
+    const fromStore: SpendingVersioned[] = JSON.parse(localStorage.getItem(lsSpendingsKey(bid)) ?? '[]')
 
-    const spVersioned = fromStore.find((s) => spId == s.id)
+    const spVersioned = fromStore.find(s => spId == s.id)
 
     if (!spVersioned) {
       return
     }
 
-    const storedVer = spVersioned.versions.find((ver) => ver.version == version)
+    const storedVer = spVersioned.versions.find(ver => ver.version == version)
 
     if (!storedVer) {
       return
@@ -414,11 +413,9 @@ export const Storage: StorageInterface = {
   },
 
   revokeConflictVersion(bid: number, spId: string, version: string): RevokedVersions {
-    let fromStore: SpendingVersioned[] = JSON.parse(
-      localStorage.getItem(lsSpendingsKey(bid)) ?? '[]',
-    )
+    let fromStore: SpendingVersioned[] = JSON.parse(localStorage.getItem(lsSpendingsKey(bid)) ?? '[]')
 
-    const spVersionedIdx = fromStore.findIndex((s) => s.id == spId)
+    const spVersionedIdx = fromStore.findIndex(s => s.id == spId)
 
     if (spVersionedIdx == -1) {
       return []
@@ -426,12 +423,12 @@ export const Storage: StorageInterface = {
 
     const spVersioned = fromStore[spVersionedIdx]!
 
-    const idx = spVersioned.versions.findIndex((ver) => ver.version == version)
+    const idx = spVersioned.versions.findIndex(ver => ver.version == version)
     if (idx == -1) {
       return []
     }
 
-    const revokedVersions = makeRevokeVersions(bid, spId, spVersioned.versions, (v) => v.version == version)
+    const revokedVersions = makeRevokeVersions(bid, spId, spVersioned.versions, v => v.version == version)
 
     spVersioned.versions = spVersioned.versions.slice(0, idx)
 
@@ -448,13 +445,18 @@ export const Storage: StorageInterface = {
 // Check budget exists
 function assertBudget(bid: number) {
   const budgets: ApiBudget[] = JSON.parse(localStorage.getItem(lsBudgetsKey()) ?? '[]')
-  const b = budgets.find((b) => b.id === bid)
+  const b = budgets.find(b => b.id === bid)
   if (!b) {
     throw new Error('not existing budget')
   }
 }
 
-export function makeRevokeVersions(bid: number, spID: string, spVersions: SpendingVersion[] , fromIdx: (spVer: SpendingVersion) => boolean): RevokedVersions {
+export function makeRevokeVersions(
+  bid: number,
+  spID: string,
+  spVersions: SpendingVersion[],
+  fromIdx: (spVer: SpendingVersion) => boolean,
+): RevokedVersions {
   const idx = spVersions.findIndex(fromIdx)
   if (idx == -1) {
     return []

@@ -42,7 +42,7 @@ for (const b of budgets) {
       fraction: b.money.fraction,
       currency: b.money.currency,
     },
-    showPerDay: b.params["perDay"] as boolean | undefined,
+    showPerDay: b.params['perDay'] as boolean | undefined,
   })
 }
 
@@ -83,7 +83,9 @@ const buildCommit = import.meta.env.VITE_BUILD_COMMIT
 </script>
 
 <template>
-  <h1>Love you so much &hearts; <span style="font-size: small;">{{ buildCommit }}</span></h1>
+  <h1>
+    Love you so much &hearts; <span style="font-size: small">{{ buildCommit }}</span>
+  </h1>
   <div
     v-for="b in templateBudgets"
     v-bind:key="b.id"
@@ -97,8 +99,7 @@ const buildCommit = import.meta.env.VITE_BUILD_COMMIT
     </p>
     <div class="row">
       <div class="col-5" style="font-size: 0.7rem">
-        <b>{{ moneyToString(minus(b.amount, b.amountSpent)) }}</b> {{ b.amount.currency }} left.
-        Money:
+        <b>{{ moneyToString(minus(b.amount, b.amountSpent)) }}</b> {{ b.amount.currency }} left. Money:
         <br />
         <b>{{ daysLeft(b.dateTo) }}</b> days left. Days:
         <br />
@@ -109,11 +110,7 @@ const buildCommit = import.meta.env.VITE_BUILD_COMMIT
       </div>
       <div class="dual-progress-container col-6">
         <div class="progress">
-          <div
-            class="progress-bar bg-success"
-            role="progressbar"
-            :style="{ width: percentAmount(b) + '%' }"
-          >
+          <div class="progress-bar bg-success" role="progressbar" :style="{ width: percentAmount(b) + '%' }">
             <span v-if="percentAmount(b) >= 50">{{ percentAmount(b) }} %</span>
           </div>
           <span v-if="percentAmount(b) < 50">{{ percentAmount(b) }} %</span>

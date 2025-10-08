@@ -1,11 +1,10 @@
-
 import type { Money } from '@/helpers/money'
 import type { components } from '@/schemas'
 
 export type ApiBudget = components['schemas']['Budget']
 export type ApiSpending = components['schemas']['Spending']
 export type ApiSpendingEvent = components['schemas']['SpendingEvent']
-export type ApiUpdateSpendingsErrorsResponse = components['schemas']['UpdateSpendingsErrorsResponse'] 
+export type ApiUpdateSpendingsErrorsResponse = components['schemas']['UpdateSpendingsErrorsResponse']
 
 export interface Spending {
   id: string

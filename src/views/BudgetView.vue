@@ -14,7 +14,7 @@ const budgetId = route.params.budgetId
 const budgets = Facade.getBudgets()
 const spendings = Facade.spendingsByBudgetId(Number(budgetId))
 
-const budg = budgets.find((b) => String(b.id) == budgetId)
+const budg = budgets.find(b => String(b.id) == budgetId)
 
 // TODO: redirect if budget not found
 
