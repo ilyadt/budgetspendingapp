@@ -14,6 +14,10 @@ export class Money {
   public toString(): string {
     return moneyToString(this)
   }
+
+  public format(): number {
+    return moneyFormat(this)
+  }
 }
 
 export function moneyToString(money: Money): string {
@@ -62,5 +66,7 @@ export function from(amount: number, cur: Currency): Money {
     throw new Error('fraction value not defined for currency: ' + cur)
   }
 
-  return new Money(amount * 10 ** fraction, fraction, cur)
+  const scaled = Math.floor(amount * 10 ** fraction)
+
+  return new Money(scaled, fraction, cur)
 }

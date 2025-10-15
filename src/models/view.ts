@@ -32,7 +32,7 @@ class PendingSpending {
     public budgetId: number | null,
     public currency: Currency | null,
     public description: string,
-    public money: number,
+    public money: string,
     public sp: SpendingRow, // Link to creator
   ) {
     this.initId = id
@@ -40,7 +40,7 @@ class PendingSpending {
     this.initHash = PendingSpending.hash(budgetId, money, description)
   }
 
-  private static hash(budgetId: number | null, money: number, description: string): string {
+  private static hash(budgetId: number | null, money: string, description: string): string {
     return `${budgetId ?? 'null'}|${money}|${description}`
   }
 
@@ -62,6 +62,13 @@ class PendingSpending {
       return
     }
 
+    const m = Number(this.money)
+
+    if (!m) {
+      console.error('money is empty')
+      return
+    }
+
     this.sp.saveChanges({
       id: this.id,
       budgetId: this.budgetId,
@@ -69,7 +76,7 @@ class PendingSpending {
       version: genVersion(),
       dt: new Date(),
       description: this.description,
-      money: this.money,
+      money: m,
     })
   }
 
@@ -134,7 +141,7 @@ export class SpendingRow {
     this.budgetId = data.budgetId
     this.currency = data.currency
     this.description = data.description
-    this.amountFull = data.money
+    this.amountFull = from(data.money, data.currency).format()
     this.updatedAt = data.dt
     if (!this.version) {
       this.createdAt = data.dt
@@ -155,7 +162,7 @@ export class SpendingRow {
       this.budgetId,
       this.currency,
       this.description,
-      this.amountFull,
+      String(this.amountFull || ''),
       this,
     )
   }

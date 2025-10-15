@@ -125,7 +125,7 @@ const groupedSpendings = ref(groupSpendings(budgets.map(b => b.id)))
               <td class="text-end">
                 <input
                   class="form-control cell-input"
-                  v-model="sp.pending.money"
+                  v-model.number="sp.pending.money"
                   @keyup.enter="sp.pending.save()"
                   @keyup.esc="sp.pending.cancel()"
                 />
