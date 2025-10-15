@@ -1,5 +1,5 @@
 import { Facade } from '@/facade'
-import { from, type Currency } from '@/helpers/money'
+import { from, moneyFormat, type Currency } from '@/helpers/money'
 import { alphanumeric } from 'nanoid-dictionary'
 import { customAlphabet } from 'nanoid/non-secure'
 import type { Budget, Spending } from './models'
@@ -141,7 +141,7 @@ export class SpendingRow {
     this.budgetId = data.budgetId
     this.currency = data.currency
     this.description = data.description
-    this.amountFull = from(data.money, data.currency).format()
+    this.amountFull = moneyFormat(from(data.money, data.currency))
     this.updatedAt = data.dt
     if (!this.version) {
       this.createdAt = data.dt

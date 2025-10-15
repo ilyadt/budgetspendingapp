@@ -14,10 +14,6 @@ export class Money {
   public toString(): string {
     return moneyToString(this)
   }
-
-  public format(): number {
-    return moneyFormat(this)
-  }
 }
 
 export function moneyToString(money: Money): string {
