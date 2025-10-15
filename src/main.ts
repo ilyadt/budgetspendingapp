@@ -3,13 +3,13 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import BudgetView from './views/BudgetView.vue'
+import CrossBudgetView from './views/CrossBudgetView.vue'
 import ErrorsView from './views/ErrorsView.vue'
+import HomeView from './views/HomeView.vue'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import { Fetcher, Uploader } from './api'
 
 import 'bootstrap/dist/css/bootstrap.min.css'
-
-import HomeView from './views/HomeView.vue'
 
 import * as Sentry from '@sentry/vue'
 
@@ -53,6 +53,11 @@ app.use(
         path: '/errors',
         name: 'errors',
         component: ErrorsView,
+      },
+      {
+        path: '/cross-budget',
+        name: 'cross-budget',
+        component: CrossBudgetView,
       },
     ],
   }),

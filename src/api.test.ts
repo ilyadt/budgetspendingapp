@@ -9,6 +9,7 @@ import type {
   ApiSpending,
   ApiSpendingEvent,
   ApiUpdateSpendingsErrorsResponse,
+  Budget,
   Spending,
 } from './models/models'
 import { fromRUB } from './helpers/money'
@@ -60,7 +61,7 @@ describe('fetcher', () => {
     const conflictVersionsStore = useConflictVersionStore()
     expect(conflictVersionsStore.conflictVersions).toEqual([])
 
-    const exp: ApiBudget[] = [
+    const exp: Budget[] = [
       {
         id: 23,
         alias: 'drinks',
@@ -68,8 +69,8 @@ describe('fetcher', () => {
         description: 'postmorten',
         sort: 1,
         money: fromRUB(8_000),
-        dateFrom: '2025-05-01',
-        dateTo: '2025-05-31',
+        dateFrom: new Date('2025-05-01'),
+        dateTo: new Date('2025-05-31'),
         params: { perDay: true },
       },
       {
@@ -79,8 +80,8 @@ describe('fetcher', () => {
         description: 'postmorten',
         sort: 3,
         money: fromRUB(20_000),
-        dateFrom: '2025-05-01',
-        dateTo: '2025-05-31',
+        dateFrom: new Date('2025-05-01'),
+        dateTo: new Date('2025-05-31'),
         params: {},
       },
     ]

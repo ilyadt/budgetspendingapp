@@ -52,8 +52,8 @@ describe('storage_test', () => {
         name: 'на учебу',
         sort: 1,
         money: fromRUB(50_000),
-        dateFrom: '2025-09-01',
-        dateTo: '2025-10-01', // TODO: dateTo -> Date()
+        dateFrom: new Date('2025-09-01'),
+        dateTo: new Date('2025-10-01'), // TODO: dateTo -> Date()
         params: { key: 'val' },
       },
       {
@@ -62,8 +62,8 @@ describe('storage_test', () => {
         name: 'на кофе',
         sort: 2,
         money: fromRUB(5_000),
-        dateFrom: '2025-09-01',
-        dateTo: '2025-09-31',
+        dateFrom: new Date('2025-09-01'),
+        dateTo: new Date('2025-09-31'),
         params: {},
       },
     ])

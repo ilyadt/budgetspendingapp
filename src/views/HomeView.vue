@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { minus, Money, moneyToString } from '@/helpers/money'
+import { minus, Money, moneyToString, type Currency } from '@/helpers/money'
 import { moneyToStringWithCurrency, moneyFormat } from '@/helpers/money'
 import { dateFormat } from '@/helpers/date'
 import { Facade } from '@/facade'
@@ -35,12 +35,16 @@ for (const b of budgets) {
     sort: b.sort ? b.sort : 1e6, // Empty sort means going to the end
     dateFrom: new Date(b.dateFrom),
     dateTo: new Date(b.dateTo),
-    amount: b.money,
+    amount: {
+      amount: b.money.amount,
+      fraction: b.money.fraction,
+      currency: b.money.currency as Currency,
+    },
     description: b.description,
     amountSpent: {
       amount: spentAmount,
       fraction: b.money.fraction,
-      currency: b.money.currency,
+      currency: b.money.currency as Currency,
     },
     showPerDay: b.params['perDay'] as boolean | undefined,
   })

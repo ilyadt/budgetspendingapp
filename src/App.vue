@@ -48,6 +48,11 @@ watch(route, () => {
           <font-awesome-icon :icon="['fas', 'home']" />
         </RouterLink>
       </li>
+      <li class="btn-style">
+        <RouterLink :to="{ name: 'cross-budget' }" class="nav-link" activeClass="active">
+          cross
+        </RouterLink>
+      </li>
       <li class="btn-style" v-for="budget in templateBudgets" :key="budget.id">
         <RouterLink :to="{ name: 'budget', params: { budgetId: budget.id } }" class="nav-link" activeClass="active">
           {{ budget.alias }}

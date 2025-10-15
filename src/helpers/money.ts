@@ -1,9 +1,19 @@
+import type { ApiMoney } from '@/models/models'
+
 export class Money {
   constructor(
     public amount: number,
     public fraction: number,
-    public currency: string,
+    public currency: Currency,
   ) {}
+
+  public static fromApiMoney(m: ApiMoney): Money {
+    return new Money(m.amount, m.fraction, m.currency as Currency)
+  }
+
+  public toString(): string {
+    return moneyToString(this)
+  }
 }
 
 export function moneyToString(money: Money): string {
@@ -30,5 +40,27 @@ export function minus(m1: Money, m2: Money): Money {
 }
 
 export function fromRUB(amount: number): Money {
-  return new Money(amount * 100, 2, 'RUB')
+  return from(amount, 'RUB')
+}
+
+export type Currency = 'RUB' | 'EUR'
+
+const currencies: Currency[] = ['RUB', 'EUR']
+
+const fractions: Record<Currency, number> = {
+  RUB: 2,
+  EUR: 2,
+}
+
+export function from(amount: number, cur: Currency): Money {
+  if (!currencies.includes(cur)) {
+    throw new Error('invalid currency: ' + cur)
+  }
+
+  const fraction = fractions[cur]
+  if (fraction == null) {
+    throw new Error('fraction value not defined for currency: ' + cur)
+  }
+
+  return new Money(amount * 10 ** fraction, fraction, cur)
 }

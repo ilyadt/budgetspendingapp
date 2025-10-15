@@ -42,3 +42,15 @@ Date.prototype.moreThanSecondsAgo = function (seconds: number): boolean {
   const diffMs = now.getTime() - this.getTime()
   return diffMs > seconds * 1000
 }
+
+export function dateRange(dateFrom: Date, dateTo: Date): Date[] {
+  const dates: Date[] = []
+  const current = new Date(dateFrom)
+
+  while (current <= dateTo) {
+    dates.push(new Date(current))
+    current.setDate(current.getDate() + 1) // Increment by 1 day
+  }
+
+  return dates
+}

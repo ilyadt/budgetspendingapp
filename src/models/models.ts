@@ -5,6 +5,7 @@ export type ApiBudget = components['schemas']['Budget']
 export type ApiSpending = components['schemas']['Spending']
 export type ApiSpendingEvent = components['schemas']['SpendingEvent']
 export type ApiUpdateSpendingsErrorsResponse = components['schemas']['UpdateSpendingsErrorsResponse']
+export type ApiMoney = components['schemas']['Money']
 
 export interface Spending {
   id: string
@@ -16,6 +17,20 @@ export interface Spending {
   description: string
   createdAt: Date
   updatedAt: Date
+}
+
+export interface Budget {
+  id: number
+  alias: string
+  name: string
+  sort: number
+  description?: string
+  money: Money
+  dateFrom: Date
+  dateTo: Date
+  params: {
+    [key: string]: unknown
+  }
 }
 
 export type DelSpending = Pick<Spending, 'id' | 'version' | 'prevVersion' | 'updatedAt'>

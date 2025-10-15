@@ -1,5 +1,5 @@
-import type { ApiBudget, ApiSpending, Spending, DelSpending } from '@/models/models'
-import { moneyToStringWithCurrency, type Money } from './helpers/money'
+import type { ApiBudget, ApiSpending, ApiMoney, Spending, DelSpending, Budget } from '@/models/models'
+import { Money, moneyToStringWithCurrency, type Currency } from './helpers/money'
 import '@/helpers/date' // For date prototypes
 import { format } from 'date-fns'
 
@@ -37,7 +37,7 @@ export interface SpendingVersion {
   statusAt?: Date
   date?: Date | string
   description?: string
-  money?: Money
+  money?: ApiMoney
   sort?: number
   updatedAt: Date | string // заменить на versionDt
   deleted?: boolean
@@ -64,7 +64,7 @@ interface StorageInterface {
   // -----------------------------------------------------------------
   // Методы получения данных из стора
 
-  getBudgets(): ApiBudget[]
+  getBudgets(): Budget[]
   spendingsByBudgetId(bid: number): Spending[]
   spendingsByBudgetIds(bids: number[]): Spending[]
 
@@ -121,8 +121,20 @@ function lsBudgetsKey(): string {
 }
 
 export const Storage: StorageInterface = {
-  getBudgets(): ApiBudget[] {
-    return JSON.parse(localStorage.getItem(lsBudgetsKey()) ?? '[]')
+  getBudgets(): Budget[] {
+    const budgets: ApiBudget[] = JSON.parse(localStorage.getItem(lsBudgetsKey()) ?? '[]')
+
+    return budgets.map(apib => ({
+      id: apib.id,
+      alias: apib.alias,
+      name: apib.name,
+      description: apib.description,
+      sort: apib.sort,
+      money: new Money(apib.money.amount, apib.money.fraction, apib.money.currency as Currency),
+      dateFrom: new Date(apib.dateFrom),
+      dateTo: new Date(apib.dateTo),
+      params: apib.params,
+    }))
   },
 
   spendingsByBudgetId(bid: number): Spending[] {
@@ -142,7 +154,7 @@ export const Storage: StorageInterface = {
         version: lastVer.version!,
         date: new Date(lastVer.date!),
         sort: lastVer.sort!,
-        money: lastVer.money!,
+        money: Money.fromApiMoney(lastVer.money!),
         description: lastVer.description!,
         createdAt: new Date(spVersioned.createdAt),
         updatedAt: new Date(lastVer.updatedAt),
@@ -487,7 +499,7 @@ export function formatVersionPayload(ver?: SpendingVersion): string | null {
     return null
   }
 
-  return `${format(ver.date!, 'dd.MM')}: ${moneyToStringWithCurrency(ver.money!)} ${ver.description!}`
+  return `${format(ver.date!, 'dd.MM')}: ${moneyToStringWithCurrency(Money.fromApiMoney(ver.money!))} ${ver.description!}`
 }
 
 export const _test = {

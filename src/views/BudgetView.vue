@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Facade } from '@/facade'
 import DaySpendingTable from '../components/DaySpendingTable.vue'
-import { dateFormatFromString, dateISO } from '@/helpers/date'
+import { dateFormat, dateISO } from '@/helpers/date'
 import { moneyToString, minus } from '@/helpers/money'
 import type { Spending } from '@/models/models'
 import { computed } from 'vue'
@@ -64,8 +64,8 @@ const spendingsByDate = computed(() => {
     <p>
       <b>Бюджет #{{ budget!.id }}: {{ budget!.name }}</b> <br />
       <b
-        >{{ dateFormatFromString(budget!.dateFrom) }} &mdash;
-        {{ dateFormatFromString(budget!.dateTo) }}</b
+        >{{ dateFormat(budget!.dateFrom) }} &mdash;
+        {{ dateFormat(budget!.dateTo) }}</b
       ><br />
       <b>{{ moneyToString(moneyLeft) }} {{ moneyLeft.currency }}</b> (из
       <b>{{ moneyToString(budget!.money) }} {{ budget!.money.currency }}</b

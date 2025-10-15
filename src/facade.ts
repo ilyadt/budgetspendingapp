@@ -1,5 +1,5 @@
 import { Uploader } from './api'
-import type { ApiBudget, DelSpending, Spending } from '@/models/models'
+import type { Budget, DelSpending, Spending } from '@/models/models'
 import { Storage } from './storage'
 
 class FacadeImpl {
@@ -8,7 +8,7 @@ class FacadeImpl {
     private readonly storage = Storage,
   ) {}
 
-  getBudgets(): ApiBudget[] {
+  getBudgets(): Budget[] {
     return this.storage.getBudgets()
   }
 
