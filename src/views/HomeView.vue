@@ -3,8 +3,13 @@ import { minus, Money, moneyToString, type Currency } from '@/helpers/money'
 import { moneyToStringWithCurrency, moneyFormat } from '@/helpers/money'
 import { dateFormat } from '@/helpers/date'
 import { Facade } from '@/facade'
+import type { Budget } from '@/models/models';
 
-const budgets = Facade.getBudgets()
+const props = defineProps<{
+  budgets: Budget[],
+}>()
+
+const budgets = props.budgets
 
 interface TemplateBudget {
   id: number

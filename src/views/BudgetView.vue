@@ -3,38 +3,31 @@ import { Facade } from '@/facade'
 import DaySpendingTable from '../components/DaySpendingTable.vue'
 import { dateFormat, dateISO } from '@/helpers/date'
 import { moneyToString, minus } from '@/helpers/money'
-import type { Spending } from '@/models/models'
+import type { Budget, Spending } from '@/models/models'
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
 
-const route = useRoute()
+const props = defineProps<{
+  budget: Budget,
+}>()
 
-const budgetId = route.params.budgetId
-
-const budgets = Facade.getBudgets()
-const spendings = Facade.spendingsByBudgetId(Number(budgetId))
-
-const budg = budgets.find(b => String(b.id) == budgetId)
+const budget = props.budget
+const spendings = Facade.spendingsByBudgetId(budget.id)
 
 // TODO: redirect if budget not found
 
-const budget = computed(() => {
-  return budg
-})
-
 const daysCount = computed(() => {
-  const fromMs = new Date(budget.value!.dateFrom)
-  const toMs = new Date(budget.value!.dateTo)
+  const fromMs = new Date(budget.dateFrom)
+  const toMs = new Date(budget.dateTo)
 
   return (toMs.getTime() - fromMs.getTime()) / 1000 / 60 / 60 / 24 + 1
 })
 
 function getDate(i: number): Date {
-  return new Date(new Date(budget.value!.dateFrom).getTime() + (i - 1) * 24 * 60 * 60 * 1000)
+  return new Date(new Date(budget.dateFrom).getTime() + (i - 1) * 24 * 60 * 60 * 1000)
 }
 
 const moneyLeft = computed(() => {
-  let moneyLeft = budget.value!.money
+  let moneyLeft = budget.money
 
   for (const sp of spendings) {
     moneyLeft = minus(moneyLeft, sp.money)

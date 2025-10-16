@@ -4,6 +4,8 @@ import { RouterLink, RouterView } from 'vue-router'
 import StatusBar from './components/StatusBar.vue'
 import { Facade } from './facade'
 import BudgetView from './views/BudgetView.vue'
+import CrossBudgetView from './views/CrossBudgetView.vue'
+import HomeView from './views/HomeView.vue'
 
 const budgets = Facade.getBudgets()
   .map(b => ({ ...b, sort: b.sort ?? 1e6 }))
@@ -15,8 +17,14 @@ const budgets = Facade.getBudgets()
   <StatusBar />
   <div class="container">
     <RouterView v-slot="{route, Component }">
-      <template v-if="route.name === 'budget'">
-        <BudgetView :key="String(route.params.budgetId)"/>
+      <template v-if="route.name === 'home'">
+        <HomeView :budgets="budgets" />
+      </template>
+      <template v-else-if="route.name === 'budget'">
+        <BudgetView :key="String(route.params.budgetId)" :budget="budgets.find(b => b.id === Number(route.params.budgetId))!"/>
+      </template>
+      <template v-else-if="route.name === 'cross-budget'">
+        <CrossBudgetView :budgets="budgets"/>
       </template>
       <template v-else>
         <component :is="Component"/>

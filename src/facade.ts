@@ -12,10 +12,6 @@ class FacadeImpl {
     return this.storage.getBudgets()
   }
 
-  spendingsByBudgetIds(bids: number[]): Spending[] {
-    return this.storage.spendingsByBudgetIds(bids)
-  }
-
   spendingsByBudgetId(bid: number): Spending[] {
     return this.storage.spendingsByBudgetId(bid)
   }

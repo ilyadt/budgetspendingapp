@@ -7,7 +7,12 @@ import { DateCheck, dayName, genSpendingID, genVersion, SpendingRow } from '@/mo
 import { ref } from 'vue'
 const { isToday, isFuture } = DateCheck()
 
-const budgets = Facade.getBudgets()
+const props = defineProps<{
+  budgets: Budget[],
+}>()
+
+const budgets = props.budgets
+
 const budgetMap: Record<number, Budget> = Object.fromEntries(budgets.map(b => [b.id, b]))
 
 const { dateFrom, dateTo } = budgets.reduce(
