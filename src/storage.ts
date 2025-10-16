@@ -22,6 +22,7 @@ export interface RevokedVersion {
   revokedAt: Date
   from: string | null // null - created
   to: string | null // null - deleted
+  reason: string | null,
 }
 
 export interface SpendingVersion {
@@ -345,6 +346,7 @@ export const Storage: StorageInterface = {
           spVersioned.id,
           spVersioned.versions,
           v => v.status == VersionStatus.Pending,
+          'locally or remote deleted'
         )
         revoked.push(...revokedVersions)
       }
@@ -374,6 +376,7 @@ export const Storage: StorageInterface = {
           localSpVersioned.id,
           localSpVersioned.versions,
           v => v.status == VersionStatus.Pending,
+          'local and remote diff',
         )
         revoked.push(...revokedVersions)
 
@@ -440,7 +443,7 @@ export const Storage: StorageInterface = {
       return []
     }
 
-    const revokedVersions = makeRevokeVersions(bid, spId, spVersioned.versions, v => v.version == version)
+    const revokedVersions = makeRevokeVersions(bid, spId, spVersioned.versions, v => v.version == version, null)
 
     spVersioned.versions = spVersioned.versions.slice(0, idx)
 
@@ -468,6 +471,7 @@ export function makeRevokeVersions(
   spID: string,
   spVersions: SpendingVersion[],
   fromIdx: (spVer: SpendingVersion) => boolean,
+  reason: string | null,
 ): RevokedVersions {
   const idx = spVersions.findIndex(fromIdx)
   if (idx == -1) {
@@ -488,6 +492,7 @@ export function makeRevokeVersions(
       revokedAt: new Date(),
       from: formatVersionPayload(prev),
       to: formatVersionPayload(curr),
+      reason: reason,
     })
   }
 

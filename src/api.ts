@@ -6,7 +6,7 @@ import * as Sentry from '@sentry/vue'
 import { useConflictVersionStore } from '@/stores/conflictVersions'
 import { v4 as uuidv4 } from 'uuid'
 import { format } from 'date-fns'
-import type { Spending, ApiSpendingEvent, DelSpending } from './models/models'
+import type { Spending, ApiSpendingEvent, DelSpending, ApiUploadError } from './models/models'
 
 function createApiClient() {
   return createClient<paths>({ baseUrl: import.meta.env.VITE_SERVER_URL })
@@ -161,7 +161,7 @@ export const Uploader = {
     return this.saveAndProcess(ev)
   },
 
-  async sendEvents(events: ApiSpendingEvent[]): Promise<{ success: ApiSpendingEvent[]; conflict: ApiSpendingEvent[] }> {
+  async sendEvents(events: ApiSpendingEvent[]): Promise<{ success: ApiSpendingEvent[]; conflict: ApiSpendingEvent[], errors: ApiUploadError[] }> {
     const client = createApiClient()
     const statusStore = useStatusStore()
 
@@ -185,6 +185,7 @@ export const Uploader = {
       return {
         success: events.filter(e => successIds.includes(e.eventId)),
         conflict: events.filter(e => conflictIds.includes(e.eventId)),
+        errors: data?.errors ?? [],
       }
     } catch (error: unknown) {
       const err = error instanceof Error ? error : new Error(String(error))
@@ -192,7 +193,7 @@ export const Uploader = {
       Sentry.captureException(error)
     }
 
-    return { success: [], conflict: [] }
+    return { success: [], conflict: [], errors: [] }
   },
 
   async saveAndProcess(ev: ApiSpendingEvent) {
@@ -204,7 +205,7 @@ export const Uploader = {
   },
 
   async processEvents(events: ApiSpendingEvent[]) {
-    const { success, conflict } = await this.sendEvents(events)
+    const { success, conflict, errors } = await this.sendEvents(events)
 
     // Помечаем все события во внешнем Storage
     const storage = Storage
@@ -216,7 +217,11 @@ export const Uploader = {
 
     for (const ev of conflict) {
       const revoked = storage.revokeConflictVersion(ev.budgetId, ev.spendingId, ev.newVersion)
-      conflictVersion.add(...revoked)
+
+      for (const r of revoked) {
+        r.reason = errors.find(e => e.eventId == ev.eventId)?.error ?? null
+        conflictVersion.add(r)
+      }
     }
 
     // Удаляем все success и conflict из внутренних events

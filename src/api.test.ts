@@ -159,6 +159,7 @@ describe('fetcher', () => {
         revokedAt: new Date(777),
         from: '01.05: 85 RUB кофе',
         to: '01.05: 90 RUB кофе',
+        reason: 'local and remote diff'
       },
     ]
 
@@ -256,6 +257,7 @@ describe('updater', () => {
         revokedAt: new Date(),
         from: '<..>',
         to: '<..>',
+        reason: 'db error',
       },
       {
         // третья версия была сверху, поэтому она тоже становится revoked
@@ -266,6 +268,7 @@ describe('updater', () => {
         revokedAt: new Date(),
         from: '<..>',
         to: '<..>',
+        reason: 'db error'
       },
     ]
     const spyRevokeConflictVersion = vi.spyOn(Storage, 'revokeConflictVersion').mockReturnValue(revokedVersions)
@@ -278,7 +281,7 @@ describe('updater', () => {
         headers: new Headers(),
         json: async (): Promise<ApiUpdateSpendingsErrorsResponse> => ({
           success: [],
-          errors: [{ eventId: 'event_id_uuid_v4', number: 0, error: '' }],
+          errors: [{ eventId: 'event_id_uuid_v4', number: 0, error: 'db error' }],
         }),
       })),
     )

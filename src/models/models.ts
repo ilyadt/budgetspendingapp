@@ -5,6 +5,7 @@ export type ApiBudget = components['schemas']['Budget']
 export type ApiSpending = components['schemas']['Spending']
 export type ApiSpendingEvent = components['schemas']['SpendingEvent']
 export type ApiUpdateSpendingsErrorsResponse = components['schemas']['UpdateSpendingsErrorsResponse']
+export type ApiUploadError = components['schemas']['UpdateSpendingsError']
 export type ApiMoney = components['schemas']['Money']
 
 export interface Spending {
