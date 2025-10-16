@@ -6,6 +6,7 @@ import type { Budget } from '@/models/models'
 import { DateCheck, dayName, genSpendingID, genVersion, SpendingRow } from '@/models/view'
 import { nextTick, onMounted, ref } from 'vue'
 const { isToday, isFuture } = DateCheck()
+import { Popover } from 'bootstrap'
 
 const props = defineProps<{
   budgets: Budget[],
@@ -113,6 +114,12 @@ onMounted(() => {
   })
 })
 
+onMounted(() => {
+  document.querySelectorAll('[data-bs-toggle="popover"]').forEach(el => {
+    new Popover(el)
+  })
+})
+
 </script>
 
 <template v-if="budgets.length > 0">
@@ -142,7 +149,7 @@ onMounted(() => {
           <col style="width: 55px" />
         </colgroup>
         <tbody>
-          <tr v-for="sp of groupedSpendings[dateISO(date)]" :key="sp.id">
+          <tr v-for="sp of groupedSpendings[dateISO(date)]" :key="sp.id"   data-bs-toggle="popover" data-bs-trigger="focus" :data-bs-content="`id: ${sp.id}, v: ${sp.version}`" tabindex="0">
             <template v-if="sp.pending">
               <td class="text-end">
                 <input
