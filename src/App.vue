@@ -8,7 +8,7 @@ import CrossBudgetView from './views/CrossBudgetView.vue'
 import HomeView from './views/HomeView.vue'
 
 const budgets = Facade.getBudgets()
-  .map(b => ({ ...b, sort: b.sort ?? 1e6 }))
+  .map(b => ({ ...b, sort: b.sort || 1e6 }))
   .sort((a, b) => a.sort - b.sort)
 
 </script>

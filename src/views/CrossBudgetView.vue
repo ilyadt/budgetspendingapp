@@ -4,7 +4,7 @@ import { dateFormat, dateISO, dateRange } from '@/helpers/date'
 import { moneyFormat } from '@/helpers/money'
 import type { Budget } from '@/models/models'
 import { DateCheck, dayName, genSpendingID, genVersion, SpendingRow } from '@/models/view'
-import { ref } from 'vue'
+import { nextTick, onMounted, ref } from 'vue'
 const { isToday, isFuture } = DateCheck()
 
 const props = defineProps<{
@@ -96,11 +96,28 @@ function addSpending(date: Date): void {
 }
 
 const groupedSpendings = ref(groupSpendings(budgets.map(b => b.id)))
+
+const dateRefs: Record<string, Element> = {}
+
+const scrollToDate = (targetDate: Date) => {
+  const el = dateRefs[dateISO(targetDate)]
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+}
+
+onMounted(() => {
+  nextTick(() => {
+    const targetDate = new Date()
+    scrollToDate(targetDate)
+  })
+})
+
 </script>
 
 <template v-if="budgets.length > 0">
   <div :key="dateISO(date)" v-for="date in dateRange(dateFrom, dateTo)" class="row">
-    <div class="table-responsive" style="max-width: 100vw; overflow-x: auto">
+    <div class="table-responsive" style="max-width: 100vw; overflow-x: auto" :ref="el => dateRefs[dateISO(date)] = el as Element">
       <p style="padding-left: 0; margin-bottom: 0">
         <template v-if="isToday(date)">
           <b>
