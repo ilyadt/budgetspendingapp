@@ -35,11 +35,13 @@ const budgets = Facade.getBudgets()
   <!-- Нижняя навигация -->
   <nav class="navbar navbar-custom fixed-bottom navbar-light bg-light border-top nav-scroll p-0">
     <ul class="nav flex-nowrap">
-      <li class="btn-style" style="padding: 0px 5px 0 10px">
-        <RouterLink :to="{ name: 'home' }" class="nav-link">
-          <font-awesome-icon :icon="['fas', 'home']" />
-        </RouterLink>
-      </li>
+      <RouterLink :to="{ name: 'home' }" custom v-slot="{ navigate, isActive }">
+        <li class="btn-style" style="padding: 0px 5px 0 10px" :class="{ active: isActive }" @click="navigate">
+          <a class="nav-link">
+            <font-awesome-icon :icon="['fas', 'home']" />
+          </a>
+        </li>
+      </RouterLink>
       <li class="btn-style">
         <RouterLink :to="{ name: 'cross-budget' }" class="nav-link" activeClass="active">
           cross
