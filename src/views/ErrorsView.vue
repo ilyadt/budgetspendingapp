@@ -19,6 +19,7 @@ function deleteError(versionId: string) {
         <tr>
           <th style="width: 80px">date</th>
           <th style="width: 210px">change</th>
+          <th style="width: 35px">bid</th>
           <th style="width: 210px">reason</th>
           <th style="width: 30px"></th>
         </tr>
@@ -28,10 +29,13 @@ function deleteError(versionId: string) {
           <tr>
             <td>
               <!-- TODO: move updatedAt at the top level -->
-              {{ format(ver.versionDt, 'HH:mm:ss dd.MM.yy') }}
+              {{ format(ver.revokedAt, 'HH:mm:ss dd.MM.yy') }}
             </td>
             <td>
               {{ ver.from + ' -> ' + ver.to }}
+            </td>
+            <td>
+              {{ ver.budgetId }}
             </td>
             <td>
               {{ ver.reason }}
