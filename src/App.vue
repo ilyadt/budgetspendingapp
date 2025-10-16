@@ -1,43 +1,27 @@
 <script setup lang="ts">
-import { RouterLink, RouterView, useRoute } from 'vue-router'
+
+import { RouterLink, RouterView } from 'vue-router'
 import StatusBar from './components/StatusBar.vue'
 import { Facade } from './facade'
+import BudgetView from './views/BudgetView.vue'
 
 const budgets = Facade.getBudgets()
+  .map(b => ({ ...b, sort: b.sort ?? 1e6 }))
+  .sort((a, b) => a.sort - b.sort)
 
-interface TemplateBudget {
-  id: number
-  name: string
-  sort: number
-  alias: string
-}
-
-const templateBudgets: TemplateBudget[] = []
-
-for (const budget of budgets) {
-  templateBudgets.push({
-    id: budget.id,
-    alias: budget.alias,
-    name: budget.name,
-    sort: budget.sort ? budget.sort : 1e6,
-  })
-}
-
-templateBudgets.sort((a, b) => a.sort - b.sort)
-
-import { ref, watch } from 'vue'
-
-const route = useRoute()
-const componentKey = ref(0)
-watch(route, () => {
-  componentKey.value += 1 // Changing the key forces the component to recreate
-})
 </script>
 
 <template>
   <StatusBar />
   <div class="container">
-    <RouterView :key="componentKey" />
+    <RouterView v-slot="{route, Component }">
+      <template v-if="route.name === 'budget'">
+        <BudgetView :key="String(route.params.budgetId)"/>
+      </template>
+      <template v-else>
+        <component :is="Component"/>
+      </template>
+    </RouterView>
   </div>
   <div style="height: 80px"></div>
   <!-- Нижняя навигация -->
@@ -53,7 +37,7 @@ watch(route, () => {
           cross
         </RouterLink>
       </li>
-      <li class="btn-style" v-for="budget in templateBudgets" :key="budget.id">
+      <li class="btn-style" v-for="budget in budgets" :key="budget.id">
         <RouterLink :to="{ name: 'budget', params: { budgetId: budget.id } }" class="nav-link" activeClass="active">
           {{ budget.alias }}
         </RouterLink>
