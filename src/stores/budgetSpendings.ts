@@ -145,12 +145,14 @@ export const BudgetSpendingsStore: BudgetSpendingsStoreInterface = {
         continue
       }
 
+      const m = lastVer.money!
+
       res.push({
         id: spVersioned.id,
         version: lastVer.version!,
         date: new Date(lastVer.date!),
         sort: lastVer.sort!,
-        money: Money.fromApiMoney(lastVer.money!),
+        money: new Money(m.amount, m.fraction, m.currency as Currency),
         description: lastVer.description!,
         createdAt: new Date(spVersioned.createdAt),
         updatedAt: new Date(lastVer.updatedAt),
@@ -499,7 +501,7 @@ export function formatVersionPayload(ver?: SpendingVersion): string | null {
     return null
   }
 
-  return `${format(ver.date!, 'dd.MM')}: ${moneyToStringWithCurrency(Money.fromApiMoney(ver.money!))} ${ver.description!}`
+  return `${format(ver.date!, 'dd.MM')}: ${moneyToStringWithCurrency(ver.money!)} ${ver.description!}`
 }
 
 export const _test = {

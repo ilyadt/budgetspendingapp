@@ -1,4 +1,8 @@
-import type { ApiMoney } from '@/models/models'
+interface MoneyInterface {
+  amount: number,
+  fraction: number,
+  currency: string | Currency,
+}
 
 export class Money {
   constructor(
@@ -7,24 +11,20 @@ export class Money {
     public currency: Currency,
   ) {}
 
-  public static fromApiMoney(m: ApiMoney): Money {
-    return new Money(m.amount, m.fraction, m.currency as Currency)
-  }
-
   public toString(): string {
     return moneyToString(this)
   }
 }
 
-export function moneyToString(money: Money): string {
+export function moneyToString(money: MoneyInterface): string {
   return String(moneyFormat(money))
 }
 
-export function moneyFormat(money: Money): number {
+export function moneyFormat(money: MoneyInterface): number {
   return money.amount / 10 ** money.fraction
 }
 
-export function moneyToStringWithCurrency(money: Money): string {
+export function moneyToStringWithCurrency(money: MoneyInterface): string {
   return moneyToString(money) + ' ' + money.currency
 }
 
