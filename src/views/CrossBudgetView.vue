@@ -4,7 +4,7 @@ import { dateFormat, dateISO, dateRange, DateCheck, dayName, } from '@/helpers/d
 import { from, Money, moneyFormat } from '@/helpers/money'
 import { type Budget, genSpendingID, genVersion }from '@/models/models'
 import { SpendingRow } from '@/models/view'
-import { computed, nextTick, onMounted, onUpdated, ref, type ComputedRef } from 'vue'
+import { computed, nextTick, onMounted, onUpdated, ref } from 'vue'
 const { isToday, isFuture } = DateCheck(new Date())
 import { Popover } from 'bootstrap'
 
