@@ -18,6 +18,10 @@ export class Money {
   public minus(m2: Money): Money {
     return minus(this, m2)
   }
+
+  public full(): number {
+    return moneyFormat(this)
+  }
 }
 
 export function moneyToString(money: MoneyInterface): string {
@@ -67,3 +71,18 @@ export function from(amount: number, cur: Currency): Money {
 
   return new Money(scaled, fraction, cur)
 }
+
+export const getFormatter = (c: Currency): Intl.NumberFormat => {
+  switch (c) {
+    case 'RUB':
+      return new Intl.NumberFormat('ru-RU', {
+        style: 'currency',
+        currency: 'RUB',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      })
+  }
+
+  throw new Error('currency formatter not found')
+}
+

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Facade } from '@/facade'
 import { dateFormat, dateISO, dateRange, DateCheck, dayName, } from '@/helpers/date'
-import { from, Money, moneyFormat } from '@/helpers/money'
+import { from, getFormatter, Money, moneyFormat } from '@/helpers/money'
 import { type Budget, genSpendingID, genVersion }from '@/models/models'
 import { SpendingRow } from '@/models/view'
 import { computed, nextTick, onMounted, onUpdated, ref } from 'vue'
@@ -198,7 +198,7 @@ onUpdated(() => {
                     :key="b.id"
                     :value="b.id"
                   >
-                    {{ b.alias }}: {{ b.left.toString() }}
+                    {{ b.alias }}: {{ getFormatter(b.left.currency).format(b.left.full()) }}
                   </option>
                 </select>
               </td>
