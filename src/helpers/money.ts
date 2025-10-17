@@ -14,6 +14,10 @@ export class Money {
   public toString(): string {
     return moneyToString(this)
   }
+
+  public minus(m2: Money): Money {
+    return minus(this, m2)
+  }
 }
 
 export function moneyToString(money: MoneyInterface): string {
@@ -29,14 +33,11 @@ export function moneyToStringWithCurrency(money: MoneyInterface): string {
 }
 
 export function minus(m1: Money, m2: Money): Money {
-  if (m1.currency != m2.currency) {
+  if (m1.currency !== m2.currency) {
     throw new Error('currencies do not match')
   }
-  const res = Object.assign({}, m1)
 
-  res.amount -= m2.amount
-
-  return res
+  return new Money(m1.amount - m2.amount, m1.fraction, m1.currency)
 }
 
 export function fromRUB(amount: number): Money {

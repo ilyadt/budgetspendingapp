@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { Facade } from '@/facade'
 import { dateFormat, dateISO, dateRange, DateCheck, dayName, } from '@/helpers/date'
-import { moneyFormat } from '@/helpers/money'
+import { from, Money, moneyFormat } from '@/helpers/money'
 import { type Budget, genSpendingID, genVersion }from '@/models/models'
 import { SpendingRow } from '@/models/view'
-import { nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUpdated, ref, type ComputedRef } from 'vue'
 const { isToday, isFuture } = DateCheck(new Date())
 import { Popover } from 'bootstrap'
 
@@ -13,8 +13,6 @@ const props = defineProps<{
 }>()
 
 const budgets = props.budgets
-
-const budgetMap: Record<number, Budget> = Object.fromEntries(budgets.map(b => [b.id, b]))
 
 const { dateFrom, dateTo } = budgets.reduce(
   (acc, { dateFrom: df, dateTo: dt }) => {
@@ -98,6 +96,27 @@ function addSpending(date: Date): void {
 
 const groupedSpendings = ref(groupSpendings(budgets.map(b => b.id)))
 
+type BudgetWithLeft = Budget & {left: Money}
+
+const budgetMap = computed<Record<number, BudgetWithLeft>>(() => {
+  const spentByBid: Record<number, number> = {}
+
+  Object.values(groupedSpendings.value).forEach(daySpendings => {
+    daySpendings.forEach(sp => {
+      if (sp.budgetId != null) {
+        spentByBid[sp.budgetId] = (spentByBid[sp.budgetId] ?? 0) + sp.amountFull
+      }
+    })
+  })
+
+  return Object.fromEntries(
+    budgets.map(b => {
+      const spent = from(spentByBid[b.id] ?? 0, b.money.currency)
+      return [b.id, { ...b, left: b.money.minus(spent) }]
+    }),
+  )
+})
+
 const dateRefs: Record<string, Element> = {}
 
 const scrollToDate = (targetDate: Date) => {
@@ -114,7 +133,7 @@ onMounted(() => {
   })
 })
 
-onMounted(() => {
+onUpdated(() => {
   document.querySelectorAll('[data-bs-toggle="popover"]').forEach(el => {
     new Popover(el)
   })
@@ -149,12 +168,12 @@ onMounted(() => {
           <col style="width: 55px" />
         </colgroup>
         <tbody>
-          <tr v-for="sp of groupedSpendings[dateISO(date)]" :key="sp.id"   data-bs-toggle="popover" data-bs-trigger="focus" :data-bs-content="`id: ${sp.id}, v: ${sp.version}`" tabindex="0">
-            <template v-if="sp.pending">
+          <template v-for="sp of groupedSpendings[dateISO(date)]" :key="sp.id">
+            <tr v-if="sp.pending">
               <td class="text-end">
                 <input
                   class="form-control cell-input"
-                  v-model.number="sp.pending.money"
+                  v-model.number="sp.pending.amountFull"
                   @keyup.enter="sp.pending.save()"
                   @keyup.esc="sp.pending.cancel()"
                 />
@@ -175,11 +194,11 @@ onMounted(() => {
                 >
                   <option disabled value="">бюджет</option>
                   <option
-                    v-for="b in budgets"
+                    v-for="b in budgetMap"
                     :key="b.id"
                     :value="b.id"
                   >
-                    {{ b.alias }}
+                    {{ b.alias }}: {{ b.left.toString() }}
                   </option>
                 </select>
               </td>
@@ -199,8 +218,8 @@ onMounted(() => {
                   <font-awesome-icon :icon="['fas', 'check']" />
                 </button>
               </td>
-            </template>
-            <template v-else>
+            </tr>
+            <tr v-else data-bs-toggle="popover" data-bs-trigger="focus" :data-bs-content="`id: ${sp.id}, v: ${sp.version}`" tabindex="0">
               <td class="text-end">
                 <span @click="sp.toPending()">{{ sp.amountFull }}</span>
               </td>
@@ -219,8 +238,8 @@ onMounted(() => {
                   <font-awesome-icon :icon="['fas', 'xmark']" />
                 </button>
               </td>
-            </template>
-          </tr>
+            </tr>
+          </template>
           <tr>
             <td>
               <button

@@ -90,7 +90,7 @@ function addNew(): void {
             <td class="text-end">
               <input
                 class="form-control cell-input"
-                v-model="sp.pending.money"
+                v-model="sp.pending.amountFull"
                 @keyup.enter="sp.pending.save()"
                 @keyup.esc="sp.pending.cancel()"
               />

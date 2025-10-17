@@ -9,7 +9,7 @@ interface SaveData {
   budgetId: number
   currency: Currency
   description: string
-  money: number
+  amountFull: number
 }
 
 interface DeleteData {
@@ -27,12 +27,12 @@ class PendingSpending {
     public budgetId: number | null,
     public currency: Currency | null,
     public description: string,
-    public money: string,
+    public amountFull: string,
     public sp: SpendingRow, // Link to creator
   ) {
     this.initId = id
     this.initBudgetId = budgetId
-    this.initHash = PendingSpending.hash(budgetId, money, description)
+    this.initHash = PendingSpending.hash(budgetId, amountFull, description)
   }
 
   private static hash(budgetId: number | null, money: string, description: string): string {
@@ -57,9 +57,9 @@ class PendingSpending {
       return
     }
 
-    const m = Number(this.money)
+    const amountFull = Number(this.amountFull)
 
-    if (!m) {
+    if (!amountFull) {
       console.error('money is empty')
       return
     }
@@ -71,12 +71,12 @@ class PendingSpending {
       version: genVersion(),
       dt: new Date(),
       description: this.description,
-      money: m,
+      amountFull: amountFull,
     })
   }
 
   public cancel() {
-    const hash = PendingSpending.hash(this.budgetId, this.money, this.description)
+    const hash = PendingSpending.hash(this.budgetId, this.amountFull, this.description)
 
     if ((hash != this.initHash) && !window.confirm(`Отменить изменение "${this.description}" ?`)) {
       return
@@ -113,7 +113,7 @@ export class SpendingRow {
       prevVersion: this.version ?? undefined,
       date: this.date,
       sort: this.sort,
-      money: from(data.money, data.currency),
+      money: from(data.amountFull, data.currency),
       description: data.description,
       createdAt: this.version ? this.createdAt! : data.dt,
       updatedAt: data.dt,
@@ -136,7 +136,7 @@ export class SpendingRow {
     this.budgetId = data.budgetId
     this.currency = data.currency
     this.description = data.description
-    this.amountFull = moneyFormat(from(data.money, data.currency))
+    this.amountFull = moneyFormat(from(data.amountFull, data.currency))
     this.updatedAt = data.dt
     if (!this.version) {
       this.createdAt = data.dt

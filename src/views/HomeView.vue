@@ -40,17 +40,9 @@ for (const b of budgets) {
     sort: b.sort ? b.sort : 1e6, // Empty sort means going to the end
     dateFrom: new Date(b.dateFrom),
     dateTo: new Date(b.dateTo),
-    amount: {
-      amount: b.money.amount,
-      fraction: b.money.fraction,
-      currency: b.money.currency as Currency,
-    },
+    amount: b.money,
     description: b.description,
-    amountSpent: {
-      amount: spentAmount,
-      fraction: b.money.fraction,
-      currency: b.money.currency as Currency,
-    },
+    amountSpent: new Money(spentAmount, b.money.fraction, b.money.currency as Currency),
     showPerDay: b.params['perDay'] as boolean | undefined,
   })
 }
