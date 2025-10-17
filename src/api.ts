@@ -1,6 +1,6 @@
 import createClient from 'openapi-fetch'
 import type { paths } from './schemas'
-import { Storage } from '@/storage'
+import { BudgetSpendingsStore } from '@/stores/budgetSpendings'
 import { useStatusStore } from '@/stores/status'
 import * as Sentry from '@sentry/vue'
 import { useConflictVersionStore } from '@/stores/conflictVersions'
@@ -48,10 +48,10 @@ export const Fetcher = {
 
       status.setGetSpendingStatus('ok')
 
-      Storage.storeBudgetsFromRemote(data!.budgets)
+      BudgetSpendingsStore.storeBudgetsFromRemote(data!.budgets)
 
       for (const apiSpsByBudget of data!.spendings) {
-        const revoked = Storage.storeSpendingsFromRemote(apiSpsByBudget.budgetId, apiSpsByBudget.spendings)
+        const revoked = BudgetSpendingsStore.storeSpendingsFromRemote(apiSpsByBudget.budgetId, apiSpsByBudget.spendings)
 
         conflictVersions.add(...revoked)
       }
@@ -208,7 +208,7 @@ export const Uploader = {
     const { success, conflict, errors } = await this.sendEvents(events)
 
     // Помечаем все события во внешнем Storage
-    const storage = Storage
+    const storage = BudgetSpendingsStore
     const conflictVersion = useConflictVersionStore()
 
     for (const ev of success) {

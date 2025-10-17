@@ -1,5 +1,5 @@
 import type { ApiBudget, ApiSpending, ApiMoney, Spending, DelSpending, Budget } from '@/models/models'
-import { Money, moneyToStringWithCurrency, type Currency } from './helpers/money'
+import { Money, moneyToStringWithCurrency, type Currency } from '../helpers/money'
 import '@/helpers/date' // For date prototypes
 import { format } from 'date-fns'
 
@@ -61,7 +61,7 @@ interface SpendingVersioned {
   versions: SpendingVersion[]
 }
 
-interface StorageInterface {
+interface BudgetSpendingsStoreInterface {
   // -----------------------------------------------------------------
   // Методы получения данных из стора
 
@@ -121,7 +121,7 @@ function lsBudgetsKey(): string {
   return `${lsPrefix}:budgets`
 }
 
-export const Storage: StorageInterface = {
+export const BudgetSpendingsStore: BudgetSpendingsStoreInterface = {
   getBudgets(): Budget[] {
     const budgets: ApiBudget[] = JSON.parse(localStorage.getItem(lsBudgetsKey()) ?? '[]')
 
@@ -466,7 +466,8 @@ function assertBudget(bid: number) {
   }
 }
 
-export function makeConflictVersions(
+export function
+makeConflictVersions(
   bid: number,
   spID: string,
   spVersions: SpendingVersion[],

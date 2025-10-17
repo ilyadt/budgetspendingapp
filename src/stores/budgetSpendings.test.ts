@@ -1,8 +1,8 @@
 import { test, expect, describe, beforeEach, vi } from 'vitest'
 
 import type { ApiBudget, ApiSpending, Spending } from '@/models/models'
-import { Storage, VersionStatus, _test, formatVersionPayload, type SpendingVersion } from './storage'
-import { fromRUB } from './helpers/money'
+import { BudgetSpendingsStore, VersionStatus, _test, formatVersionPayload, type SpendingVersion } from './budgetSpendings'
+import { fromRUB } from '../helpers/money'
 
 describe('storage_test', () => {
   beforeEach(() => {
@@ -10,16 +10,16 @@ describe('storage_test', () => {
   })
 
   test('get_budgets:empty', () => {
-    expect(Storage.getBudgets()).toEqual([])
+    expect(BudgetSpendingsStore.getBudgets()).toEqual([])
   })
 
   test('get_budgets:invalid_store', () => {
     localStorage.setItem(_test.lsBudgetsKey(), 'invalid json')
-    expect(() => Storage.getBudgets()).toThrow()
+    expect(() => BudgetSpendingsStore.getBudgets()).toThrow()
   })
 
   test('update_budgets_from_remote:init', () => {
-    Storage.storeBudgetsFromRemote([
+    BudgetSpendingsStore.storeBudgetsFromRemote([
       {
         id: 2,
         alias: 'coffee',
@@ -45,7 +45,7 @@ describe('storage_test', () => {
     // Так же тут проверяется сортировка:
     // при сохранении в стор все бюджеты сортируются по ID
     // @test get_budgets:not_empty
-    expect(Storage.getBudgets()).toEqual([
+    expect(BudgetSpendingsStore.getBudgets()).toEqual([
       {
         id: 1,
         alias: 'b1',
@@ -70,7 +70,7 @@ describe('storage_test', () => {
   })
 
   test('update_budgets_from_remote:delete_other_spendings', () => {
-    Storage.storeBudgetsFromRemote([
+    BudgetSpendingsStore.storeBudgetsFromRemote([
       {
         id: 3,
         alias: 'coffee',
@@ -97,7 +97,7 @@ describe('storage_test', () => {
     localStorage.setItem(_test.lsSpendingsKey(2), 'some value2')
     localStorage.setItem(_test.lsSpendingsKey(3), 'some value3')
 
-    Storage.storeBudgetsFromRemote([
+    BudgetSpendingsStore.storeBudgetsFromRemote([
       {
         id: 2,
         alias: 'coffee',
@@ -128,22 +128,22 @@ describe('storage_test', () => {
   })
 
   test('spendings_by_budget_id:empty,invalid_store', () => {
-    expect(Storage.spendingsByBudgetId(555)).toEqual([])
+    expect(BudgetSpendingsStore.spendingsByBudgetId(555)).toEqual([])
 
     localStorage.setItem(_test.lsSpendingsKey(555), 'invalid value')
-    expect(() => Storage.spendingsByBudgetId(555)).toThrow(SyntaxError)
+    expect(() => BudgetSpendingsStore.spendingsByBudgetId(555)).toThrow(SyntaxError)
   })
 
   test('spendings_by_budget_ids', () => {
-    expect(Storage.spendingsByBudgetIds([])).toEqual([])
+    expect(BudgetSpendingsStore.spendingsByBudgetIds([])).toEqual([])
 
-    Storage.storeBudgetsFromRemote([makeBudget(1), makeBudget(2)])
+    BudgetSpendingsStore.storeBudgetsFromRemote([makeBudget(1), makeBudget(2)])
 
-    Storage.storeSpendingsFromRemote(1, [makeApiSpending({ id: 'sp11' }), makeApiSpending({ id: 'sp12' })])
+    BudgetSpendingsStore.storeSpendingsFromRemote(1, [makeApiSpending({ id: 'sp11' }), makeApiSpending({ id: 'sp12' })])
 
-    Storage.storeSpendingsFromRemote(2, [makeApiSpending({ id: 'sp21' }), makeApiSpending({ id: 'sp22' })])
+    BudgetSpendingsStore.storeSpendingsFromRemote(2, [makeApiSpending({ id: 'sp21' }), makeApiSpending({ id: 'sp22' })])
 
-    const res = Storage.spendingsByBudgetIds([1, 2])
+    const res = BudgetSpendingsStore.spendingsByBudgetIds([1, 2])
 
     expect(res).length(4)
 
@@ -153,14 +153,14 @@ describe('storage_test', () => {
     expect(eq({ id: 'sp22' }, res[3]!)).toBe(true)
   })
 
-  test(Storage.storeSpendingsFromRemote.name, () => {
+  test(BudgetSpendingsStore.storeSpendingsFromRemote.name, () => {
     // Невозможно записать расходы в несуществующий бюджет
-    expect(() => Storage.storeSpendingsFromRemote(1, [])).toThrow('not existing budget')
+    expect(() => BudgetSpendingsStore.storeSpendingsFromRemote(1, [])).toThrow('not existing budget')
 
-    Storage.storeBudgetsFromRemote([makeBudget(1)])
+    BudgetSpendingsStore.storeBudgetsFromRemote([makeBudget(1)])
 
     {
-      const revokedVersions = Storage.storeSpendingsFromRemote(1, [
+      const revokedVersions = BudgetSpendingsStore.storeSpendingsFromRemote(1, [
         {
           id: 'sp1',
           date: '2025-09-03',
@@ -176,7 +176,7 @@ describe('storage_test', () => {
 
       expect(revokedVersions).toEqual([])
 
-      const sps = Storage.spendingsByBudgetId(1)
+      const sps = BudgetSpendingsStore.spendingsByBudgetId(1)
 
       expect(sps).toEqual([
         {
@@ -194,7 +194,7 @@ describe('storage_test', () => {
 
     // Сохранение в правильном порядке (sp.id ASC)
     {
-      const revokedVersions = Storage.storeSpendingsFromRemote(1, [
+      const revokedVersions = BudgetSpendingsStore.storeSpendingsFromRemote(1, [
         {
           id: 'sp2',
           date: '2025-09-04',
@@ -220,7 +220,7 @@ describe('storage_test', () => {
       ])
 
       expect(revokedVersions).toEqual([])
-      const sps = Storage.spendingsByBudgetId(1)
+      const sps = BudgetSpendingsStore.spendingsByBudgetId(1)
 
       // Проверяем так же сортировку
       expect(sps).toEqual([
@@ -248,16 +248,16 @@ describe('storage_test', () => {
     }
   })
 
-  test(Storage.storeSpendingsFromRemote.name + ':new_remote_ver', () => {
-    Storage.storeBudgetsFromRemote([makeBudget(1)])
+  test(BudgetSpendingsStore.storeSpendingsFromRemote.name + ':new_remote_ver', () => {
+    BudgetSpendingsStore.storeBudgetsFromRemote([makeBudget(1)])
 
-    Storage.storeSpendingsFromRemote(1, [
+    BudgetSpendingsStore.storeSpendingsFromRemote(1, [
       makeApiSpending({ id: 'sp1', version: 'ver1' }),
       makeApiSpending({ id: 'sp2', version: 'ver1' }),
       makeApiSpending({ id: 'sp3', version: 'ver1' }),
     ])
 
-    const revoked = Storage.storeSpendingsFromRemote(1, [
+    const revoked = BudgetSpendingsStore.storeSpendingsFromRemote(1, [
       makeApiSpending({ id: 'sp1', version: 'ver2' }),
       makeApiSpending({ id: 'sp2', version: 'ver1' }),
       makeApiSpending({ id: 'sp3', version: 'ver1' }),
@@ -267,7 +267,7 @@ describe('storage_test', () => {
     // Перетирание с remote без pending
     expect(revoked).length(0)
 
-    const sps = Storage.spendingsByBudgetId(1)
+    const sps = BudgetSpendingsStore.spendingsByBudgetId(1)
 
     expect(sps).length(4)
 
@@ -275,11 +275,11 @@ describe('storage_test', () => {
     expect(sps[0]!.version).toEqual('ver2')
   })
 
-  test(Storage.storeSpendingsFromRemote.name + ':local_only', () => {
-    Storage.storeBudgetsFromRemote([makeBudget(1)])
+  test(BudgetSpendingsStore.storeSpendingsFromRemote.name + ':local_only', () => {
+    BudgetSpendingsStore.storeBudgetsFromRemote([makeBudget(1)])
 
     // Status pending
-    Storage.createSpending(
+    BudgetSpendingsStore.createSpending(
       1,
       makeSpending({
         id: 'spX',
@@ -287,12 +287,12 @@ describe('storage_test', () => {
       }),
     )
 
-    Storage.storeSpendingsFromRemote(1, [
+    BudgetSpendingsStore.storeSpendingsFromRemote(1, [
       makeApiSpending({ id: 'sp1', version: 'ver1' }),
       makeApiSpending({ id: 'sp2', version: 'ver1' }),
     ])
 
-    const sps = Storage.spendingsByBudgetId(1)
+    const sps = BudgetSpendingsStore.spendingsByBudgetId(1)
 
     expect(sps).toEqual([
       makeSpending({ id: 'sp1', version: 'ver1' }),
@@ -307,12 +307,12 @@ describe('storage_test', () => {
 
     vi.setSystemTime(dApplied)
 
-    Storage.setStatusApplied(1, 'spX', 'ver1') // Applied
+    BudgetSpendingsStore.setStatusApplied(1, 'spX', 'ver1') // Applied
 
     // Прошло небольшое время
     vi.advanceTimersByTime(5 * 1000)
 
-    Storage.storeSpendingsFromRemote(1, [
+    BudgetSpendingsStore.storeSpendingsFromRemote(1, [
       makeApiSpending({ id: 'sp1', version: 'ver1' }),
       makeApiSpending({ id: 'sp2', version: 'ver1' }),
     ])
@@ -328,13 +328,13 @@ describe('storage_test', () => {
     vi.advanceTimersByTime(1 * 60 * 60 * 1000)
 
     // Опять 2 записи, что означает, что он уже точно удалился с сервера после применения
-    const revoked = Storage.storeSpendingsFromRemote(1, [
+    const revoked = BudgetSpendingsStore.storeSpendingsFromRemote(1, [
       makeApiSpending({ id: 'sp1', version: 'ver1' }),
       makeApiSpending({ id: 'sp2', version: 'ver1' }),
     ])
     expect(revoked).toEqual([])
 
-    const sps2 = Storage.spendingsByBudgetId(1)
+    const sps2 = BudgetSpendingsStore.spendingsByBudgetId(1)
 
     expect(sps2).length(2)
     expect(eq({ id: 'sp1', version: 'ver1' }, sps2[0]!)).toBe(true)
@@ -344,35 +344,35 @@ describe('storage_test', () => {
   })
 
   // pending -> applied -> inDB
-  test(Storage.storeSpendingsFromRemote.name + ':applied', () => {
+  test(BudgetSpendingsStore.storeSpendingsFromRemote.name + ':applied', () => {
     const getValue = () => localStorage.getItem(_test.lsSpendingsKey(1)) || ''
 
-    Storage.storeBudgetsFromRemote([makeBudget(1)])
+    BudgetSpendingsStore.storeBudgetsFromRemote([makeBudget(1)])
 
-    Storage.createSpending(1, makeSpending({ id: 'spX', version: 'ver1' }))
+    BudgetSpendingsStore.createSpending(1, makeSpending({ id: 'spX', version: 'ver1' }))
 
     expect(getValue()).toContain(VersionStatus.Pending)
 
-    Storage.setStatusApplied(1, 'spX', 'ver1')
+    BudgetSpendingsStore.setStatusApplied(1, 'spX', 'ver1')
 
     expect(getValue()).toContain(VersionStatus.Applied)
 
-    const revoked = Storage.storeSpendingsFromRemote(1, [makeApiSpending({ id: 'spX', version: 'ver1' })])
+    const revoked = BudgetSpendingsStore.storeSpendingsFromRemote(1, [makeApiSpending({ id: 'spX', version: 'ver1' })])
 
     expect(revoked).toEqual([])
 
     expect(getValue()).toContain(VersionStatus.InDb)
   })
 
-  test(Storage.storeSpendingsFromRemote.name + ':local_conflict', () => {
-    Storage.storeBudgetsFromRemote([makeBudget(1)])
+  test(BudgetSpendingsStore.storeSpendingsFromRemote.name + ':local_conflict', () => {
+    BudgetSpendingsStore.storeBudgetsFromRemote([makeBudget(1)])
 
-    Storage.storeSpendingsFromRemote(1, [makeApiSpending({ id: 'sp1', version: 'ver1' })])
+    BudgetSpendingsStore.storeSpendingsFromRemote(1, [makeApiSpending({ id: 'sp1', version: 'ver1' })])
 
-    Storage.updateSpending(1, makeSpending({ id: 'sp1', version: 'ver2', prevVersion: 'ver1' }))
-    Storage.updateSpending(1, makeSpending({ id: 'sp1', version: 'ver3', prevVersion: 'ver2' }))
+    BudgetSpendingsStore.updateSpending(1, makeSpending({ id: 'sp1', version: 'ver2', prevVersion: 'ver1' }))
+    BudgetSpendingsStore.updateSpending(1, makeSpending({ id: 'sp1', version: 'ver3', prevVersion: 'ver2' }))
 
-    const revoked = Storage.storeSpendingsFromRemote(1, [makeApiSpending({ id: 'sp1', version: 'ver4' })])
+    const revoked = BudgetSpendingsStore.storeSpendingsFromRemote(1, [makeApiSpending({ id: 'sp1', version: 'ver4' })])
 
     // Перетирание локальных изменений
     expect(revoked).length(2)
@@ -383,7 +383,7 @@ describe('storage_test', () => {
     expect(revoked[1]!.spendingId).toEqual('sp1')
     expect(revoked[1]!.version).toEqual('ver3')
 
-    const sps = Storage.spendingsByBudgetId(1)
+    const sps = BudgetSpendingsStore.spendingsByBudgetId(1)
 
     expect(sps).length(1)
 
@@ -391,7 +391,7 @@ describe('storage_test', () => {
     expect(sps[0]!.version).toEqual('ver4')
   })
 
-  test(Storage.createSpending, () => {
+  test(BudgetSpendingsStore.createSpending, () => {
     const sp1 = {
       id: 'sp1',
       version: 'ver1',
@@ -404,24 +404,24 @@ describe('storage_test', () => {
     }
 
     // Не можем создать в несуществующем бюджете
-    expect(() => Storage.createSpending(1, sp1)).toThrow('not existing budget')
+    expect(() => BudgetSpendingsStore.createSpending(1, sp1)).toThrow('not existing budget')
 
-    Storage.storeBudgetsFromRemote([makeBudget(1)])
+    BudgetSpendingsStore.storeBudgetsFromRemote([makeBudget(1)])
 
-    Storage.createSpending(1, sp1)
+    BudgetSpendingsStore.createSpending(1, sp1)
 
-    const sps = Storage.spendingsByBudgetId(1)
+    const sps = BudgetSpendingsStore.spendingsByBudgetId(1)
 
     expect(sps).toEqual([sp1])
 
-    expect(() => Storage.createSpending(1, makeSpending({ id: 'sp1' }))).toThrow('spending already exists')
+    expect(() => BudgetSpendingsStore.createSpending(1, makeSpending({ id: 'sp1' }))).toThrow('spending already exists')
 
     {
       const sp0 = makeSpending({ id: 'sp0' })
 
-      Storage.createSpending(1, sp0)
+      BudgetSpendingsStore.createSpending(1, sp0)
 
-      const sps = Storage.spendingsByBudgetId(1)
+      const sps = BudgetSpendingsStore.spendingsByBudgetId(1)
 
       expect(sps).length(2)
 
@@ -430,12 +430,12 @@ describe('storage_test', () => {
     }
   })
 
-  test(Storage.updateSpending, () => {
-    expect(() => Storage.updateSpending(1, makeSpending({ id: 'xxxx' }))).toThrow('not existing budget')
+  test(BudgetSpendingsStore.updateSpending, () => {
+    expect(() => BudgetSpendingsStore.updateSpending(1, makeSpending({ id: 'xxxx' }))).toThrow('not existing budget')
 
-    Storage.storeBudgetsFromRemote([makeBudget(1)])
+    BudgetSpendingsStore.storeBudgetsFromRemote([makeBudget(1)])
 
-    expect(() => Storage.updateSpending(1, makeSpending({ id: 'xxxx' }))).toThrow('spending not found')
+    expect(() => BudgetSpendingsStore.updateSpending(1, makeSpending({ id: 'xxxx' }))).toThrow('spending not found')
 
     const sp: Spending = {
       id: 'wqerdop',
@@ -459,15 +459,15 @@ describe('storage_test', () => {
       updatedAt: new Date('2025-09-12T23:22:00Z'),
     }
 
-    Storage.createSpending(1, sp)
+    BudgetSpendingsStore.createSpending(1, sp)
 
-    expect(() => Storage.updateSpending(1, sp2)).toThrow('invalid parent version')
+    expect(() => BudgetSpendingsStore.updateSpending(1, sp2)).toThrow('invalid parent version')
 
     sp2.prevVersion = sp.version
 
-    Storage.updateSpending(1, sp2)
+    BudgetSpendingsStore.updateSpending(1, sp2)
 
-    const sps = Storage.spendingsByBudgetId(1)
+    const sps = BudgetSpendingsStore.spendingsByBudgetId(1)
 
     expect(sps).toEqual([
       {
@@ -485,12 +485,12 @@ describe('storage_test', () => {
     // TODO: check deleted throw error on update
   })
 
-  test(Storage.deleteSpending, () => {
-    expect(() => Storage.deleteSpending(1, makeSpending({ id: 'xxxx' }))).toThrow('not existing budget')
+  test(BudgetSpendingsStore.deleteSpending, () => {
+    expect(() => BudgetSpendingsStore.deleteSpending(1, makeSpending({ id: 'xxxx' }))).toThrow('not existing budget')
 
-    Storage.storeBudgetsFromRemote([makeBudget(1)])
+    BudgetSpendingsStore.storeBudgetsFromRemote([makeBudget(1)])
 
-    expect(() => Storage.deleteSpending(1, makeSpending({ id: 'xxxx' }))).toThrow('spending not found')
+    expect(() => BudgetSpendingsStore.deleteSpending(1, makeSpending({ id: 'xxxx' }))).toThrow('spending not found')
 
     const sp: Spending = {
       id: 'id1',
@@ -503,7 +503,7 @@ describe('storage_test', () => {
       updatedAt: new Date('2025-09-12T23:22:00Z'),
     }
 
-    Storage.createSpending(1, sp)
+    BudgetSpendingsStore.createSpending(1, sp)
 
     const spDel = makeSpending({
       id: 'id1',
@@ -511,32 +511,32 @@ describe('storage_test', () => {
       updatedAt: new Date('2025-09-12T23:22:00Z'),
     })
 
-    expect(() => Storage.deleteSpending(1, spDel)).toThrow('parent version is invalid')
+    expect(() => BudgetSpendingsStore.deleteSpending(1, spDel)).toThrow('parent version is invalid')
 
     spDel.prevVersion = 'ver1'
 
-    Storage.deleteSpending(1, spDel)
+    BudgetSpendingsStore.deleteSpending(1, spDel)
 
-    expect(() => Storage.deleteSpending(1, makeSpending({ id: 'id1' }))).toThrow('spending cannot be changed')
-    expect(() => Storage.updateSpending(1, makeSpending({ id: 'id1' }))).toThrow('spending cannot be changed')
+    expect(() => BudgetSpendingsStore.deleteSpending(1, makeSpending({ id: 'id1' }))).toThrow('spending cannot be changed')
+    expect(() => BudgetSpendingsStore.updateSpending(1, makeSpending({ id: 'id1' }))).toThrow('spending cannot be changed')
 
-    expect(Storage.spendingsByBudgetId(1)).toEqual([])
+    expect(BudgetSpendingsStore.spendingsByBudgetId(1)).toEqual([])
   })
 
   test('set_spending_version_applied', () => {
     // Метод синхронизационный, поэтому не отправляем ошибок в случае, если в сторе этого значения уже нет
-    expect(() => Storage.setStatusApplied(1, 'sp1', 'ver1')).not.toThrow()
+    expect(() => BudgetSpendingsStore.setStatusApplied(1, 'sp1', 'ver1')).not.toThrow()
 
-    Storage.storeBudgetsFromRemote([makeBudget(1)])
+    BudgetSpendingsStore.storeBudgetsFromRemote([makeBudget(1)])
 
-    Storage.createSpending(1, makeSpending({ id: 'sp1', version: 'ver1' }))
+    BudgetSpendingsStore.createSpending(1, makeSpending({ id: 'sp1', version: 'ver1' }))
 
     let storeValue = localStorage.getItem(_test.lsSpendingsKey(1)) || ''
 
     expect(storeValue.includes(VersionStatus.Pending)).toEqual(true)
     expect(storeValue.includes(VersionStatus.Applied)).toEqual(false)
 
-    Storage.setStatusApplied(1, 'sp1', 'ver1')
+    BudgetSpendingsStore.setStatusApplied(1, 'sp1', 'ver1')
 
     storeValue = localStorage.getItem(_test.lsSpendingsKey(1)) || ''
 
@@ -544,23 +544,23 @@ describe('storage_test', () => {
   })
 
   test('revoke_conflict_version', () => {
-    expect(Storage.revokeConflictVersion(1, 'sp1', 'ver1')).toEqual([])
+    expect(BudgetSpendingsStore.revokeConflictVersion(1, 'sp1', 'ver1')).toEqual([])
 
-    Storage.storeBudgetsFromRemote([makeBudget(1)])
+    BudgetSpendingsStore.storeBudgetsFromRemote([makeBudget(1)])
 
-    Storage.createSpending(1, makeSpending({ id: 'sp1', version: 'ver1' }))
+    BudgetSpendingsStore.createSpending(1, makeSpending({ id: 'sp1', version: 'ver1' }))
 
-    expect(Storage.spendingsByBudgetId(1)).length(1)
+    expect(BudgetSpendingsStore.spendingsByBudgetId(1)).length(1)
 
-    const revoked = Storage.revokeConflictVersion(1, 'sp1', 'ver1')
+    const revoked = BudgetSpendingsStore.revokeConflictVersion(1, 'sp1', 'ver1')
 
-    expect(Storage.spendingsByBudgetId(1)).length(0)
+    expect(BudgetSpendingsStore.spendingsByBudgetId(1)).length(0)
 
     expect(revoked).length(1)
 
     expect(eq({ spendingId: 'sp1', version: 'ver1' }, revoked[0]!)).toBe(true)
 
-    expect(Storage.revokeConflictVersion(1, 'sp1', 'ver1')).toEqual([])
+    expect(BudgetSpendingsStore.revokeConflictVersion(1, 'sp1', 'ver1')).toEqual([])
   })
 })
 

@@ -1,7 +1,7 @@
 import { test, describe, beforeEach, afterEach, expect, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { Fetcher, Uploader } from '@/api'
-import { Storage, type ConflictVersion } from '@/storage'
+import { BudgetSpendingsStore, type ConflictVersion } from '@/stores/budgetSpendings'
 import { useStatusStore } from './stores/status'
 import { useConflictVersionStore } from './stores/conflictVersions'
 import type {
@@ -85,9 +85,9 @@ describe('fetcher', () => {
         params: {},
       },
     ]
-    expect(Storage.getBudgets()).toEqual(exp)
+    expect(BudgetSpendingsStore.getBudgets()).toEqual(exp)
 
-    expect(Storage.spendingsByBudgetId(1)).toEqual([])
+    expect(BudgetSpendingsStore.spendingsByBudgetId(1)).toEqual([])
 
     const expSpB23: Spending[] = [
       {
@@ -102,13 +102,13 @@ describe('fetcher', () => {
       },
     ]
 
-    expect(Storage.spendingsByBudgetId(23)).toEqual(expSpB23)
-    expect(Storage.spendingsByBudgetId(25)).length(2)
+    expect(BudgetSpendingsStore.spendingsByBudgetId(23)).toEqual(expSpB23)
+    expect(BudgetSpendingsStore.spendingsByBudgetId(25)).length(2)
   })
 
   test('fetch_and_store:conflict', async () => {
-    Storage.storeBudgetsFromRemote([makeBudget(23)])
-    Storage.storeSpendingsFromRemote(23, [
+    BudgetSpendingsStore.storeBudgetsFromRemote([makeBudget(23)])
+    BudgetSpendingsStore.storeSpendingsFromRemote(23, [
       makeApiSpending({
         id: 'nHSPMxURHX',
         version: 'ver_server_1', // первая версия серверная
@@ -121,7 +121,7 @@ describe('fetcher', () => {
       }),
     ])
 
-    Storage.updateSpending(23, {
+    BudgetSpendingsStore.updateSpending(23, {
       id: 'nHSPMxURHX',
       version: 'pending_2', // версия локальная
       prevVersion: 'ver_server_1',
@@ -271,7 +271,7 @@ describe('updater', () => {
         reason: 'db error'
       },
     ]
-    const spyRevokeConflictVersion = vi.spyOn(Storage, 'revokeConflictVersion').mockReturnValue(conflictVersions)
+    const spyRevokeConflictVersion = vi.spyOn(BudgetSpendingsStore, 'revokeConflictVersion').mockReturnValue(conflictVersions)
 
     vi.stubGlobal(
       'fetch',
@@ -346,7 +346,7 @@ describe('updater', () => {
   test('uploader:delete', async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const spyUuid = vi.spyOn(uuid, 'v4' as any).mockReturnValue('event_id_uuid_v4')
-    const spyStorageNotifyApplied = vi.spyOn(Storage, 'setStatusApplied')
+    const spyStorageNotifyApplied = vi.spyOn(BudgetSpendingsStore, 'setStatusApplied')
 
     vi.stubGlobal(
       'fetch',
