@@ -1,7 +1,7 @@
 import { test, describe, beforeEach, afterEach, expect, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { Fetcher, Uploader } from '@/api'
-import { BudgetSpendingsStore, type ConflictVersion } from '@/stores/budgetSpendings'
+import { BudgetSpendingsStore } from '@/stores/budgetSpendings'
 import { useStatusStore } from './stores/status'
 import { useConflictVersionStore } from './stores/conflictVersions'
 import type {
@@ -10,6 +10,7 @@ import type {
   ApiSpendingEvent,
   ApiUpdateSpendingsErrorsResponse,
   Budget,
+  ConflictVersion,
   Spending,
 } from './models/models'
 import { fromRUB } from './helpers/money'

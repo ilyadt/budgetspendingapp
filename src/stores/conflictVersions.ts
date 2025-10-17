@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { ConflictVersion } from '@/stores/budgetSpendings'
+
+import type { ConflictVersion } from '@/models/models.ts'
 
 // Spending Conflict Versions
 export const useConflictVersionStore = defineStore(

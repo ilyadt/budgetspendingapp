@@ -1,5 +1,13 @@
-import type { ApiBudget, ApiSpending, ApiMoney, Spending, DelSpending, Budget } from '@/models/models'
-import { Money, moneyToStringWithCurrency, type Currency } from '../helpers/money'
+import type {
+  ApiBudget,
+  ApiMoney,
+  ApiSpending,
+  Budget,
+  ConflictVersion,
+  DelSpending,
+  Spending,
+} from '@/models/models'
+import { type Currency, Money, moneyToStringWithCurrency } from '../helpers/money'
 import '@/helpers/date' // For date prototypes
 import { format } from 'date-fns'
 
@@ -10,19 +18,6 @@ export enum VersionStatus {
   // версия, PENDING -> APPLIED, статус означает, что версия применена на беке, но сохраняем ее на случай если с бека будут приходить еще старая версия
   // READ lag
   Applied = 'APPLIED',
-}
-
-type ConflictVersions = ConflictVersion[]
-
-export interface ConflictVersion {
-  version: string
-  budgetId: number
-  spendingId: string
-  versionDt: Date
-  conflictedAt: Date
-  from: string | null // null - created
-  to: string | null // null - deleted
-  reason: string | null,
 }
 
 export interface SpendingVersion {
@@ -101,14 +96,14 @@ interface BudgetSpendingsStoreInterface {
 
   // Поэлементное spendingID, сравнение текущих данных и новых.
   // Новые данные имеют точку правды, все несоответствующие pending переносятся в <Error Storage>.
-  storeSpendingsFromRemote(bid: number, sps: ApiSpending[]): ConflictVersions
+  storeSpendingsFromRemote(bid: number, sps: ApiSpending[]): ConflictVersion[]
 
   // После доставки обновления на бек изменяем статус версии в Storage
   setStatusApplied(bid: number, spId: string, version: string): void
 
   // Если произошел конфликт обновления (обновление не может быть применено), то удаляем эту версию из Storage,
   // возвращая удаленные(не примененные) версии
-  revokeConflictVersion(bid: number, spId: string, version: string): ConflictVersions
+  revokeConflictVersion(bid: number, spId: string, version: string): ConflictVersion[]
 }
 
 const lsPrefix = 'storage'
@@ -286,7 +281,7 @@ export const BudgetSpendingsStore: BudgetSpendingsStoreInterface = {
     localStorage.setItem(lsBudgetsKey(), JSON.stringify(budgets))
   },
 
-  storeSpendingsFromRemote(bid: number, remoteSps: ApiSpending[]): ConflictVersions {
+  storeSpendingsFromRemote(bid: number, remoteSps: ApiSpending[]): ConflictVersion[] {
     assertBudget(bid)
 
     const localSps: SpendingVersioned[] = JSON.parse(localStorage.getItem(lsSpendingsKey(bid)) ?? '[]')
@@ -298,7 +293,7 @@ export const BudgetSpendingsStore: BudgetSpendingsStoreInterface = {
 
     const result: SpendingVersioned[] = []
 
-    const revoked: ConflictVersions = []
+    const revoked: ConflictVersion[] = []
 
     // RemoteOnly:
     // создаем локальную версию из нее
@@ -346,7 +341,7 @@ export const BudgetSpendingsStore: BudgetSpendingsStoreInterface = {
           spVersioned.id,
           spVersioned.versions,
           v => v.status == VersionStatus.Pending,
-          'locally or remote deleted'
+          'locally or remote deleted',
         )
         revoked.push(...revokedVersions)
       }
@@ -427,7 +422,7 @@ export const BudgetSpendingsStore: BudgetSpendingsStoreInterface = {
     localStorage.setItem(lsSpendingsKey(bid), JSON.stringify(fromStore))
   },
 
-  revokeConflictVersion(bid: number, spId: string, version: string): ConflictVersions {
+  revokeConflictVersion(bid: number, spId: string, version: string): ConflictVersion[] {
     let fromStore: SpendingVersioned[] = JSON.parse(localStorage.getItem(lsSpendingsKey(bid)) ?? '[]')
 
     const spVersionedIdx = fromStore.findIndex(s => s.id == spId)
@@ -466,20 +461,19 @@ function assertBudget(bid: number) {
   }
 }
 
-export function
-makeConflictVersions(
+export function makeConflictVersions(
   bid: number,
   spID: string,
   spVersions: SpendingVersion[],
   fromIdx: (spVer: SpendingVersion) => boolean,
   reason: string | null,
-): ConflictVersions {
+): ConflictVersion[] {
   const idx = spVersions.findIndex(fromIdx)
   if (idx == -1) {
     return []
   }
 
-  const revoked: ConflictVersions = []
+  const revoked: ConflictVersion[] = []
 
   for (let i = idx; i < spVersions.length; i++) {
     const curr = spVersions[i]!

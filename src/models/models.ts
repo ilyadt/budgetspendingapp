@@ -35,3 +35,14 @@ export interface Budget {
 }
 
 export type DelSpending = Pick<Spending, 'id' | 'version' | 'prevVersion' | 'updatedAt'>
+
+export interface ConflictVersion {
+  version: string
+  budgetId: number
+  spendingId: string
+  versionDt: Date
+  conflictedAt: Date
+  from: string | null // null - created
+  to: string | null // null - deleted
+  reason: string | null
+}
