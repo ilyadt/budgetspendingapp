@@ -1,5 +1,5 @@
 import type { Money } from '@/helpers/money'
-import type { components } from '@/schemas'
+import type { components } from '@/models/oaschema'
 
 export type ApiBudget = components['schemas']['Budget']
 export type ApiSpending = components['schemas']['Spending']

@@ -1,5 +1,5 @@
 import createClient from 'openapi-fetch'
-import type { paths } from './schemas'
+import type { paths } from './models/oaschema'
 import { BudgetSpendingsStore } from '@/stores/budgetSpendings'
 import { useStatusStore } from '@/stores/status'
 import * as Sentry from '@sentry/vue'
