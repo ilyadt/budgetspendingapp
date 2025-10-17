@@ -5,7 +5,7 @@ import { moneyFormat } from '@/helpers/money'
 import type { Budget } from '@/models/models'
 import { DateCheck, dayName, genSpendingID, genVersion, SpendingRow } from '@/models/view'
 import { nextTick, onMounted, ref } from 'vue'
-const { isToday, isFuture } = DateCheck()
+const { isToday, isFuture } = DateCheck(new Date())
 import { Popover } from 'bootstrap'
 
 const props = defineProps<{

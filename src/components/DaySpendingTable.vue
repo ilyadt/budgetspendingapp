@@ -5,7 +5,7 @@ import { ref, type PropType } from 'vue'
 import { dateFormat } from '@/helpers/date'
 import { DateCheck, dayName, genSpendingID, genVersion, SpendingRow } from '@/models/view'
 
-const { isToday, isFuture } = DateCheck()
+const { isToday, isFuture } = DateCheck(new Date())
 
 const props = defineProps({
   date: { type: Date, required: true, default: Date },

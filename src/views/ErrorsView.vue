@@ -14,12 +14,14 @@ function deleteError(versionId: string) {
   <div>Errors</div>
 
   <div class="table-responsive" style="max-width: 100%; overflow-x: auto;">
-    <table class="table table-bordered table-sm align-middle" style="table-layout: fixed; min-width: 500px">
+    <table class="table table-bordered table-sm align-middle" style="table-layout: fixed; min-width: 700px">
       <thead>
         <tr>
           <th style="width: 80px">date</th>
-          <th style="width: 210px">change</th>
+          <th style="width: 115px">spid</th>
+          <th style="width: 55px">ver</th>
           <th style="width: 35px">bid</th>
+          <th style="width: 210px">change</th>
           <th style="width: 210px">reason</th>
           <th style="width: 30px"></th>
         </tr>
@@ -32,10 +34,16 @@ function deleteError(versionId: string) {
               {{ format(ver.revokedAt, 'HH:mm:ss dd.MM.yy') }}
             </td>
             <td>
-              {{ ver.from + ' -> ' + ver.to }}
+              {{ ver.spendingId }}
+            </td>
+            <td>
+              {{ ver.version }}
             </td>
             <td>
               {{ ver.budgetId }}
+            </td>
+            <td>
+              {{ ver.from + ' -> ' + ver.to }}
             </td>
             <td>
               {{ ver.reason }}

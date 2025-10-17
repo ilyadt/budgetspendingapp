@@ -189,9 +189,7 @@ export function dayName(d: Date): string {
   return dayNames[d.getDay()]!
 }
 
-export function DateCheck() {
-  const base = new Date()
-
+export function DateCheck(base: Date) {
   return {
     isToday: (d: Date) => base.toDateString() === d.toDateString(),
     isFuture: (d: Date) => d.getTime() > base.getTime(),
