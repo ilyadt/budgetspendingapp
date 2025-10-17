@@ -31,7 +31,7 @@ function deleteError(versionId: string) {
           <tr>
             <td>
               <!-- TODO: move updatedAt at the top level -->
-              {{ format(ver.revokedAt, 'HH:mm:ss dd.MM.yy') }}
+              {{ format(ver.conflictedAt, 'HH:mm:ss dd.MM.yy') }}
             </td>
             <td>
               {{ ver.spendingId }}

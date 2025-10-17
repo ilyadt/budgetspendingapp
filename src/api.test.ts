@@ -1,7 +1,7 @@
 import { test, describe, beforeEach, afterEach, expect, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { Fetcher, Uploader } from '@/api'
-import { Storage, type RevokedVersion } from '@/storage'
+import { Storage, type ConflictVersion } from '@/storage'
 import { useStatusStore } from './stores/status'
 import { useConflictVersionStore } from './stores/conflictVersions'
 import type {
@@ -150,13 +150,13 @@ describe('fetcher', () => {
 
     await Fetcher.fetchAndStore()
 
-    const expConflicted: RevokedVersion[] = [
+    const expConflicted: ConflictVersion[] = [
       {
         version: 'pending_2',
         budgetId: 23,
         spendingId: 'nHSPMxURHX',
         versionDt: new Date('2025-09-29T15:02:23.304Z'),
-        revokedAt: new Date(777),
+        conflictedAt: new Date(777),
         from: '01.05: 85 RUB кофе',
         to: '01.05: 90 RUB кофе',
         reason: 'local and remote diff'
@@ -248,13 +248,13 @@ describe('updater', () => {
   test('uploader:update', async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const spyUuid = vi.spyOn(uuid, 'v4' as any).mockReturnValue('event_id_uuid_v4')
-    const revokedVersions: RevokedVersion[] = [
+    const conflictVersions: ConflictVersion[] = [
       {
         version: 'ver2',
         budgetId: 22,
         spendingId: 'sp1',
         versionDt: new Date('2025-10-03T12:22:22.023Z'),
-        revokedAt: new Date(),
+        conflictedAt: new Date(),
         from: '<..>',
         to: '<..>',
         reason: 'db error',
@@ -265,13 +265,13 @@ describe('updater', () => {
         budgetId: 23,
         spendingId: 'sp1',
         versionDt: new Date('2025-10-03T12:31:22.023Z'),
-        revokedAt: new Date(),
+        conflictedAt: new Date(),
         from: '<..>',
         to: '<..>',
         reason: 'db error'
       },
     ]
-    const spyRevokeConflictVersion = vi.spyOn(Storage, 'revokeConflictVersion').mockReturnValue(revokedVersions)
+    const spyRevokeConflictVersion = vi.spyOn(Storage, 'revokeConflictVersion').mockReturnValue(conflictVersions)
 
     vi.stubGlobal(
       'fetch',
@@ -286,9 +286,9 @@ describe('updater', () => {
       })),
     )
 
-    const conflictVersions = useConflictVersionStore()
+    const conflictVersionsStore = useConflictVersionStore()
 
-    conflictVersions.$reset()
+    conflictVersionsStore.$reset()
 
     ////////////////
 
@@ -334,7 +334,7 @@ describe('updater', () => {
     expect(spyRevokeConflictVersion).toHaveBeenCalledWith(22, 'sp1', 'ver2')
 
     // Отправились в ConflictVersions
-    expect(conflictVersions.conflictVersions).toEqual(revokedVersions)
+    expect(conflictVersionsStore.conflictVersions).toEqual(conflictVersions)
 
     ////////////////
 

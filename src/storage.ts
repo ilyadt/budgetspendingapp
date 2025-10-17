@@ -12,14 +12,14 @@ export enum VersionStatus {
   Applied = 'APPLIED',
 }
 
-type RevokedVersions = RevokedVersion[]
+type ConflictVersions = ConflictVersion[]
 
-export interface RevokedVersion {
+export interface ConflictVersion {
   version: string
   budgetId: number
   spendingId: string
   versionDt: Date
-  revokedAt: Date
+  conflictedAt: Date
   from: string | null // null - created
   to: string | null // null - deleted
   reason: string | null,
@@ -101,14 +101,14 @@ interface StorageInterface {
 
   // Поэлементное spendingID, сравнение текущих данных и новых.
   // Новые данные имеют точку правды, все несоответствующие pending переносятся в <Error Storage>.
-  storeSpendingsFromRemote(bid: number, sps: ApiSpending[]): RevokedVersions
+  storeSpendingsFromRemote(bid: number, sps: ApiSpending[]): ConflictVersions
 
   // После доставки обновления на бек изменяем статус версии в Storage
   setStatusApplied(bid: number, spId: string, version: string): void
 
   // Если произошел конфликт обновления (обновление не может быть применено), то удаляем эту версию из Storage,
   // возвращая удаленные(не примененные) версии
-  revokeConflictVersion(bid: number, spId: string, version: string): RevokedVersions
+  revokeConflictVersion(bid: number, spId: string, version: string): ConflictVersions
 }
 
 const lsPrefix = 'storage'
@@ -286,7 +286,7 @@ export const Storage: StorageInterface = {
     localStorage.setItem(lsBudgetsKey(), JSON.stringify(budgets))
   },
 
-  storeSpendingsFromRemote(bid: number, remoteSps: ApiSpending[]): RevokedVersions {
+  storeSpendingsFromRemote(bid: number, remoteSps: ApiSpending[]): ConflictVersions {
     assertBudget(bid)
 
     const localSps: SpendingVersioned[] = JSON.parse(localStorage.getItem(lsSpendingsKey(bid)) ?? '[]')
@@ -298,7 +298,7 @@ export const Storage: StorageInterface = {
 
     const result: SpendingVersioned[] = []
 
-    const revoked: RevokedVersions = []
+    const revoked: ConflictVersions = []
 
     // RemoteOnly:
     // создаем локальную версию из нее
@@ -341,7 +341,7 @@ export const Storage: StorageInterface = {
         ver1.status == VersionStatus.InDb ||
         (ver1.status == VersionStatus.Applied && ver1StatusAt.moreThanSecondsAgo(15))
       if (spDeleted) {
-        const revokedVersions = makeRevokeVersions(
+        const revokedVersions = makeConflictVersions(
           bid,
           spVersioned.id,
           spVersioned.versions,
@@ -371,7 +371,7 @@ export const Storage: StorageInterface = {
         versions = localSpVersioned.versions.slice(idx) // оставляем только версии начинающиеся с remote
         versions[0]!.status = VersionStatus.InDb
       } else {
-        const revokedVersions = makeRevokeVersions(
+        const revokedVersions = makeConflictVersions(
           bid,
           localSpVersioned.id,
           localSpVersioned.versions,
@@ -427,7 +427,7 @@ export const Storage: StorageInterface = {
     localStorage.setItem(lsSpendingsKey(bid), JSON.stringify(fromStore))
   },
 
-  revokeConflictVersion(bid: number, spId: string, version: string): RevokedVersions {
+  revokeConflictVersion(bid: number, spId: string, version: string): ConflictVersions {
     let fromStore: SpendingVersioned[] = JSON.parse(localStorage.getItem(lsSpendingsKey(bid)) ?? '[]')
 
     const spVersionedIdx = fromStore.findIndex(s => s.id == spId)
@@ -443,7 +443,7 @@ export const Storage: StorageInterface = {
       return []
     }
 
-    const revokedVersions = makeRevokeVersions(bid, spId, spVersioned.versions, v => v.version == version, null)
+    const conflictVersions = makeConflictVersions(bid, spId, spVersioned.versions, v => v.version == version, null)
 
     spVersioned.versions = spVersioned.versions.slice(0, idx)
 
@@ -453,7 +453,7 @@ export const Storage: StorageInterface = {
 
     localStorage.setItem(lsSpendingsKey(bid), JSON.stringify(fromStore))
 
-    return revokedVersions
+    return conflictVersions
   },
 }
 
@@ -466,19 +466,19 @@ function assertBudget(bid: number) {
   }
 }
 
-export function makeRevokeVersions(
+export function makeConflictVersions(
   bid: number,
   spID: string,
   spVersions: SpendingVersion[],
   fromIdx: (spVer: SpendingVersion) => boolean,
   reason: string | null,
-): RevokedVersions {
+): ConflictVersions {
   const idx = spVersions.findIndex(fromIdx)
   if (idx == -1) {
     return []
   }
 
-  const revoked: RevokedVersions = []
+  const revoked: ConflictVersions = []
 
   for (let i = idx; i < spVersions.length; i++) {
     const curr = spVersions[i]!
@@ -489,7 +489,7 @@ export function makeRevokeVersions(
       budgetId: bid,
       spendingId: spID,
       versionDt: new Date(curr.updatedAt),
-      revokedAt: new Date(),
+      conflictedAt: new Date(),
       from: formatVersionPayload(prev),
       to: formatVersionPayload(curr),
       reason: reason,
