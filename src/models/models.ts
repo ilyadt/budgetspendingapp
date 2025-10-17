@@ -1,5 +1,11 @@
+import { alphanumeric } from 'nanoid-dictionary'
+import { customAlphabet } from 'nanoid/non-secure'
+
 import type { Money } from '@/helpers/money'
 import type { components } from '@/models/oaschema'
+
+export const genSpendingID = customAlphabet(alphanumeric, 10)
+export const genVersion = customAlphabet(alphanumeric, 5)
 
 export type ApiBudget = components['schemas']['Budget']
 export type ApiSpending = components['schemas']['Spending']

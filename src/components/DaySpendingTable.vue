@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { moneyFormat, type Currency } from '@/helpers/money'
-import type { Budget, Spending } from '@/models/models'
+import { type Budget, type Spending, genSpendingID, genVersion } from '@/models/models'
 import { ref, type PropType } from 'vue'
-import { dateFormat } from '@/helpers/date'
-import { DateCheck, dayName, genSpendingID, genVersion, SpendingRow } from '@/models/view'
+import { dateFormat, DateCheck, dayName, } from '@/helpers/date'
+import { SpendingRow } from '@/models/view'
 
 const { isToday, isFuture } = DateCheck(new Date())
 

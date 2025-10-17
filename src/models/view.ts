@@ -1,11 +1,6 @@
 import { Facade } from '@/facade'
 import { from, moneyFormat, type Currency } from '@/helpers/money'
-import { alphanumeric } from 'nanoid-dictionary'
-import { customAlphabet } from 'nanoid/non-secure'
-import type { Budget, Spending } from './models'
-
-export const genSpendingID = customAlphabet(alphanumeric, 10)
-export const genVersion = customAlphabet(alphanumeric, 5)
+import { type Budget, type Spending, genVersion, genSpendingID } from './models'
 
 interface SaveData {
   id: string
@@ -180,18 +175,5 @@ export class SpendingRow {
     })
 
     this.destroy?.(this)
-  }
-}
-
-export function dayName(d: Date): string {
-  const dayNames = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб']
-
-  return dayNames[d.getDay()]!
-}
-
-export function DateCheck(base: Date) {
-  return {
-    isToday: (d: Date) => base.toDateString() === d.toDateString(),
-    isFuture: (d: Date) => d.getTime() > base.getTime(),
   }
 }

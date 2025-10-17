@@ -54,3 +54,16 @@ export function dateRange(dateFrom: Date, dateTo: Date): Date[] {
 
   return dates
 }
+
+export function dayName(d: Date): string {
+  const dayNames = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб']
+
+  return dayNames[d.getDay()]!
+}
+
+export function DateCheck(base: Date) {
+  return {
+    isToday: (d: Date) => base.toDateString() === d.toDateString(),
+    isFuture: (d: Date) => d.getTime() > base.getTime(),
+  }
+}
