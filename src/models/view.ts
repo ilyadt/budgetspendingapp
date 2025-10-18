@@ -17,7 +17,7 @@ interface DeleteData {
   version: string
 }
 
-class PendingSpending {
+class PendingSpendingRow {
   public initId: string
   public initBudgetId: number | null
   public initHash: string
@@ -32,10 +32,10 @@ class PendingSpending {
   ) {
     this.initId = id
     this.initBudgetId = budgetId
-    this.initHash = PendingSpending.hash(budgetId, amountFull, description)
+    this.initHash = this.hash(budgetId, amountFull, description)
   }
 
-  private static hash(budgetId: number | null, money: string, description: string): string {
+  private hash(budgetId: number | null, money: string, description: string): string {
     return `${budgetId ?? 'null'}|${money}|${description}`
   }
 
@@ -45,22 +45,22 @@ class PendingSpending {
     this.id = (b.id == this.initBudgetId) ? this.initId : genSpendingID();
   }
 
-  public save() {
+  public save(dt: Date) {
     // Бюджет должен быть выбран
     if (!this.budgetId) {
-      console.error('budgetId not valid')
+      window.alert('не выбран бюджет')
       return
     }
 
     if (!this.currency) {
-      console.error('currency not valid')
+      window.alert('не выбрана валюта')
       return
     }
 
     const amountFull = Number(this.amountFull)
 
     if (!amountFull) {
-      console.error('money is empty')
+      window.alert('пустая сумма')
       return
     }
 
@@ -69,14 +69,14 @@ class PendingSpending {
       budgetId: this.budgetId,
       currency: this.currency,
       version: genVersion(),
-      dt: new Date(),
+      dt: dt,
       description: this.description,
       amountFull: amountFull,
     })
   }
 
   public cancel() {
-    const hash = PendingSpending.hash(this.budgetId, this.amountFull, this.description)
+    const hash = this.hash(this.budgetId, this.amountFull, this.description)
 
     if ((hash != this.initHash) && !window.confirm(`Отменить изменение "${this.description}" ?`)) {
       return
@@ -99,7 +99,7 @@ export class SpendingRow {
     public createdAt: Date | null,
     public updatedAt: Date | null,
 
-    public pending: PendingSpending | null,
+    public pending: PendingSpendingRow | null,
     public destroy: ((self: SpendingRow) => void) | null,
   ) {}
 
@@ -152,7 +152,7 @@ export class SpendingRow {
   }
 
   public toPending(): void {
-    this.pending = new PendingSpending(
+    this.pending = new PendingSpendingRow(
       this.id,
       this.budgetId,
       this.currency,
@@ -170,7 +170,7 @@ export class SpendingRow {
     Facade.deleteSpending(this.budgetId!, {
       id: this.id,
       version: data.version,
-      prevVersion: this.version ?? undefined,
+      prevVersion: this.version!,
       updatedAt: data.dt,
     })
 

@@ -174,7 +174,7 @@ onUpdated(() => {
                 <input
                   class="form-control cell-input"
                   v-model.number="sp.pending.amountFull"
-                  @keyup.enter="sp.pending.save()"
+                  @keyup.enter="sp.pending.save(new Date())"
                   @keyup.esc="sp.pending.cancel()"
                 />
               </td>
@@ -182,7 +182,7 @@ onUpdated(() => {
                 <input
                   class="form-control cell-input"
                   v-model="sp.pending.description"
-                  @keyup.enter="sp.pending.save()"
+                  @keyup.enter="sp.pending.save(new Date())"
                   @keyup.esc="sp.pending.cancel()"
                 />
               </td>
@@ -213,7 +213,7 @@ onUpdated(() => {
                 <button
                   class="btn btn-success btn-sm p-1 m-1"
                   style="min-width: 20px; line-height: 1"
-                  @click="sp.pending.save()"
+                  @click="sp.pending.save(new Date())"
                 >
                   <font-awesome-icon :icon="['fas', 'check']" />
                 </button>
