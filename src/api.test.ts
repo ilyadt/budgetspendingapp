@@ -417,22 +417,20 @@ describe('updater', () => {
     }
 
     {
-      Uploader.saveEvents([
-        {
-          eventId: 'ev1',
-          type: 'create',
-          budgetId: 0,
-          spendingId: '',
-          newVersion: '',
-        },
-        {
-          eventId: 'ev2',
-          type: 'create',
-          budgetId: 0,
-          spendingId: '',
-          newVersion: '',
-        },
-      ])
+      Uploader.addEvent({
+        eventId: 'ev1',
+        type: 'create',
+        budgetId: 0,
+        spendingId: '',
+        newVersion: '',
+      })
+      Uploader.addEvent({
+        eventId: 'ev2',
+        type: 'create',
+        budgetId: 0,
+        spendingId: '',
+        newVersion: '',
+      })
 
       {
         // сразу после save они доступны
@@ -534,6 +532,34 @@ describe('updater', () => {
 
     expect(success).toEqual([])
     expect(conflict).toEqual([])
+  })
+
+  test('updater:add-deleteEvents', () => {
+    Uploader.loadEvents()
+    expect(Uploader.getEvents()).length(0)
+
+    const statusStore = useStatusStore()
+
+    Uploader.addEvent(makeEvent({eventId: 'ev1'}))
+
+    expect(Uploader.getEvents()).length(1)
+    expect(Uploader.getEvents()[0]?.eventId).toEqual('ev1')
+    expect(statusStore.pendingEvents).toEqual(1)
+
+    Uploader.addEvent(makeEvent({eventId: 'ev2'}))
+    Uploader.addEvent(makeEvent({eventId: 'ev3'}))
+
+    expect(Uploader.getEvents()).length(3)
+    expect(Uploader.getEvents()[0]?.eventId).toEqual('ev1')
+    expect(Uploader.getEvents()[1]?.eventId).toEqual('ev2')
+    expect(Uploader.getEvents()[2]?.eventId).toEqual('ev3')
+    expect(statusStore.pendingEvents).toEqual(3)
+
+    Uploader.deleteEvents([makeEvent({eventId: 'ev1'}), makeEvent({eventId: 'ev3'})])
+
+    expect(Uploader.getEvents()).length(1)
+    expect(Uploader.getEvents()[0]?.eventId).toEqual('ev2')
+    expect(statusStore.pendingEvents).toEqual(1)
   })
 })
 
@@ -662,5 +688,15 @@ function makeApiSpending(sp: Partial<ApiSpending> = {}): ApiSpending {
     updatedAt: sp.updatedAt ?? '',
     version: sp.version ?? '',
     versions: sp.versions ?? [],
+  }
+}
+
+function makeEvent(e: Partial<ApiSpendingEvent>): ApiSpendingEvent {
+  return {
+    eventId: e.eventId ?? '',
+    type: e.type ?? 'create',
+    budgetId: e.budgetId ?? 0,
+    spendingId: e.spendingId ?? '',
+    newVersion: e.newVersion ?? '',
   }
 }

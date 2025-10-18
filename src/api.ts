@@ -197,9 +197,7 @@ export const Uploader = {
   },
 
   async saveAndProcess(ev: ApiSpendingEvent) {
-    const events = [...this.getEvents(), ev]
-
-    this.saveEvents(events)
+   const events = this.addEvent(ev)
 
     return this.processEvents(events)
   },
@@ -216,19 +214,16 @@ export const Uploader = {
     }
 
     for (const ev of conflict) {
-      const revoked = storage.revokeConflictVersion(ev.budgetId, ev.spendingId, ev.newVersion)
+      const conflictedVers = storage.revokeConflictVersion(ev.budgetId, ev.spendingId, ev.newVersion)
 
-      for (const r of revoked) {
-        r.reason = errors.find(e => e.eventId == ev.eventId)?.error ?? null
-        conflictVersion.add(r)
+      for (const c of conflictedVers) {
+        c.reason = errors.find(e => e.eventId == ev.eventId)?.error ?? null
+        conflictVersion.add(c)
       }
     }
 
     // Удаляем все success и conflict из внутренних events
-    const leftEvents = events.filter(
-      e => !success.some(s => s.eventId === e.eventId) && !conflict.some(c => c.eventId === e.eventId),
-    )
-    this.saveEvents(leftEvents)
+    this.deleteEvents([...success, ...conflict])
   },
 
   loadEvents(): void {
@@ -240,9 +235,20 @@ export const Uploader = {
     return this._events
   },
 
-  saveEvents(events: ApiSpendingEvent[]) {
-    this._events = events
-    localStorage.setItem(this._lsEventsKey, JSON.stringify(events))
+  deleteEvents(del: ApiSpendingEvent[]) {
+    const idsToDelete = new Set(del.map(e => e.eventId));
+    this._events = this._events.filter(e => !idsToDelete.has(e.eventId));
+
+    localStorage.setItem(this._lsEventsKey, JSON.stringify(this._events))
     useStatusStore().setPendingEvents(this._events.length)
+  },
+
+  addEvent(e: ApiSpendingEvent): ApiSpendingEvent[] {
+    this._events.push(e)
+
+    localStorage.setItem(this._lsEventsKey, JSON.stringify(this._events))
+    useStatusStore().setPendingEvents(this._events.length)
+
+    return this._events
   },
 }
