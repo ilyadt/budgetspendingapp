@@ -2,7 +2,7 @@
 import { moneyFormat, type Currency } from '@/helpers/money'
 import { type Budget, type Spending, genSpendingID, genVersion } from '@/models/models'
 import { ref, type PropType } from 'vue'
-import { dateFormat, DateCheck, dayName, } from '@/helpers/date'
+import { dateFormat, DateCheck, dayName } from '@/helpers/date'
 import { SpendingRow } from '@/models/view'
 
 const { isToday, isFuture } = DateCheck(new Date())

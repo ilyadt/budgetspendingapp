@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { Facade } from '@/facade'
-import { dateFormat, dateISO, dateRange, DateCheck, dayName, } from '@/helpers/date'
+import { dateFormat, dateISO, dateRange, DateCheck, dayName } from '@/helpers/date'
 import { from, getFormatter, Money, moneyFormat } from '@/helpers/money'
-import { type Budget, genSpendingID, genVersion }from '@/models/models'
+import { type Budget, genSpendingID, genVersion } from '@/models/models'
 import { SpendingRow } from '@/models/view'
 import { computed, nextTick, onMounted, onUpdated, ref } from 'vue'
 const { isToday, isFuture } = DateCheck(new Date())
 import { Popover } from 'bootstrap'
 
 const props = defineProps<{
-  budgets: Budget[],
+  budgets: Budget[]
 }>()
 
 const budgets = props.budgets
@@ -90,13 +90,12 @@ function addSpending(date: Date): void {
   )
 
   sp.toPending()
-
   ;(groupedSpendings.value[dateISO(date)] ??= []).push(sp)
 }
 
 const groupedSpendings = ref(groupSpendings(budgets.map(b => b.id)))
 
-type BudgetWithLeft = Budget & {left: Money}
+type BudgetWithLeft = Budget & { left: Money }
 
 const budgetMap = computed<Record<number, BudgetWithLeft>>(() => {
   const spentByBid: Record<number, number> = {}
@@ -138,7 +137,6 @@ onUpdated(() => {
     new Popover(el)
   })
 })
-
 </script>
 
 <template v-if="budgets.length > 0">
@@ -202,7 +200,7 @@ onUpdated(() => {
                   </option>
                 </select>
               </td>
-              <td style="padding: 2px;">
+              <td style="padding: 2px">
                 <button
                   class="btn btn-danger btn-sm p-1 m-1"
                   style="min-width: 20px; line-height: 1"
@@ -227,7 +225,7 @@ onUpdated(() => {
                 <span @click="sp.toPending()">{{ sp.description }}</span>
               </td>
               <td>
-                <span @click="sp.toPending()">{{ budgetMap[sp.budgetId!]!.alias}}</span>
+                <span @click="sp.toPending()">{{ budgetMap[sp.budgetId!]!.alias }}</span>
               </td>
               <td>
                 <button

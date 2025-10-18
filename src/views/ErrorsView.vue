@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useConflictVersionStore } from '@/stores/conflictVersions'
-import { format } from 'date-fns';
+import { format } from 'date-fns'
 
 const conflictVersions = useConflictVersionStore()
 
@@ -13,7 +13,7 @@ function deleteError(versionId: string) {
 <template>
   <div>Errors</div>
 
-  <div class="table-responsive" style="max-width: 100%; overflow-x: auto;">
+  <div class="table-responsive" style="max-width: 100%; overflow-x: auto">
     <table class="table table-bordered table-sm align-middle" style="table-layout: fixed; min-width: 700px">
       <thead>
         <tr>
@@ -65,8 +65,8 @@ function deleteError(versionId: string) {
 </template>
 
 <style scoped>
-  .table-responsive {
-    overflow-x: auto;
-    max-width: 100%;
-  }
+.table-responsive {
+  overflow-x: auto;
+  max-width: 100%;
+}
 </style>

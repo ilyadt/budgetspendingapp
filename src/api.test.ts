@@ -160,7 +160,7 @@ describe('fetcher', () => {
         conflictedAt: new Date(777),
         from: '01.05: 85 RUB кофе',
         to: '01.05: 90 RUB кофе',
-        reason: 'local and remote diff'
+        reason: 'local and remote diff',
       },
     ]
 
@@ -269,10 +269,12 @@ describe('updater', () => {
         conflictedAt: new Date(),
         from: '<..>',
         to: '<..>',
-        reason: 'db error'
+        reason: 'db error',
       },
     ]
-    const spyRevokeConflictVersion = vi.spyOn(BudgetSpendingsStore, 'revokeConflictVersion').mockReturnValue(conflictVersions)
+    const spyRevokeConflictVersion = vi
+      .spyOn(BudgetSpendingsStore, 'revokeConflictVersion')
+      .mockReturnValue(conflictVersions)
 
     vi.stubGlobal(
       'fetch',

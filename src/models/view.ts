@@ -42,7 +42,7 @@ class PendingSpendingRow {
   public setBudget(b: Budget) {
     this.budgetId = b.id
     this.currency = b.money.currency // TODO: проверить, что при присваивании бюджета проставляется валюта
-    this.id = (b.id == this.initBudgetId) ? this.initId : genSpendingID();
+    this.id = b.id == this.initBudgetId ? this.initId : genSpendingID()
   }
 
   public save(dt: Date) {
@@ -76,7 +76,7 @@ class PendingSpendingRow {
   public cancel() {
     const hash = this.hash(this.budgetId, this.amountFull, this.description)
 
-    if ((hash != this.initHash) && !window.confirm(`Отменить изменение "${this.description}" ?`)) {
+    if (hash != this.initHash && !window.confirm(`Отменить изменение "${this.description}" ?`)) {
       return
     }
 
@@ -120,7 +120,7 @@ export class SpendingRow {
     if (isNew) {
       Facade.createSpending(data.budgetId, sendData)
     } else if (budgetChanged) {
-      Facade.deleteSpending(this.budgetId!, {...sendData, id: this.id})
+      Facade.deleteSpending(this.budgetId!, { ...sendData, id: this.id })
       Facade.createSpending(data.budgetId, sendData)
     } else {
       Facade.updateSpending(data.budgetId, sendData)

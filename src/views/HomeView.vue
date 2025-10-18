@@ -3,10 +3,10 @@ import { minus, Money, moneyToString, type Currency } from '@/helpers/money'
 import { moneyToStringWithCurrency, moneyFormat } from '@/helpers/money'
 import { dateFormat } from '@/helpers/date'
 import { Facade } from '@/facade'
-import type { Budget } from '@/models/models';
+import type { Budget } from '@/models/models'
 
 const props = defineProps<{
-  budgets: Budget[],
+  budgets: Budget[]
 }>()
 
 const budgets = props.budgets

@@ -1,7 +1,7 @@
 interface MoneyInterface {
-  amount: number,
-  fraction: number,
-  currency: string | Currency,
+  amount: number
+  fraction: number
+  currency: string | Currency
 }
 
 export class Money {
@@ -85,4 +85,3 @@ export const getFormatter = (c: Currency): Intl.NumberFormat => {
 
   throw new Error('currency formatter not found')
 }
-

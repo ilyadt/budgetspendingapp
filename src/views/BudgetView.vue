@@ -7,7 +7,7 @@ import type { Budget, Spending } from '@/models/models'
 import { computed } from 'vue'
 
 const props = defineProps<{
-  budget: Budget,
+  budget: Budget
 }>()
 
 const budget = props.budget
