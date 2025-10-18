@@ -49,8 +49,6 @@ function createComposite(subjects: CudSpending[]): CudSpending {
   }
 }
 
-//TODO: поменять эту историю назад: это было сделано из-за того, что иногда не доставляются обновления на бэк
-// как попытка это изменить
-export const Composite = createComposite([Uploader, BudgetSpendingsStore])
+export const Composite = createComposite([BudgetSpendingsStore, Uploader])
 
 export const Facade = new FacadeImpl(Composite, BudgetSpendingsStore)
