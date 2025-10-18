@@ -41,33 +41,31 @@ class PendingSpendingRow {
 
   public setBudget(b: Budget) {
     this.budgetId = b.id
-    this.currency = b.money.currency
+    this.currency = b.money.currency // TODO: проверить, что при присваивании бюджета проставляется валюта
     this.id = (b.id == this.initBudgetId) ? this.initId : genSpendingID();
   }
 
   public save(dt: Date) {
-    // Бюджет должен быть выбран
-    if (!this.budgetId) {
-      window.alert('не выбран бюджет')
-      return
-    }
-
-    if (!this.currency) {
-      window.alert('не выбрана валюта')
-      return
-    }
-
     const amountFull = Number(this.amountFull)
-
     if (!amountFull) {
       window.alert('пустая сумма')
+      return
+    }
+
+    if (!this.description) {
+      window.alert('пустое описание')
+      return
+    }
+
+    if (!this.budgetId) {
+      window.alert('не выбран бюджет')
       return
     }
 
     this.sp.saveChanges({
       id: this.id,
       budgetId: this.budgetId,
-      currency: this.currency,
+      currency: this.currency!,
       version: genVersion(),
       dt: dt,
       description: this.description,
