@@ -564,37 +564,6 @@ describe('storage_test', () => {
   })
 })
 
-function makeBudget(id: number): ApiBudget {
-  return {
-    id: id,
-    alias: '',
-    name: '',
-    sort: 0,
-    money: {
-      amount: 0,
-      fraction: 0,
-      currency: '',
-    },
-    dateFrom: '',
-    dateTo: '',
-    params: {},
-  }
-}
-
-function makeSpending(sp: Partial<Spending> = {}): Spending {
-  return {
-    id: sp.id ?? '',
-    version: sp.version ?? '',
-    prevVersion: sp.prevVersion ?? undefined,
-    date: sp.date ?? new Date(0),
-    sort: sp.sort ?? 0,
-    money: sp.money ?? fromRUB(0),
-    description: sp.description ?? '',
-    createdAt: sp.createdAt ?? new Date(0),
-    updatedAt: sp.updatedAt ?? new Date(0),
-  }
-}
-
 function makeApiSpending(sp: Partial<ApiSpending> = {}): ApiSpending {
   return {
     id: sp.id ?? '',
@@ -650,3 +619,35 @@ test('formatVersionPayload', () => {
 
   expect(formatVersionPayload(version2)).toEqual('23.03: 12 EUR бигмак')
 })
+
+
+function makeBudget(id: number): ApiBudget {
+  return {
+    id: id,
+    alias: '',
+    name: '',
+    sort: 0,
+    money: {
+      amount: 0,
+      fraction: 0,
+      currency: '',
+    },
+    dateFrom: '',
+    dateTo: '',
+    params: {},
+  }
+}
+
+function makeSpending(sp: Partial<Spending> = {}): Spending {
+  return {
+    id: sp.id ?? '',
+    version: sp.version ?? '',
+    prevVersion: sp.prevVersion ?? undefined,
+    date: sp.date ?? new Date(0),
+    sort: sp.sort ?? 0,
+    money: sp.money ?? fromRUB(0),
+    description: sp.description ?? '',
+    createdAt: sp.createdAt ?? new Date(0),
+    updatedAt: sp.updatedAt ?? new Date(0),
+  }
+}

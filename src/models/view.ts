@@ -17,7 +17,7 @@ interface DeleteData {
   version: string
 }
 
-class PendingSpendingRow {
+export class PendingSpendingRow {
   public initId: string
   public initBudgetId: number | null
   public initHash: string
@@ -28,7 +28,7 @@ class PendingSpendingRow {
     public currency: Currency | null,
     public description: string,
     public amountFull: string,
-    public sp: SpendingRow, // Link to creator
+    public sp: SpendingRow | null, // Link to creator
   ) {
     this.initId = id
     this.initBudgetId = budgetId
@@ -41,7 +41,7 @@ class PendingSpendingRow {
 
   public setBudget(b: Budget) {
     this.budgetId = b.id
-    this.currency = b.money.currency // TODO: проверить, что при присваивании бюджета проставляется валюта
+    this.currency = b.money.currency
     this.id = b.id == this.initBudgetId ? this.initId : genSpendingID()
   }
 
@@ -62,7 +62,7 @@ class PendingSpendingRow {
       return
     }
 
-    this.sp.saveChanges({
+    this.sp?.saveChanges({
       id: this.id,
       budgetId: this.budgetId,
       currency: this.currency!,
@@ -80,7 +80,7 @@ class PendingSpendingRow {
       return
     }
 
-    this.sp.cancelChanges()
+    this.sp?.cancelChanges()
   }
 }
 
