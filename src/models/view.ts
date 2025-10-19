@@ -2,7 +2,7 @@ import { Facade } from '@/facade'
 import { from, moneyFormat, type Currency } from '@/helpers/money'
 import { type Budget, type Spending, genVersion, genSpendingID } from './models'
 
-interface SaveData {
+export interface SaveData {
   id: string
   dt: Date
   version: string
@@ -19,18 +19,20 @@ interface DeleteData {
 
 export class PendingSpendingRow {
   public initId: string
-  public initBudgetId: number | null
-  public initHash: string
+  private _budgetId: number | null
+  private initBudgetId: number | null
+  private initHash: string
 
   constructor(
     public id: string,
-    public budgetId: number | null,
+    budgetId: number | null,
     public currency: Currency | null,
     public description: string,
     public amountFull: string,
     public sp: SpendingRow | null, // Link to creator
   ) {
     this.initId = id
+    this._budgetId = budgetId
     this.initBudgetId = budgetId
     this.initHash = this.hash(budgetId, amountFull, description)
   }
@@ -40,9 +42,13 @@ export class PendingSpendingRow {
   }
 
   public setBudget(b: Budget) {
-    this.budgetId = b.id
+    this._budgetId = b.id
     this.currency = b.money.currency
     this.id = b.id == this.initBudgetId ? this.initId : genSpendingID()
+  }
+
+  public get budgetId(): number | null {
+    return this._budgetId
   }
 
   public save(dt: Date) {

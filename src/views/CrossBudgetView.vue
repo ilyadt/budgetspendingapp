@@ -187,8 +187,8 @@ onUpdated(() => {
               <td>
                 <select
                   class="form-select cell-input"
-                  v-model.number="sp.pending.budgetId"
-                  @change="sp.pending.setBudget(budgetMap[sp.pending!.budgetId!]!)"
+                  :value="sp.pending.budgetId"
+                  @change="sp.pending.setBudget(budgetMap[Number(($event.target as HTMLSelectElement).value)]!)"
                 >
                   <option disabled value="">бюджет</option>
                   <option

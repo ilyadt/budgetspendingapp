@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from "vitest";
-import { PendingSpendingRow } from "./view";
+import { PendingSpendingRow, SpendingRow, type SaveData } from "./view";
 import { fromRUB, Money } from "@/helpers/money";
 import * as models from "./models";
 import {type Budget} from "./models";
@@ -72,6 +72,69 @@ describe('PendingSpendingRow', () => {
     }))
 
     expect(s.id).toEqual('id1') // id остается изначальным
+  })
+
+  test('save', () => {
+    vi.stubGlobal('alert', vi.fn());
+
+    const spMock = new (vi.fn(() => ({
+      saveChanges: vi.fn(),
+    }))) as unknown as SpendingRow
+
+    const s = new PendingSpendingRow(
+      'id1',
+      null,
+      null,
+      '', // TODO: null ?
+      '', // TODO: null ?
+      spMock,
+    )
+
+    s.save(new Date())
+
+    expect(alert).toHaveBeenCalledWith('пустая сумма');
+    expect(spMock.saveChanges).toBeCalledTimes(0)
+
+    vi.clearAllMocks()
+    s.amountFull = '1'
+    s.save(new Date())
+
+    expect(alert).toHaveBeenCalledWith('пустое описание');
+    expect(spMock.saveChanges).toBeCalledTimes(0)
+
+    vi.clearAllMocks()
+    s.amountFull = '1'
+    s.description = 'чай'
+    s.save(new Date())
+
+    expect(alert).toHaveBeenCalledWith('не выбран бюджет');
+    expect(spMock.saveChanges).toBeCalledTimes(0)
+
+    vi.clearAllMocks()
+    const spyGenSpendingID = vi.spyOn(models, 'genSpendingID').mockReturnValue('spending22')
+    const spyGenVersionID = vi.spyOn(models, 'genVersion').mockReturnValue('version11')
+
+    s.amountFull = '110.50'
+    s.description = 'чай'
+    s.setBudget(makeBudget({id: 1, money: fromRUB(0)}))
+    const dt = new Date()
+    s.save(dt)
+
+    expect(alert).not.toBeCalled()
+    expect(spMock.saveChanges).toBeCalledTimes(1)
+    expect(spMock.saveChanges).toBeCalledWith({
+      id: 'spending22',
+      dt: dt,
+      version: 'version11',
+      budgetId: 1,
+      currency: 'RUB',
+      description: 'чай',
+      amountFull: 110.50
+    } as SaveData)
+
+    spyGenVersionID.mockRestore()
+    spyGenSpendingID.mockRestore()
+    vi.unstubAllGlobals()
   })
 })
 
