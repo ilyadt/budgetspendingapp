@@ -1,9 +1,8 @@
-import { describe, expect, test, vi } from "vitest";
-import { PendingSpendingRow, SpendingRow, type SaveData } from "./view";
-import { fromRUB, Money } from "@/helpers/money";
-import * as models from "./models";
-import {type Budget} from "./models";
-
+import { describe, expect, test, vi } from 'vitest'
+import { PendingSpendingRow, SpendingRow, type SaveData } from './view'
+import { fromRUB, Money } from '@/helpers/money'
+import * as models from './models'
+import { type Budget } from './models'
 
 describe('PendingSpendingRow', () => {
   test('setBudget:new', () => {
@@ -22,10 +21,12 @@ describe('PendingSpendingRow', () => {
     expect(s.budgetId).toEqual(null)
     expect(s.currency).toEqual(null)
 
-    s.setBudget(makeBudget({
-      id: 2,
-      money: new Money(0, 2, 'RUB'),
-    }))
+    s.setBudget(
+      makeBudget({
+        id: 2,
+        money: new Money(0, 2, 'RUB'),
+      }),
+    )
 
     expect(s.budgetId).toEqual(2)
     expect(s.currency).toEqual('RUB')
@@ -39,23 +40,18 @@ describe('PendingSpendingRow', () => {
   test('setBudget:update', () => {
     const spyGenSpendingID = vi.spyOn(models, 'genSpendingID').mockReturnValue('newID')
 
-    const s = new PendingSpendingRow(
-      'id1',
-      1,
-      'RUB',
-      '<3',
-      '14.07',
-      null,
-    )
+    const s = new PendingSpendingRow('id1', 1, 'RUB', '<3', '14.07', null)
 
     expect(s.id).toEqual('id1')
     expect(s.budgetId).toEqual(1)
     expect(s.currency).toEqual('RUB')
 
-    s.setBudget(makeBudget({
-      id: 2,
-      money: new Money(0, 2, 'EUR'),
-    }))
+    s.setBudget(
+      makeBudget({
+        id: 2,
+        money: new Money(0, 2, 'EUR'),
+      }),
+    )
 
     expect(s.budgetId).toEqual(2)
     expect(s.currency).toEqual('EUR')
@@ -66,20 +62,22 @@ describe('PendingSpendingRow', () => {
     spyGenSpendingID.mockRestore()
 
     // Восстанавливается изначальный бюджет
-    s.setBudget(makeBudget({
-      id: 1,
-      money: new Money(0, 2, 'RUB'),
-    }))
+    s.setBudget(
+      makeBudget({
+        id: 1,
+        money: new Money(0, 2, 'RUB'),
+      }),
+    )
 
     expect(s.id).toEqual('id1') // id остается изначальным
   })
 
   test('save', () => {
-    vi.stubGlobal('alert', vi.fn());
+    vi.stubGlobal('alert', vi.fn())
 
     const spMock = new (vi.fn(() => ({
       saveChanges: vi.fn(),
-    }))) as unknown as SpendingRow
+    })))() as unknown as SpendingRow
 
     const s = new PendingSpendingRow(
       'id1',
@@ -92,14 +90,14 @@ describe('PendingSpendingRow', () => {
 
     s.save(new Date())
 
-    expect(alert).toHaveBeenCalledWith('пустая сумма');
+    expect(alert).toHaveBeenCalledWith('пустая сумма')
     expect(spMock.saveChanges).toBeCalledTimes(0)
 
     vi.clearAllMocks()
     s.amountFull = '1'
     s.save(new Date())
 
-    expect(alert).toHaveBeenCalledWith('пустое описание');
+    expect(alert).toHaveBeenCalledWith('пустое описание')
     expect(spMock.saveChanges).toBeCalledTimes(0)
 
     vi.clearAllMocks()
@@ -107,7 +105,7 @@ describe('PendingSpendingRow', () => {
     s.description = 'чай'
     s.save(new Date())
 
-    expect(alert).toHaveBeenCalledWith('не выбран бюджет');
+    expect(alert).toHaveBeenCalledWith('не выбран бюджет')
     expect(spMock.saveChanges).toBeCalledTimes(0)
 
     vi.clearAllMocks()
@@ -116,7 +114,7 @@ describe('PendingSpendingRow', () => {
 
     s.amountFull = '110.50'
     s.description = 'чай'
-    s.setBudget(makeBudget({id: 1, money: fromRUB(0)}))
+    s.setBudget(makeBudget({ id: 1, money: fromRUB(0) }))
     const dt = new Date()
     s.save(dt)
 
@@ -129,7 +127,7 @@ describe('PendingSpendingRow', () => {
       budgetId: 1,
       currency: 'RUB',
       description: 'чай',
-      amountFull: 110.50
+      amountFull: 110.50,
     } as SaveData)
 
     spyGenVersionID.mockRestore()
@@ -137,7 +135,6 @@ describe('PendingSpendingRow', () => {
     vi.unstubAllGlobals()
   })
 })
-
 
 function makeBudget(b: Partial<Budget>): Budget {
   return {

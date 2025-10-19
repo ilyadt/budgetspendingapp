@@ -197,7 +197,7 @@ export const Uploader = {
   },
 
   async saveAndProcess(ev: ApiSpendingEvent) {
-   const events = this.addEvent(ev)
+    const events = this.addEvent(ev)
 
     return this.processEvents(events)
   },
@@ -236,8 +236,8 @@ export const Uploader = {
   },
 
   deleteEvents(del: ApiSpendingEvent[]) {
-    const idsToDelete = new Set(del.map(e => e.eventId));
-    this._events = this._events.filter(e => !idsToDelete.has(e.eventId));
+    const idsToDelete = new Set(del.map(e => e.eventId))
+    this._events = this._events.filter(e => !idsToDelete.has(e.eventId))
 
     localStorage.setItem(this._lsEventsKey, JSON.stringify(this._events))
     useStatusStore().setPendingEvents(this._events.length)
