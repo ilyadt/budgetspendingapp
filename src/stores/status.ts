@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia'
-import { useStorage } from '@vueuse/core'
+import { ref } from 'vue'
 
 export const useStatusStore = defineStore('status', () => {
-  const statusGetSpendings = useStorage<string>('statusGetSpendings', '')
-  const statusUpdateSpendings = useStorage<string>('statusUpdateSpendings', '')
-  const pendingEvents = useStorage<number>('pendingEvents', 0)
+  const statusGetSpendings = ref<string>('')
+  const statusUpdateSpendings = ref<string>('')
+  const pendingEvents = ref<number>(0)
 
   function setUpdateSpendingStatus(s: string) {
     statusUpdateSpendings.value = s
@@ -26,4 +26,4 @@ export const useStatusStore = defineStore('status', () => {
     setGetSpendingStatus,
     setPendingEvents,
   }
-})
+}, {persist: true})
