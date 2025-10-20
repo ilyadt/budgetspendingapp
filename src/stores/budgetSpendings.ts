@@ -283,123 +283,82 @@ export const BudgetSpendingsStore: BudgetSpendingsStoreInterface = {
     localStorage.setItem(lsBudgetsKey(), JSON.stringify(budgets))
   },
 
-  storeSpendingsFromRemote(bid: number, remoteSps: ApiSpending[]): ConflictVersion[] {
+ storeSpendingsFromRemote(bid: number, remoteSps: ApiSpending[]): ConflictVersion[] {
     assertBudget(bid)
 
     const localSps: SpendingVersioned[] = JSON.parse(localStorage.getItem(lsSpendingsKey(bid)) ?? '[]')
+    const remoteById = new Map(remoteSps.map(sp => [sp.id, sp]))
+    const localById = new Map(localSps.map(sp => [sp.id, sp]))
 
-    const remoteSpsIds = new Set(remoteSps.map(s => s.id))
-    const localSpsIds = new Set(localSps.map(s => s.id))
+    const remoteIds = new Set(remoteById.keys())
+    const localIds = new Set(localById.keys())
 
-    const remoteOnlyIds = new Set([...remoteSpsIds].filter(id => !localSpsIds.has(id)))
+    const onlyRemote = [...remoteIds].filter(id => !localIds.has(id))
+    const onlyLocal = [...localIds].filter(id => !remoteIds.has(id))
+    const both = [...remoteIds].filter(id => localIds.has(id))
 
     const result: SpendingVersioned[] = []
-
     const revoked: ConflictVersion[] = []
 
-    // RemoteOnly:
-    // создаем локальную версию из нее
-    for (const sp of remoteSps.filter(sp => remoteOnlyIds.has(sp.id))) {
+    // --- Remote only ---
+    for (const id of onlyRemote) {
+      const sp = remoteById.get(id)!
       result.push({
-        id: sp.id,
+        id,
         createdAt: new Date(sp.createdAt),
-        versions: [
-          {
-            version: sp.version,
-            status: VersionStatus.InDb,
-            date: new Date(sp.date),
-            description: sp.description,
-            money: sp.money,
-            sort: sp.sort,
-            updatedAt: new Date(sp.updatedAt),
-            deleted: false,
-          },
-        ],
+        versions: [remoteToVersion(sp)],
       })
     }
 
-    // LocalOnly:
-    // 1. Если создана локально (local: ver=1:status=PENDING), то оставляем. Или ver1,status=APPLIED, time<15s -> сохранена, но недоступна еще для чтения
-    // 2. В обратном случае (=запись была удалена в нашей системе / в другой) все PENDING в ErrorStorage и не добавляем в res.
-    const localOnlyIds = new Set([...localSpsIds].filter(id => !remoteSpsIds.has(id)))
+    // --- Local only ---
+    for (const id of onlyLocal) {
+      const spv = localById.get(id)!
+      const v1 = spv.versions[0]!
+      const at = new Date(v1.statusAt!)
+      const createdRecentlyLocally =
+        v1.status === VersionStatus.Pending ||
+        (v1.status === VersionStatus.Applied && at.lessThanSecondsAgo(15))
 
-    for (const spVersioned of localSps.filter(sp => localOnlyIds.has(sp.id))) {
-      const ver1 = spVersioned.versions[0]!
-      const ver1StatusAt = new Date(ver1.statusAt!)
-      const spCreatedLocally =
-        ver1.status == VersionStatus.Pending ||
-        (ver1.status == VersionStatus.Applied && ver1StatusAt.lessThanSecondsAgo(15))
-      if (spCreatedLocally) {
-        result.push(spVersioned)
+      if (createdRecentlyLocally) {
+        result.push(spv)
+        continue
       }
 
-      // Locally or Remote deleted
-      const spDeleted =
-        ver1.status == VersionStatus.InDb ||
-        (ver1.status == VersionStatus.Applied && ver1StatusAt.moreThanSecondsAgo(15))
-      if (spDeleted) {
-        const revokedVersions = makeConflictVersions(
-          bid,
-          spVersioned.id,
-          spVersioned.versions,
-          v => v.status == VersionStatus.Pending,
-          'locally or remote deleted',
+      const deleted =
+        v1.status === VersionStatus.InDb ||
+        (v1.status === VersionStatus.Applied && at.moreThanSecondsAgo(15))
+
+      if (deleted) {
+        revoked.push(
+          ...makeConflictVersions(bid, spv.id, spv.versions, v => v.status === VersionStatus.Pending, 'locally or remote deleted')
         )
-        revoked.push(...revokedVersions)
       }
     }
 
-    // Remote and Local
+    // --- Both sides ---
+    for (const id of both) {
+      const localSp = localById.get(id)!
+      const remoteSp = remoteById.get(id)!
 
-    const remoteById: Map<string, ApiSpending> = new Map(remoteSps.map(sp => [sp.id, sp]))
-    const localById: Map<string, SpendingVersioned> = new Map(localSps.map(sp => [sp.id, sp]))
-
-    const intersectIds = new Set([...remoteSpsIds].filter(id => localSpsIds.has(id)))
-    const pairs: [SpendingVersioned, ApiSpending][] = [...intersectIds].map(id => [
-      localById.get(id)!,
-      remoteById.get(id)!,
-    ])
-
-    for (const [localSpVersioned, remoteSp] of pairs) {
-      const idx = localSpVersioned.versions.findIndex(v => v.version == remoteSp.version)
+      const matchIndex = localSp.versions.findIndex(v => v.version === remoteSp.version)
       let versions: SpendingVersion[]
 
-      if (idx >= 0) {
-        versions = localSpVersioned.versions.slice(idx) // оставляем только версии начинающиеся с remote
+      if (matchIndex >= 0) {
+        versions = localSp.versions.slice(matchIndex)
         versions[0]!.status = VersionStatus.InDb
       } else {
-        const revokedVersions = makeConflictVersions(
-          bid,
-          localSpVersioned.id,
-          localSpVersioned.versions,
-          v => v.status == VersionStatus.Pending,
-          'local and remote diff',
+        revoked.push(
+          ...makeConflictVersions(bid, id, localSp.versions, v => (v.status === VersionStatus.Pending && !remoteSp.versions.includes(v.version)), 'local and remote diff')
         )
-        revoked.push(...revokedVersions)
-
-        versions = [
-          {
-            version: remoteSp.version,
-            status: VersionStatus.InDb,
-            date: new Date(remoteSp.date),
-            description: remoteSp.description,
-            money: remoteSp.money,
-            sort: remoteSp.sort,
-            updatedAt: new Date(remoteSp.updatedAt),
-            deleted: false,
-          },
-        ]
+        versions = [remoteToVersion(remoteSp)]
       }
 
-      localSpVersioned.versions = versions
-
-      result.push(localSpVersioned)
+      localSp.versions = versions
+      result.push(localSp)
     }
 
-    result.sort((s1, s2) => s1.id.localeCompare(s2.id))
-
+    result.sort((a, b) => a.id.localeCompare(b.id))
     localStorage.setItem(lsSpendingsKey(bid), JSON.stringify(result))
-
     return revoked
   },
 
@@ -460,6 +419,19 @@ function assertBudget(bid: number) {
   const b = budgets.find(b => b.id === bid)
   if (!b) {
     throw new Error('not existing budget')
+  }
+}
+
+function remoteToVersion(sp: ApiSpending): SpendingVersion {
+  return {
+    version: sp.version,
+    status: VersionStatus.InDb,
+    date: new Date(sp.date),
+    description: sp.description,
+    money: sp.money,
+    sort: sp.sort,
+    updatedAt: new Date(sp.updatedAt),
+    deleted: false,
   }
 }
 
