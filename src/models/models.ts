@@ -2,7 +2,7 @@ import { alphanumeric } from 'nanoid-dictionary'
 import { customAlphabet } from 'nanoid/non-secure'
 
 import type { Money } from '@/helpers/money'
-import type { components } from '@/models/oaschema'
+import type { components, paths } from '@/models/oaschema'
 
 export const genSpendingID = customAlphabet(alphanumeric, 10)
 export const genVersion = customAlphabet(alphanumeric, 5)
@@ -13,6 +13,7 @@ export type ApiSpendingEvent = components['schemas']['SpendingEvent']
 export type ApiUpdateSpendingsErrorsResponse = components['schemas']['UpdateSpendingsErrorsResponse']
 export type ApiUploadError = components['schemas']['UpdateSpendingsError']
 export type ApiMoney = components['schemas']['Money']
+export type ApiSchemaPaths = paths
 
 export interface Spending {
   id: string

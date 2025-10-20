@@ -1,15 +1,14 @@
 import createClient from 'openapi-fetch'
-import type { paths } from './models/oaschema'
 import { BudgetSpendingsStore } from '@/stores/budgetSpendings'
 import { useStatusStore } from '@/stores/status'
 import * as Sentry from '@sentry/vue'
 import { useConflictVersionStore } from '@/stores/conflictVersions'
 import { v4 as uuidv4 } from 'uuid'
 import { format } from 'date-fns'
-import type { Spending, ApiSpendingEvent, DelSpending, ApiUploadError } from './models/models'
+import type { Spending, ApiSpendingEvent, DelSpending, ApiUploadError, ApiSchemaPaths } from './models/models'
 
 function createApiClient() {
-  return createClient<paths>({ baseUrl: import.meta.env.VITE_SERVER_URL })
+  return createClient<ApiSchemaPaths>({ baseUrl: import.meta.env.VITE_SERVER_URL })
 }
 
 // Получение бюджетов и расходов по ним
