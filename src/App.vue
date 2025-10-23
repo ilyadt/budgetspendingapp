@@ -12,8 +12,8 @@ const budgets = Facade.getBudgets()
 </script>
 
 <template>
-  <StatusBar />
   <div class="container">
+    <StatusBar />
     <RouterView v-slot="{ route, Component }">
       <template v-if="route.name === 'home'">
         <HomeView :budgets="budgets" />
