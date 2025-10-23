@@ -51,6 +51,13 @@ export class PendingSpendingRow {
     return this._budgetId
   }
 
+  public isNewEmpty(): boolean {
+    const isNew = !this._budgetId // TODO: budgetId -> id
+    const isEmpty = !this.description && !this.amountFull && !this.budgetId
+
+    return isNew && isEmpty
+  }
+
   public save(dt: Date) {
     const amountFull = Number(this.amountFull)
     if (!amountFull) {

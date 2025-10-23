@@ -121,7 +121,7 @@ const dateRefs: Record<string, Element> = {}
 const scrollToDate = (targetDate: Date) => {
   const el = dateRefs[dateISO(targetDate)]
   if (el) {
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 }
 
@@ -167,56 +167,60 @@ onUpdated(() => {
         </colgroup>
         <tbody>
           <template v-for="sp of groupedSpendings[dateISO(date)]" :key="sp.id">
-            <tr v-if="sp.pending">
-              <td class="text-end">
-                <input
-                  class="form-control cell-input"
-                  v-model.number="sp.pending.amountFull"
-                  @keyup.enter="sp.pending.save(new Date())"
-                  @keyup.esc="sp.pending.cancel()"
-                />
-              </td>
-              <td>
-                <input
-                  class="form-control cell-input"
-                  v-model="sp.pending.description"
-                  @keyup.enter="sp.pending.save(new Date())"
-                  @keyup.esc="sp.pending.cancel()"
-                />
-              </td>
-              <td>
-                <select
-                  class="form-select cell-input"
-                  :value="sp.pending.budgetId"
-                  @change="sp.pending.setBudget(budgetMap[Number(($event.target as HTMLSelectElement).value)]!)"
-                >
-                  <option disabled value="">бюджет</option>
-                  <option
-                    v-for="b in budgetMap"
-                    :key="b.id"
-                    :value="b.id"
+            <template v-if="sp.pending">
+              <!-- invisible click-catcher -->
+              <div class="click-overlay" @click="sp.pending.isNewEmpty() ? sp.pending.cancel() : sp.pending.save(new Date())"></div>
+              <tr class="pending-row">
+                <td class="text-end">
+                  <input
+                    class="form-control cell-input"
+                    v-model.number="sp.pending.amountFull"
+                    @keyup.enter="sp.pending.save(new Date())"
+                    @keyup.esc="sp.pending.cancel()"
+                  />
+                </td>
+                <td>
+                  <input
+                    class="form-control cell-input"
+                    v-model="sp.pending.description"
+                    @keyup.enter="sp.pending.save(new Date())"
+                    @keyup.esc="sp.pending.cancel()"
+                  />
+                </td>
+                <td>
+                  <select
+                    class="form-select cell-input"
+                    :value="sp.pending.budgetId"
+                    @change="sp.pending.setBudget(budgetMap[Number(($event.target as HTMLSelectElement).value)]!)"
                   >
-                    {{ b.alias }}: {{ getFormatter(b.left.currency).format(b.left.full()) }}
-                  </option>
-                </select>
-              </td>
-              <td style="padding: 2px">
-                <button
-                  class="btn btn-danger btn-sm p-1 m-1"
-                  style="min-width: 20px; line-height: 1"
-                  @click="sp.pending.cancel()"
-                >
-                  <font-awesome-icon :icon="['fas', 'xmark']" />
-                </button>
-                <button
-                  class="btn btn-success btn-sm p-1 m-1"
-                  style="min-width: 20px; line-height: 1"
-                  @click="sp.pending.save(new Date())"
-                >
-                  <font-awesome-icon :icon="['fas', 'check']" />
-                </button>
-              </td>
-            </tr>
+                    <option disabled value="">бюджет</option>
+                    <option
+                      v-for="b in budgetMap"
+                      :key="b.id"
+                      :value="b.id"
+                    >
+                      {{ b.alias }}: {{ getFormatter(b.left.currency).format(b.left.full()) }}
+                    </option>
+                  </select>
+                </td>
+                <td style="padding: 2px">
+                  <button
+                    class="btn btn-danger btn-sm p-1 m-1"
+                    style="min-width: 20px; line-height: 1"
+                    @click="sp.pending.cancel()"
+                  >
+                    <font-awesome-icon :icon="['fas', 'xmark']" />
+                  </button>
+                  <button
+                    class="btn btn-success btn-sm p-1 m-1"
+                    style="min-width: 20px; line-height: 1"
+                    @click="sp.pending.save(new Date())"
+                  >
+                    <font-awesome-icon :icon="['fas', 'check']" />
+                  </button>
+                </td>
+              </tr>
+            </template>
             <tr v-else data-bs-toggle="popover" data-bs-trigger="focus" :data-bs-content="`id: ${sp.id}, v: ${sp.version}`" tabindex="0">
               <td class="text-end">
                 <span @click="sp.toPending()">{{ sp.amountFull }}</span>
@@ -266,5 +270,17 @@ onUpdated(() => {
   -webkit-appearance: none;
   -moz-appearance: none;
   background-image: none;
+}
+
+.click-overlay {
+  position: fixed;
+  inset: 0; /* covers entire viewport */
+  background: transparent;
+  z-index: 2000;
+}
+
+.pending-row {
+  position: relative;
+  z-index: 2001;
 }
 </style>
