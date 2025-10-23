@@ -20,7 +20,7 @@ function reload() {
   window.location.reload()
 }
 
-const bg = computed(():string => {
+const bg = computed((): string => {
   if (conflictVersionsStore.conflictVersions.length > 0) {
     return '#ea4747'
   }
@@ -31,10 +31,9 @@ const bg = computed(():string => {
 
   return 'rgb(248 249 250)'
 })
-
 </script>
 <template>
-  <div class="row fixed-row" :style="{backgroundColor: bg,  position: 'sticky', top: '0', zIndex: 1000}">
+  <div class="row fixed-row" :style="{ backgroundColor: bg, position: 'sticky', top: '0', zIndex: 1000 }">
     <div class="col-3 text-truncate">G: {{ status.statusGetSpendings }}</div>
     <div class="col-3 text-truncate">U: {{ status.statusUpdateSpendings }}</div>
     <div class="col-2 text-truncate">P: {{ status.pendingEvents }}</div>
