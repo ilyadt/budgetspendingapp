@@ -169,7 +169,8 @@ onUpdated(() => {
           <template v-for="sp of groupedSpendings[dateISO(date)]" :key="sp.id">
             <template v-if="sp.pending">
               <!-- invisible click-catcher -->
-              <div class="click-overlay" @click="sp.pending.isNewEmpty() ? sp.pending.cancel() : sp.pending.save(new Date())"></div>
+              <!-- not working in safari -->
+              <!-- <div class="click-overlay" @click="sp.pending.isNewEmpty() ? sp.pending.cancel() : sp.pending.save(new Date())"></div> -->
               <tr class="pending-row">
                 <td class="text-end">
                   <input
