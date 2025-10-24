@@ -75,6 +75,13 @@ export class PendingSpendingRow {
       return
     }
 
+    // Нет изменений
+    const hash = this.hash(this.budgetId, this.amountFull, this.description) // TODO: +this.id
+    if (hash == this.initHash) {
+      this.sp?.cancelChanges()
+      return
+    }
+
     this.sp?.saveChanges({
       id: this.id,
       budgetId: this.budgetId,
