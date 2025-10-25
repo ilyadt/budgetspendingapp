@@ -7,6 +7,7 @@ import { SpendingRow } from '@/models/view'
 import { computed, nextTick, onMounted, onUpdated, ref } from 'vue'
 const { isToday, isFuture } = DateCheck(new Date())
 import { Popover } from 'bootstrap'
+import { format } from 'date-fns'
 
 const props = defineProps<{
   budgets: Budget[]
@@ -221,7 +222,7 @@ onUpdated(() => {
                 </td>
               </tr>
             </template>
-            <tr v-else data-bs-toggle="popover" data-bs-trigger="focus" :data-bs-content="`id: ${sp.id}, v: ${sp.version}`" tabindex="0">
+            <tr v-else data-bs-toggle="popover" data-bs-trigger="focus" data-bs-html="true" :data-bs-content="`id: ${sp.id} <br> v: ${sp.version} <br> upd: ${format(sp.updatedAt!, 'HH:mm dd.MM')}`" tabindex="0">
               <td class="text-end">
                 <span @click="sp.toPending()">{{ sp.amountFull }}</span>
               </td>
