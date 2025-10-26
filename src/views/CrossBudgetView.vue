@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Facade } from '@/facade'
 import { dateFormat, dateISO, dateRange, DateCheck, dayName } from '@/helpers/date'
-import { from, getFormatter, Money, moneyFormat } from '@/helpers/money'
+import { from, getFormatter, Money, moneyFormat, type Currency } from '@/helpers/money'
 import { type Budget, genSpendingID, genVersion } from '@/models/models'
 import { SpendingRow } from '@/models/view'
 import { computed, nextTick, onMounted, onUpdated, ref } from 'vue'
@@ -115,6 +115,23 @@ const budgetMap = computed<Record<number, BudgetWithLeft>>(() => {
       return [b.id, { ...b, left: b.money.minus(spent) }]
     }),
   )
+})
+
+const daysTotal = computed((): Record<string, Partial<Record<Currency, number>>> => {
+  const res: Record<string, Partial<Record<Currency, number>>> = {}
+
+  Object.entries(groupedSpendings.value).forEach(([date, daySpendings]) => {
+    const dayTotal: Partial<Record<Currency, number>> = {}
+
+    daySpendings.forEach(sp => {
+      const c = sp.currency!
+      dayTotal[c] = (dayTotal[c] ?? 0) + sp.amountFull
+    })
+
+    res[date] = dayTotal
+  })
+
+  return res
 })
 
 const dateRefs: Record<string, Element> = {}
@@ -253,6 +270,9 @@ onUpdated(() => {
                 +
               </button>
             </td>
+            <td></td>
+            <td></td>
+            <td> {{ daysTotal[dateISO(date)]?.RUB ?? 0 }} ₽</td>
           </tr>
         </tbody>
       </table>
