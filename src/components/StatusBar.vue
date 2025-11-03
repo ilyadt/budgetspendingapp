@@ -31,10 +31,19 @@ const bg = computed((): string => {
 
   return 'rgb(248 249 250)'
 })
+
+const bgGet = computed((): string => {
+  if (status.statusGetSpendings != 'ok') {
+    return '#fae5bb'
+  }
+
+  return 'rgb(248 249 250)'
+})
+
 </script>
 <template>
   <div class="row fixed-row" :style="{ backgroundColor: bg, position: 'sticky', top: '0', zIndex: 1000 }">
-    <div class="col-3 text-truncate">G: {{ status.statusGetSpendings }}</div>
+    <div class="col-3 text-truncate" :style="{ backgroundColor: bgGet}">G: {{ status.statusGetSpendings }}</div>
     <div class="col-3 text-truncate">U: {{ status.statusUpdateSpendings }}</div>
     <div class="col-2 text-truncate">P: {{ status.pendingEvents }}</div>
     <div class="col-2 text-truncate">E: {{ conflictVersionsStore.conflictVersions.length }}</div>
