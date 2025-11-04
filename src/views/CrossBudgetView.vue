@@ -213,7 +213,7 @@ onUpdated(() => {
                   >
                     <option disabled value="">бюджет</option>
                     <option
-                      v-for="b in budgetMap"
+                      v-for="b in Object.values(budgetMap).filter(b => b.dateFrom <= date && date <= b.dateTo).sort((a, b) => a.id - b.id)"
                       :key="b.id"
                       :value="b.id"
                     >
