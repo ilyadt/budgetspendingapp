@@ -251,7 +251,7 @@ onUpdated(() => {
               </td>
               <td>
                 <button
-                  @click="sp.delete({ dt: new Date(), version: genVersion() })"
+                  @click="sp.delete({ dt: new Date(), version: genVersion(sp.version) })"
                   class="btn btn-warning btn-sm p-1 m-1"
                   style="min-width: 20px; line-height: 1"
                 >

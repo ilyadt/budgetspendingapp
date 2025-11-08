@@ -5,7 +5,26 @@ import type { Money } from '@/helpers/money'
 import type { components, paths } from '@/models/oaschema'
 
 export const genSpendingID = customAlphabet(alphanumeric, 10)
-export const genVersion = customAlphabet(alphanumeric, 5)
+
+const hexSymbols5 = customAlphabet('0123456789abcdef', 5)
+
+// null    -> v1-xxxxx
+// xxxxx   -> yyyyy
+// v1-3829f -> v2-xxxxx
+export const genVersion = (prevVer: string | null): string => {
+  if (prevVer === null) {
+    return `v1-${hexSymbols5()}`
+  }
+
+  const match = prevVer.match(/^v(\d+)-([0-9a-f]{5})$/i)
+  if (!match) {
+    return customAlphabet(alphanumeric, 5)()
+  }
+
+  const nextNum = parseInt(match[1]!, 10) + 1
+
+  return `v${nextNum}-${hexSymbols5()}`
+}
 
 export type ApiBudget = components['schemas']['Budget']
 export type ApiSpending = components['schemas']['Spending']

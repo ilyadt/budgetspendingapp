@@ -25,6 +25,7 @@ export class PendingSpendingRow {
 
   constructor(
     public id: string,
+    private version: string | null,
     budgetId: number | null,
     public currency: Currency | null,
     public description: string,
@@ -82,11 +83,14 @@ export class PendingSpendingRow {
       return
     }
 
+    // Если бюджет изменился, то генерируем версии сначала
+    const ver = (this.budgetId != this.initBudgetId) ? genVersion(null) : genVersion(this.version)
+
     this.sp?.saveChanges({
       id: this.id,
+      version: ver,
       budgetId: this.budgetId,
       currency: this.currency!,
-      version: genVersion(),
       dt: dt,
       description: this.description,
       amountFull: amountFull,
@@ -172,6 +176,7 @@ export class SpendingRow {
   public toPending(): void {
     this.pending = new PendingSpendingRow(
       this.id,
+      this.version,
       this.budgetId,
       this.currency,
       this.description,

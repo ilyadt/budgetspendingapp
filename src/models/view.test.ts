@@ -12,6 +12,7 @@ describe('PendingSpendingRow', () => {
       'id1',
       null,
       null,
+      null,
       '', // TODO: null ?
       '', // TODO: null ?
       null,
@@ -40,7 +41,7 @@ describe('PendingSpendingRow', () => {
   test('setBudget:update', () => {
     const spyGenSpendingID = vi.spyOn(models, 'genSpendingID').mockReturnValue('newID')
 
-    const s = new PendingSpendingRow('id1', 1, 'RUB', '<3', '14.07', null)
+    const s = new PendingSpendingRow('id1', 'v1-23a1e' , 1, 'RUB', '<3', '14.07', null)
 
     expect(s.id).toEqual('id1')
     expect(s.budgetId).toEqual(1)
@@ -83,6 +84,7 @@ describe('PendingSpendingRow', () => {
       'id1',
       null,
       null,
+      null,
       '', // TODO: null ?
       '', // TODO: null ?
       spMock,
@@ -110,7 +112,7 @@ describe('PendingSpendingRow', () => {
 
     vi.clearAllMocks()
     const spyGenSpendingID = vi.spyOn(models, 'genSpendingID').mockReturnValue('spending22')
-    const spyGenVersionID = vi.spyOn(models, 'genVersion').mockReturnValue('version11')
+    const spyGenVersionID = vi.spyOn(models, 'genVersion').mockReturnValue('v1-abef3')
 
     s.amountFull = '110.50'
     s.description = 'чай'
@@ -123,12 +125,14 @@ describe('PendingSpendingRow', () => {
     expect(spMock.saveChanges).toBeCalledWith({
       id: 'spending22',
       dt: dt,
-      version: 'version11',
+      version: 'v1-abef3',
       budgetId: 1,
       currency: 'RUB',
       description: 'чай',
       amountFull: 110.50,
     } as SaveData)
+
+    expect(spyGenVersionID).toHaveBeenCalledWith(null) // budget changed
 
     spyGenVersionID.mockRestore()
     spyGenSpendingID.mockRestore()
