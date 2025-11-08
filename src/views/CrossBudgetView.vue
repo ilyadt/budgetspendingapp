@@ -249,13 +249,16 @@ onUpdated(() => {
               <td>
                 <span @click="sp.toPending()">{{ budgetMap[sp.budgetId!]!.alias }}</span>
               </td>
-              <td>
+              <td style="padding: 2px">
                 <button
                   @click="sp.delete({ dt: new Date(), version: genVersion(sp.version) })"
                   class="btn btn-warning btn-sm p-1 m-1"
                   style="min-width: 20px; line-height: 1"
                 >
                   <font-awesome-icon :icon="['fas', 'xmark']" />
+                </button>
+                <button class="btn btn-sm p-1 m-1" style="width: 20px; line-height: 1">
+                  <font-awesome-icon :icon="['fas', 'grip-dots-vertical']" />
                 </button>
               </td>
             </tr>

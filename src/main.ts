@@ -14,9 +14,22 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import * as Sentry from '@sentry/vue'
 
 // Font Awesome
-import { library } from '@fortawesome/fontawesome-svg-core'
+import { library, type IconDefinition } from '@fortawesome/fontawesome-svg-core'
 import { faSync, faCheck, faXmark, faHome } from '@fortawesome/free-solid-svg-icons'
-library.add(faSync, faCheck, faXmark, faHome)
+
+const faGripDotsVertical: IconDefinition = {
+    prefix: 'fas',
+    iconName: 'grip-dots-vertical',
+    icon: [
+      320,
+      512,
+      [],
+      "e411",
+      "M96 32H32C14.33 32 0 46.33 0 64v64c0 17.67 14.33 32 32 32h64c17.67 0 32-14.33 32-32V64c0-17.67-14.33-32-32-32zm0 160H32c-17.67 0-32 14.33-32 32v64c0 17.67 14.33 32 32 32h64c17.67 0 32-14.33 32-32v-64c0-17.67-14.33-32-32-32zm0 160H32c-17.67 0-32 14.33-32 32v64c0 17.67 14.33 32 32 32h64c17.67 0 32-14.33 32-32v-64c0-17.67-14.33-32-32-32zM288 32h-64c-17.67 0-32 14.33-32 32v64c0 17.67 14.33 32 32 32h64c17.67 0 32-14.33 32-32V64c0-17.67-14.33-32-32-32zm0 160h-64c-17.67 0-32 14.33-32 32v64c0 17.67 14.33 32 32 32h64c17.67 0 32-14.33 32-32v-64c0-17.67-14.33-32-32-32zm0 160h-64c-17.67 0-32 14.33-32 32v64c0 17.67 14.33 32 32 32h64c17.67 0 32-14.33 32-32v-64c0-17.67-14.33-32-32-32z",
+    ]
+};
+
+library.add(faSync, faCheck, faXmark, faHome, faGripDotsVertical)
 
 const app = createApp(App)
 
