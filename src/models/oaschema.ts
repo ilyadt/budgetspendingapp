@@ -123,6 +123,8 @@ export interface components {
         SpendingEvent: {
             /** @description уникальный идентификатор события обновления */
             eventId: string;
+            /** Format: date-time */
+            dateTime: string;
             /** @enum {string} */
             type: "create" | "update" | "delete";
             /** @description бюджет */
@@ -145,10 +147,6 @@ export interface components {
             sort: number;
             money: components["schemas"]["Money"];
             description: string;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
         };
         SpendingUpdateData: {
             /** @description предыдущая версия записи */
@@ -159,14 +157,10 @@ export interface components {
             sort: number;
             money: components["schemas"]["Money"];
             description: string;
-            /** Format: date-time */
-            updatedAt: string;
         };
         SpendingDeleteData: {
             /** @description предыдущая версия записи */
             prevVersion: string;
-            /** Format: date-time */
-            updatedAt: string;
         };
     };
     responses: never;

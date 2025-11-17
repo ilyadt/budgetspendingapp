@@ -200,6 +200,9 @@ components:
         eventId:
           type: string
           description: уникальный идентификатор события обновления
+        dateTime:
+          type: string
+          format: date-time
         type:
           type: string
           enum:
@@ -223,6 +226,7 @@ components:
           $ref: '#/components/schemas/SpendingDeleteData'
       required:
         - eventId
+        - dateTime
         - type
         - spendingId
         - newVersion
@@ -241,19 +245,11 @@ components:
           $ref: '#/components/schemas/Money'
         description:
           type: string
-        createdAt:
-            type: string
-            format: date-time
-        updatedAt:
-            type: string
-            format: date-time
       required:
         - date
         - sort
         - money
         - description
-        - createdAt
-        - updatedAt
     SpendingUpdateData:
       properties:
         prevVersion:
@@ -269,24 +265,16 @@ components:
           $ref: '#/components/schemas/Money'
         description:
           type: string
-        updatedAt:
-            type: string
-            format: date-time
       required:
         - date
         - sort
         - money
         - description
-        - updatedAt
         - prevVersion
     SpendingDeleteData:
       properties:
         prevVersion:
           description: предыдущая версия записи
           type: string
-        updatedAt:
-          type: string
-          format: date-time
       required:
-        - updatedAt
         - prevVersion

@@ -209,7 +209,7 @@ describe('updater', () => {
       sort: 100,
       money: fromRUB(1000),
       description: 'любовь',
-      createdAt: new Date('2025-10-03T09:54:44.020Z'),
+      createdAt: new Date('2025-10-03T10:54:44.020Z'),
       updatedAt: new Date('2025-10-03T10:54:44.020Z'),
     })
 
@@ -220,6 +220,7 @@ describe('updater', () => {
 
     const exp: ApiSpendingEvent = {
       eventId: 'mocked-uuid',
+      dateTime: '2025-10-03T10:54:44.020Z',
       type: 'create',
       budgetId: 1,
       spendingId: 'sp1',
@@ -229,8 +230,6 @@ describe('updater', () => {
         sort: 100,
         money: { amount: 1000_00, fraction: 2, currency: 'RUB' },
         description: 'любовь',
-        createdAt: '2025-10-03T09:54:44.020Z',
-        updatedAt: '2025-10-03T10:54:44.020Z',
       },
     }
 
@@ -310,6 +309,7 @@ describe('updater', () => {
     const expEvents: ApiSpendingEvent[] = [
       {
         eventId: 'event_id_uuid_v4',
+        dateTime: '2025-10-03T12:22:22.023Z',
         type: 'update',
         budgetId: 22,
         spendingId: 'sp1',
@@ -320,7 +320,6 @@ describe('updater', () => {
           sort: 777,
           money: { amount: 20_000_00, fraction: 2, currency: 'RUB' },
           description: 'dyson',
-          updatedAt: '2025-10-03T12:22:22.023Z',
         },
       },
     ]
@@ -376,13 +375,13 @@ describe('updater', () => {
     const expEvents: ApiSpendingEvent[] = [
       {
         eventId: 'event_id_uuid_v4',
+        dateTime: '2025-10-03T12:22:22.023Z',
         type: 'delete',
         budgetId: 22,
         spendingId: 'sp1',
         newVersion: 'ver2',
         deleteData: {
           prevVersion: 'ver1',
-          updatedAt: '2025-10-03T12:22:22.023Z',
         },
       },
     ]
@@ -417,20 +416,8 @@ describe('updater', () => {
     }
 
     {
-      Uploader.addEvent({
-        eventId: 'ev1',
-        type: 'create',
-        budgetId: 0,
-        spendingId: '',
-        newVersion: '',
-      })
-      Uploader.addEvent({
-        eventId: 'ev2',
-        type: 'create',
-        budgetId: 0,
-        spendingId: '',
-        newVersion: '',
-      })
+      Uploader.addEvent(makeApiSpendingEvent({eventId: 'ev1'}))
+      Uploader.addEvent(makeApiSpendingEvent({eventId: 'ev2'}))
 
       {
         // сразу после save они доступны
@@ -577,6 +564,7 @@ function clearLocalStorageByPrefix(prefix: string) {
 function makeApiSpendingEvent(e: Partial<ApiSpendingEvent>): ApiSpendingEvent {
   return {
     eventId: e.eventId ?? '',
+    dateTime: e.dateTime ?? '',
     type: e.type ?? 'create',
     budgetId: e.budgetId ?? 0,
     spendingId: e.spendingId ?? '',
@@ -694,6 +682,7 @@ function makeApiSpending(sp: Partial<ApiSpending> = {}): ApiSpending {
 function makeEvent(e: Partial<ApiSpendingEvent>): ApiSpendingEvent {
   return {
     eventId: e.eventId ?? '',
+    dateTime: e.dateTime ?? '',
     type: e.type ?? 'create',
     budgetId: e.budgetId ?? 0,
     spendingId: e.spendingId ?? '',

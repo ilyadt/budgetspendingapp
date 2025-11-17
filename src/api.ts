@@ -107,6 +107,7 @@ export const Uploader = {
   createSpending(bid: number, newSp: Spending): Promise<void> {
     const ev: ApiSpendingEvent = {
       eventId: uuidv4(),
+      dateTime: newSp.createdAt.toISOString(),
       type: 'create',
       newVersion: newSp.version,
       budgetId: bid,
@@ -116,8 +117,6 @@ export const Uploader = {
         description: newSp.description,
         money: newSp.money,
         sort: newSp.sort,
-        createdAt: newSp.createdAt.toISOString(),
-        updatedAt: newSp.updatedAt.toISOString(),
       },
     }
 
@@ -127,6 +126,7 @@ export const Uploader = {
   updateSpending(bid: number, upd: Spending) {
     const ev: ApiSpendingEvent = {
       eventId: uuidv4(),
+      dateTime: upd.updatedAt.toISOString(),
       type: 'update',
       newVersion: upd.version,
       budgetId: bid,
@@ -137,7 +137,6 @@ export const Uploader = {
         sort: upd.sort,
         money: upd.money,
         description: upd.description,
-        updatedAt: upd.updatedAt.toISOString(),
       },
     }
 
@@ -147,13 +146,13 @@ export const Uploader = {
   deleteSpending(bid: number, del: DelSpending) {
     const ev: ApiSpendingEvent = {
       eventId: uuidv4(),
+      dateTime: del.updatedAt.toISOString(),
       type: 'delete',
       newVersion: del.version,
       budgetId: bid,
       spendingId: del.id,
       deleteData: {
         prevVersion: del.prevVersion!,
-        updatedAt: del.updatedAt.toISOString(),
       },
     }
 
