@@ -93,7 +93,7 @@ export const Uploader = {
         return
       }
 
-      await this.processEvents(events)
+      await this.processEvents(...events)
     }
 
     // Initially run
@@ -104,7 +104,7 @@ export const Uploader = {
     return intervalId
   },
 
-  createSpending(bid: number, newSp: Spending): Promise<void> {
+  createSpending(bid: number, newSp: Spending) {
     const ev: ApiSpendingEvent = {
       eventId: uuidv4(),
       dateTime: newSp.createdAt.toISOString(),
@@ -120,7 +120,12 @@ export const Uploader = {
       },
     }
 
-    return this.saveAndProcess(ev)
+    this.addEvent(ev)
+
+    // Async send event
+    const h = this.processEvents(ev)
+
+    return h
   },
 
   updateSpending(bid: number, upd: Spending) {
@@ -140,7 +145,12 @@ export const Uploader = {
       },
     }
 
-    return this.saveAndProcess(ev)
+    this.addEvent(ev)
+
+    // Async send event
+    const h = this.processEvents(ev)
+
+    return h
   },
 
   deleteSpending(bid: number, del: DelSpending) {
@@ -156,7 +166,12 @@ export const Uploader = {
       },
     }
 
-    return this.saveAndProcess(ev)
+    this.addEvent(ev)
+
+    // Async send event
+    const h = this.processEvents(ev)
+
+    return h
   },
 
   async sendEvents(events: ApiSpendingEvent[]): Promise<{ success: ApiSpendingEvent[]; conflict: ApiSpendingEvent[], errors: ApiUploadError[] }> {
@@ -194,13 +209,7 @@ export const Uploader = {
     return { success: [], conflict: [], errors: [] }
   },
 
-  async saveAndProcess(ev: ApiSpendingEvent) {
-    const events = this.addEvent(ev)
-
-    return this.processEvents(events)
-  },
-
-  async processEvents(events: ApiSpendingEvent[]) {
+  async processEvents(...events: ApiSpendingEvent[]) {
     const { success, conflict, errors } = await this.sendEvents(events)
 
     // Помечаем все события во внешнем Storage
