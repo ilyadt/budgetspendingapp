@@ -3,11 +3,9 @@ import { Facade } from '@/facade'
 import { dateFormat, dateISO, dateRange, DateCheck, dayName } from '@/helpers/date'
 import { from, getFormatter, Money, moneyFormat, type Currency } from '@/helpers/money'
 import { type Budget, genSpendingID, genVersion } from '@/models/models'
-import { SpendingRow } from '@/models/view'
-import { computed, nextTick, onMounted, onUpdated, ref } from 'vue'
+import { PendingSpendingRow, SpendingRow } from '@/models/view'
+import { computed, nextTick, onMounted, ref, type Ref } from 'vue'
 const { isToday, isFuture } = DateCheck(new Date())
-import { Popover } from 'bootstrap'
-import { format } from 'date-fns'
 
 const props = defineProps<{
   budgets: Budget[]
@@ -46,7 +44,6 @@ function groupSpendings(bids: number[]): SpendingGroups {
           s.description,
           s.createdAt,
           s.updatedAt,
-          null,
           destroy,
         ),
       )
@@ -74,7 +71,7 @@ function destroy(sp: SpendingRow) {
   }
 }
 
-function addSpending(date: Date): void {
+function addSpending(date: Date, $el: HTMLElement): void {
   const sp = new SpendingRow(
       genSpendingID(),
       null,
@@ -86,12 +83,29 @@ function addSpending(date: Date): void {
       '',
       null,
       null,
-      null,
       destroy,
   )
 
-  sp.toPending()
   ;(groupedSpendings.value[dateISO(date)] ??= []).push(sp)
+
+  createPending(sp, $el)
+}
+
+function createPending(sp: SpendingRow, $el: HTMLElement) {
+  spPending.value = new PendingSpendingRow(
+      sp.id,
+      sp.version,
+      sp.budgetId,
+      sp.date,
+      sp.currency,
+      sp.description,
+      String(sp.amountFull || ''),
+      $el.offsetTop,
+      sp,
+      () => {
+        spPending.value = null
+      }
+    )
 }
 
 const groupedSpendings = ref(groupSpendings(budgets.map(b => b.id)))
@@ -136,6 +150,8 @@ const daysTotal = computed((): Record<string, Partial<Record<Currency, number>>>
 
 const dateRefs: Record<string, Element> = {}
 
+const trRefs: Record<string, HTMLElement> = {}  // spID => <tr>
+
 const scrollToDate = (targetDate: Date) => {
   const el = dateRefs[dateISO(targetDate)]
   if (el) {
@@ -150,11 +166,8 @@ onMounted(() => {
   })
 })
 
-onUpdated(() => {
-  document.querySelectorAll('[data-bs-toggle="popover"]').forEach(el => {
-    new Popover(el)
-  })
-})
+const spPending: Ref<PendingSpendingRow | null> = ref(null)
+
 </script>
 
 <template v-if="budgets.length > 0">
@@ -173,81 +186,27 @@ onUpdated(() => {
           <i>{{ dateFormat(date) }} ({{ dayName(date) }})</i>
         </template>
       </p>
-      <table
-        class="table table-bordered table-sm align-middle"
-        :style="{ tableLayout: 'fixed', minWidth: '350px', opacity: isToday(date) ? '100%' : '50%' }"
-      >
-        <colgroup>
-          <col style="width: 50px" />
-          <col style="width: 160px" />
-          <col style="width: 50px" />
-          <col style="width: 55px" />
-        </colgroup>
-        <tbody>
-          <template v-for="sp of groupedSpendings[dateISO(date)]" :key="sp.id">
-            <template v-if="sp.pending">
-              <!-- invisible click-catcher -->
-              <div class="click-overlay" @click="sp.pending.isNewEmpty() ? sp.pending.cancel() : sp.pending.save(new Date())"></div>
-              <tr class="pending-row">
-                <td class="text-end">
-                  <input
-                    class="form-control cell-input"
-                    v-model.number="sp.pending.amountFull"
-                    @keyup.enter="sp.pending.save(new Date())"
-                    @keyup.esc="sp.pending.cancel()"
-                  />
-                </td>
-                <td>
-                  <input
-                    class="form-control cell-input"
-                    v-model="sp.pending.description"
-                    @keyup.enter="sp.pending.save(new Date())"
-                    @keyup.esc="sp.pending.cancel()"
-                  />
-                </td>
-                <td>
-                  <select
-                    class="form-select cell-input"
-                    :value="sp.pending.budgetId"
-                    @change="sp.pending.setBudget(budgetMap[Number(($event.target as HTMLSelectElement).value)]!)"
-                  >
-                    <option disabled value="">бюджет</option>
-                    <option
-                      v-for="b in Object.values(budgetMap).filter(b => b.dateFrom <= date && date <= b.dateTo).sort((a, b) => a.id - b.id)"
-                      :key="b.id"
-                      :value="b.id"
-                    >
-                      {{ b.alias }}: {{ getFormatter(b.left.currency).format(b.left.full()) }}
-                    </option>
-                  </select>
-                </td>
-                <td style="padding: 2px">
-                  <button
-                    class="btn btn-danger btn-sm p-1 m-1"
-                    style="min-width: 20px; line-height: 1"
-                    @click="sp.pending.cancel()"
-                  >
-                    <font-awesome-icon :icon="['fas', 'xmark']" />
-                  </button>
-                  <button
-                    class="btn btn-success btn-sm p-1 m-1"
-                    style="min-width: 20px; line-height: 1"
-                    @click="sp.pending.save(new Date())"
-                  >
-                    <font-awesome-icon :icon="['fas', 'check']" />
-                  </button>
-                </td>
-              </tr>
-            </template>
-            <tr v-else data-bs-toggle="popover" data-bs-trigger="focus" data-bs-html="true" :data-bs-content="`id: ${sp.id} <br> v: ${sp.version} <br> upd: ${format(sp.updatedAt!, 'HH:mm dd.MM')}`" tabindex="0">
+      <div :id="'tbl-' + (dateISO(date))" style="position: relative;">
+        <table
+          class="table table-bordered table-sm align-middle"
+          :style="{ tableLayout: 'fixed', minWidth: '350px', opacity: isToday(date) ? '100%' : '50%' }"
+        >
+          <colgroup>
+            <col style="width: 50px" />
+            <col style="width: 160px" />
+            <col style="width: 50px" />
+            <col style="width: 55px" />
+          </colgroup>
+          <tbody>
+            <tr v-for="sp of groupedSpendings[dateISO(date)]" :key="sp.id" :ref="el => trRefs[sp.id]= el as HTMLElement">
               <td class="text-end">
-                <span @click="sp.toPending()">{{ sp.amountFull }}</span>
+                <span @click="createPending(sp, trRefs[sp.id]!)">{{ sp.amountFull }}</span>
               </td>
               <td>
-                <span @click="sp.toPending()">{{ sp.description }}</span>
+                <span @click="createPending(sp, trRefs[sp.id]!)">{{ sp.description }}</span>
               </td>
               <td>
-                <span @click="sp.toPending()">{{ budgetMap[sp.budgetId!]!.alias }}</span>
+                <span @click="createPending(sp, trRefs[sp.id]!)">{{ budgetMap[sp.budgetId!]?.alias }}</span>
               </td>
               <td style="padding: 2px">
                 <button
@@ -262,38 +221,105 @@ onUpdated(() => {
                 </button>
               </td>
             </tr>
-          </template>
-          <tr>
-            <td>
-              <button
-                @click="addSpending(date)"
-                class="btn btn-success btn-small d-flex align-items-center"
-                style="height: 30px"
-              >
-                +
-              </button>
-            </td>
-            <td></td>
-            <td></td>
-            <td> {{ daysTotal[dateISO(date)]?.RUB ?? 0 }} ₽</td>
-          </tr>
-        </tbody>
-      </table>
+            <tr :ref="el => trRefs['add_' + dateISO(date)]= el as HTMLElement">
+              <td>
+                <button
+                  @click="addSpending(date, trRefs['add_' + dateISO(date)]!)"
+                  class="btn btn-success btn-small d-flex align-items-center"
+                  style="height: 30px"
+                >
+                  +
+                </button>
+              </td>
+              <td></td>
+              <td></td>
+              <td> {{ daysTotal[dateISO(date)]?.RUB ?? 0 }} ₽</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
+
+  <template v-if="spPending">
+    <Teleport :to="'#tbl-' + (dateISO(spPending.date))">
+      <table :style="{top: spPending.topOffset + 'px'}" class="modal-table">
+        <colgroup>
+          <col style="width: 50px" />
+          <col style="width: 160px" />
+          <col style="width: 50px" />
+          <col style="width: 55px" />
+        </colgroup>
+        <tbody>
+          <tr>
+          <td class="text-end">
+            <input
+              class="form-control cell-input"
+              v-model.number="spPending.amountFull"
+              @keyup.enter="spPending.save(new Date())"
+              @keyup.esc="spPending.cancel()"
+            />
+          </td>
+          <td>
+            <input
+              class="form-control cell-input"
+              v-model="spPending.description"
+              @keyup.enter="spPending.save(new Date())"
+              @keyup.esc="spPending.cancel()"
+            />
+          </td>
+          <td>
+            <select
+              class="form-select cell-input"
+              :value="spPending.budgetId"
+              @change="spPending.setBudget(budgetMap[Number(($event.target as HTMLSelectElement).value)]!)"
+            >
+              <option disabled value="">бюджет</option>
+              <option
+                v-for="b in Object.values(budgetMap).filter(b => b.dateFrom <= spPending!.date && spPending!.date <= b.dateTo).sort((a, b) => a.id - b.id)"
+                :key="b.id"
+                :value="b.id"
+              >
+                {{ b.alias }}: {{ getFormatter(b.left.currency).format(b.left.full()) }}
+              </option>
+            </select>
+          </td>
+          <td style="padding: 2px">
+            <button
+              class="btn btn-danger btn-sm p-1 m-1"
+              style="min-width: 20px; line-height: 1"
+              @click="spPending.cancel()"
+            >
+              <font-awesome-icon :icon="['fas', 'xmark']" />
+            </button>
+            <button
+              class="btn btn-success btn-sm p-1 m-1"
+              style="min-width: 20px; line-height: 1"
+              @click="spPending.save(new Date())"
+            >
+              <font-awesome-icon :icon="['fas', 'check']" />
+            </button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </Teleport>
+
+    <!-- invisible click-catcher -->
+    <div class="click-overlay" @click="spPending.isNewEmpty() ? spPending.cancel() : spPending.save(new Date())"></div>
+  </template>
+
 </template>
 
 <style lang="css" scoped>
-.cell-input {
-  border-radius: 0;
-  padding: 0.3rem 0.2rem;
-}
 
 .cell-input {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
   background-image: none;
+  border-radius: 0;
+  padding: 0.3rem 0.2rem;
 }
 
 .click-overlay {
@@ -303,8 +329,9 @@ onUpdated(() => {
   z-index: 2000;
 }
 
-.pending-row > td {
-  position: relative;
+.modal-table {
+  width: 100%;
+  position: absolute;
   z-index: 2001;
 }
 </style>

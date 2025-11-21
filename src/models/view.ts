@@ -27,10 +27,14 @@ export class PendingSpendingRow {
     public id: string,
     private version: string | null,
     budgetId: number | null,
+    public date: Date,
     public currency: Currency | null,
     public description: string,
     public amountFull: string,
-    public sp: SpendingRow | null, // Link to creator
+    public topOffset: number,
+
+    private sp: SpendingRow | null, // Link to creator
+    private destroy: () => void // destroy modal view
   ) {
     this.initId = id
     this._budgetId = budgetId
@@ -79,7 +83,9 @@ export class PendingSpendingRow {
     // Нет изменений
     const hash = this.hash(this.budgetId, this.amountFull, this.description) // TODO: +this.id
     if (hash == this.initHash) {
+      this.destroy()
       this.sp?.cancelChanges()
+
       return
     }
 
@@ -95,6 +101,7 @@ export class PendingSpendingRow {
       description: this.description,
       amountFull: amountFull,
     })
+    this.destroy()
   }
 
   public cancel() {
@@ -104,6 +111,7 @@ export class PendingSpendingRow {
       return
     }
 
+    this.destroy()
     this.sp?.cancelChanges()
   }
 }
@@ -121,7 +129,6 @@ export class SpendingRow {
     public createdAt: Date | null,
     public updatedAt: Date | null,
 
-    public pending: PendingSpendingRow | null,
     public destroy: ((self: SpendingRow) => void) | null,
   ) {}
 
@@ -154,7 +161,6 @@ export class SpendingRow {
 
     // Save changes
     this.id = data.id
-    this.pending = null
     this.budgetId = data.budgetId
     this.currency = data.currency
     this.description = data.description
@@ -167,22 +173,9 @@ export class SpendingRow {
   }
 
   public cancelChanges(): void {
-    this.pending = null
     if (!this.version) {
       this.destroy?.(this)
     }
-  }
-
-  public toPending(): void {
-    this.pending = new PendingSpendingRow(
-      this.id,
-      this.version,
-      this.budgetId,
-      this.currency,
-      this.description,
-      String(this.amountFull || ''),
-      this,
-    )
   }
 
   public delete(data: DeleteData) {

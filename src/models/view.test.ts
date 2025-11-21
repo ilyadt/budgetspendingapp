@@ -3,6 +3,7 @@ import { PendingSpendingRow, SpendingRow, type SaveData } from './view'
 import { fromRUB, Money } from '@/helpers/money'
 import * as models from './models'
 import { type Budget } from './models'
+import { dateISO } from '@/helpers/date'
 
 describe('PendingSpendingRow', () => {
   test('setBudget:new', () => {
@@ -12,15 +13,22 @@ describe('PendingSpendingRow', () => {
       'id1',
       null,
       null,
+      new Date('2021-05-13'),
       null,
       '', // TODO: null ?
       '', // TODO: null ?
+      12,
       null,
+      () => {
+
+      }
     )
 
     expect(s.id).toEqual('id1')
     expect(s.budgetId).toEqual(null)
     expect(s.currency).toEqual(null)
+    expect(dateISO(s.date)).toEqual('2021-05-13')
+    expect(s.topOffset).toEqual(12)
 
     s.setBudget(
       makeBudget({
@@ -41,7 +49,7 @@ describe('PendingSpendingRow', () => {
   test('setBudget:update', () => {
     const spyGenSpendingID = vi.spyOn(models, 'genSpendingID').mockReturnValue('newID')
 
-    const s = new PendingSpendingRow('id1', 'v1-23a1e' , 1, 'RUB', '<3', '14.07', null)
+    const s = new PendingSpendingRow('id1', 'v1-23a1e' , 1, new Date(),  'RUB', '<3', '14.07', 0, null, () => {})
 
     expect(s.id).toEqual('id1')
     expect(s.budgetId).toEqual(1)
@@ -80,14 +88,19 @@ describe('PendingSpendingRow', () => {
       saveChanges: vi.fn(),
     })))() as unknown as SpendingRow
 
+    const destroyMock = vi.fn(() => {})
+
     const s = new PendingSpendingRow(
       'id1',
       null,
       null,
+      new Date(),
       null,
       '', // TODO: null ?
       '', // TODO: null ?
+      0,
       spMock,
+      destroyMock,
     )
 
     s.save(new Date())
@@ -131,6 +144,8 @@ describe('PendingSpendingRow', () => {
       description: 'чай',
       amountFull: 110.50,
     } as SaveData)
+
+    expect(destroyMock).toBeCalled()
 
     expect(spyGenVersionID).toHaveBeenCalledWith(null) // budget changed
 

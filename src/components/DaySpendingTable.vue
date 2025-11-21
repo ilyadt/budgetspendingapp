@@ -2,8 +2,8 @@
 import { moneyFormat, type Currency } from '@/helpers/money'
 import { type Budget, type Spending, genSpendingID, genVersion } from '@/models/models'
 import { ref, type PropType } from 'vue'
-import { dateFormat, DateCheck, dayName } from '@/helpers/date'
-import { SpendingRow } from '@/models/view'
+import { dateFormat, DateCheck, dayName, dateISO } from '@/helpers/date'
+import { PendingSpendingRow, SpendingRow } from '@/models/view'
 
 const { isToday, isFuture } = DateCheck(new Date())
 
@@ -28,7 +28,6 @@ for (const sp of props.daySpendings) {
       sp.description,
       sp.createdAt,
       sp.updatedAt,
-      null,
       destroy,
     ),
   )
@@ -40,7 +39,7 @@ function destroy(sp: SpendingRow) {
   rowSpendings.value = rowSpendings.value.filter(d => d.id !== sp.id)
 }
 
-function addNew(): void {
+function addNew($el: HTMLElement): void {
   const sp = new SpendingRow(
     genSpendingID(),
     props.budget.id,
@@ -52,13 +51,34 @@ function addNew(): void {
     '',
     null,
     null,
-    null,
     destroy,
   )
-  sp.toPending()
-
   rowSpendings.value.push(sp)
+
+  createPending(sp, $el)
 }
+
+const spPending = ref<PendingSpendingRow | null>(null)
+
+function createPending(sp: SpendingRow, $el: HTMLElement) {
+  spPending.value = new PendingSpendingRow(
+      sp.id,
+      sp.version,
+      sp.budgetId,
+      sp.date,
+      sp.currency,
+      sp.description,
+      String(sp.amountFull || ''),
+      $el.offsetTop,
+      sp,
+      () => {
+        spPending.value = null
+      }
+    )
+}
+
+const trRefs: Record<string, HTMLElement> = {}  // spID => <tr>
+
 </script>
 <template>
   <div class="table-responsive" style="max-width: 100vw; overflow-x: auto">
@@ -75,58 +95,23 @@ function addNew(): void {
         <i>{{ dateFormat(props.date) }} ({{ dayName(props.date) }})</i>
       </template>
     </p>
-    <table
-      class="table table-bordered table-sm align-middle"
-      :style="{ tableLayout: 'fixed', minWidth: '350px', opacity: isToday(date) ? '100%' : '50%' }"
-    >
-      <colgroup>
-        <col style="width: 70px" />
-        <col style="width: 190px" />
-        <col style="width: 65px" />
-      </colgroup>
-      <tbody>
-        <tr v-for="sp in rowSpendings" :key="sp.id">
-          <template v-if="sp.pending">
+    <div :id="'tbl-' + (dateISO(date))" style="position: relative;">
+      <table
+        class="table table-bordered table-sm align-middle"
+        :style="{ tableLayout: 'fixed', minWidth: '350px', opacity: isToday(date) ? '100%' : '50%' }"
+      >
+        <colgroup>
+          <col style="width: 70px" />
+          <col style="width: 190px" />
+          <col style="width: 65px" />
+        </colgroup>
+        <tbody>
+          <tr v-for="sp in rowSpendings" :key="sp.id" :ref="el => trRefs[sp.id]= el as HTMLElement">
             <td class="text-end">
-              <input
-                class="form-control cell-input"
-                v-model="sp.pending.amountFull"
-                @keyup.enter="sp.pending.save(new Date())"
-                @keyup.esc="sp.pending.cancel()"
-              />
+              <span @click="createPending(sp, trRefs[sp.id]!)">{{ sp.amountFull }}</span>
             </td>
             <td>
-              <input
-                class="form-control cell-input"
-                v-model="sp.pending.description"
-                @keyup.enter="sp.pending.save(new Date())"
-                @keyup.esc="sp.pending.cancel()"
-              />
-            </td>
-            <td>
-              <button
-                class="btn btn-danger btn-sm p-1 m-1"
-                style="min-width: 20px; line-height: 1"
-                @click="sp.pending.cancel()"
-              >
-                <font-awesome-icon :icon="['fas', 'xmark']" />
-              </button>
-              <span style="display: inline-block; width: 5px"></span>
-              <button
-                class="btn btn-success btn-sm p-1 m-1"
-                style="min-width: 20px; line-height: 1"
-                @click="sp.pending.save(new Date())"
-              >
-                <font-awesome-icon :icon="['fas', 'check']" />
-              </button>
-            </td>
-          </template>
-          <template v-else>
-            <td class="text-end">
-              <span @click="sp.toPending()">{{ sp.amountFull }}</span>
-            </td>
-            <td>
-              <span @click="sp.toPending()">{{ sp.description }}</span>
+              <span @click="createPending(sp, trRefs[sp.id]!)">{{ sp.description }}</span>
             </td>
             <td>
               <button
@@ -137,18 +122,70 @@ function addNew(): void {
                 <font-awesome-icon :icon="['fas', 'xmark']" />
               </button>
             </td>
-          </template>
-        </tr>
-        <tr>
-          <td>
-            <button @click="addNew" class="btn btn-success btn-small d-flex align-items-center" style="height: 30px">
-              +
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+          </tr>
+          <tr :ref="el => trRefs['add_' + dateISO(date)]= el as HTMLElement">
+            <td>
+              <button @click="addNew(trRefs['add_' + dateISO(date)]!)" class="btn btn-success btn-small d-flex align-items-center" style="height: 30px">
+                +
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
+
+  <template v-if="spPending">
+    <Teleport :to="'#tbl-' + (dateISO(spPending.date))">
+      <table :style="{top: spPending.topOffset + 'px'}" class="modal-table">
+        <colgroup>
+          <col style="width: 70px" />
+          <col style="width: 190px" />
+          <col style="width: 65px" />
+        </colgroup>
+        <tbody>
+          <tr>
+          <td class="text-end">
+              <input
+                class="form-control cell-input"
+                v-model="spPending.amountFull"
+                @keyup.enter="spPending.save(new Date())"
+                @keyup.esc="spPending.cancel()"
+              />
+            </td>
+            <td>
+              <input
+                class="form-control cell-input"
+                v-model="spPending.description"
+                @keyup.enter="spPending.save(new Date())"
+                @keyup.esc="spPending.cancel()"
+              />
+            </td>
+            <td>
+              <button
+                class="btn btn-danger btn-sm p-1 m-1"
+                style="min-width: 20px; line-height: 1"
+                @click="spPending.cancel()"
+              >
+                <font-awesome-icon :icon="['fas', 'xmark']" />
+              </button>
+              <span style="display: inline-block; width: 5px"></span>
+              <button
+                class="btn btn-success btn-sm p-1 m-1"
+                style="min-width: 20px; line-height: 1"
+                @click="spPending.save(new Date())"
+              >
+                <font-awesome-icon :icon="['fas', 'check']" />
+              </button>
+            </td>
+        </tr>
+        </tbody>
+      </table>
+    </Teleport>
+
+    <!-- invisible click-catcher -->
+    <div class="click-overlay" @click="spPending.isNewEmpty() ? spPending.cancel() : spPending.save(new Date())"></div>
+  </template>
 </template>
 
 <style lang="css" scoped>
@@ -156,4 +193,18 @@ function addNew(): void {
   border-radius: 0;
   padding: 0.3rem 0.2rem;
 }
+
+.click-overlay {
+  position: fixed;
+  inset: 0; /* covers entire viewport */
+  background: transparent;
+  z-index: 2000;
+}
+
+.modal-table {
+  width: 100%;
+  position: absolute;
+  z-index: 2001;
+}
+
 </style>
