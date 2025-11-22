@@ -325,7 +325,8 @@ const spPending: Ref<PendingSpendingRow | null> = ref(null)
 .click-overlay {
   position: fixed;
   inset: 0; /* covers entire viewport */
-  background: transparent;
+  background: aqua;
+  opacity: 0.5;
   z-index: 2000;
 }
 
