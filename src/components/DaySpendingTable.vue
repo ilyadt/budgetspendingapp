@@ -61,6 +61,8 @@ function addNew($el: HTMLElement): void {
 const spPending = ref<PendingSpendingRow | null>(null)
 
 function createPending(sp: SpendingRow, $el: HTMLElement) {
+  const rect = $el.getBoundingClientRect();
+
   spPending.value = new PendingSpendingRow(
       sp.id,
       sp.version,
@@ -69,7 +71,8 @@ function createPending(sp: SpendingRow, $el: HTMLElement) {
       sp.currency,
       sp.description,
       String(sp.amountFull || ''),
-      $el.offsetTop,
+      rect.top + window.screenY,
+      rect.left + window.screenX,
       sp,
       () => {
         spPending.value = null
@@ -136,8 +139,8 @@ const trRefs: Record<string, HTMLElement> = {}  // spID => <tr>
   </div>
 
   <template v-if="spPending">
-    <Teleport :to="'#tbl-' + (dateISO(spPending.date))">
-      <table :style="{top: spPending.topOffset + 'px'}" class="modal-table">
+    <Teleport to="body">
+      <table :style="{top: spPending.topOffset + 'px', left: spPending.leftOffset}" class="modal-table">
         <colgroup>
           <col style="width: 70px" />
           <col style="width: 190px" />
@@ -181,10 +184,9 @@ const trRefs: Record<string, HTMLElement> = {}  // spID => <tr>
         </tr>
         </tbody>
       </table>
+       <!-- invisible click-catcher -->
+      <div class="click-overlay" @click="spPending.isNewEmpty() ? spPending.cancel() : spPending.save(new Date())"></div>
     </Teleport>
-
-    <!-- invisible click-catcher -->
-    <div class="click-overlay" @click="spPending.isNewEmpty() ? spPending.cancel() : spPending.save(new Date())"></div>
   </template>
 </template>
 

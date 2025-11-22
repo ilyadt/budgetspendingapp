@@ -246,7 +246,7 @@ const spPending: Ref<PendingSpendingRow | null> = ref(null)
 
   <template v-if="spPending">
     <Teleport to="body">
-      <table :style="{top: spPending.topOffset + 'px'}" class="modal-table">
+      <table :style="{top: spPending.topOffset + 'px', left: spPending.leftOffset + 'px'}" class="modal-table">
         <colgroup>
           <col style="width: 50px" />
           <col style="width: 160px" />
@@ -333,9 +333,8 @@ const spPending: Ref<PendingSpendingRow | null> = ref(null)
 }
 
 .modal-table {
-  width: 100%;
+  width: 90%;
   position: absolute;
   z-index: 2001;
-  isolation: isolate;
 }
 </style>
