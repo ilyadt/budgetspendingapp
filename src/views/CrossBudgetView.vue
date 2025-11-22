@@ -334,5 +334,6 @@ const spPending: Ref<PendingSpendingRow | null> = ref(null)
   width: 100%;
   position: absolute;
   z-index: 2001;
+  isolation: isolate;
 }
 </style>
