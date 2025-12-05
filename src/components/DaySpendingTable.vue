@@ -73,6 +73,7 @@ function createPending(sp: SpendingRow, $el: HTMLElement) {
       String(sp.amountFull || ''),
       rect.top + window.screenY,
       rect.left + window.screenX,
+      rect.width,
       sp,
       () => {
         spPending.value = null

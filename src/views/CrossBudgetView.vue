@@ -104,6 +104,7 @@ function createPending(sp: SpendingRow, $el: HTMLElement) {
       String(sp.amountFull || ''),
       rect.top + window.scrollY,
       rect.left + window.scrollX,
+      rect.width,
       sp,
       () => {
         spPending.value = null
@@ -244,72 +245,70 @@ const spPending: Ref<PendingSpendingRow | null> = ref(null)
     </div>
   </div>
 
-  <template v-if="spPending">
-    <Teleport to="body">
-      <table :style="{top: spPending.topOffset + 'px', left: spPending.leftOffset + 'px'}" class="modal-table">
-        <colgroup>
-          <col style="width: 50px" />
-          <col style="width: 160px" />
-          <col style="width: 50px" />
-          <col style="width: 55px" />
-        </colgroup>
-        <tbody>
-          <tr>
-          <td class="text-end">
-            <input
-              class="form-control cell-input"
-              v-model.number="spPending.amountFull"
-              @keyup.enter="spPending.save(new Date())"
-              @keyup.esc="spPending.cancel()"
-            />
-          </td>
-          <td>
-            <input
-              class="form-control cell-input"
-              v-model="spPending.description"
-              @keyup.enter="spPending.save(new Date())"
-              @keyup.esc="spPending.cancel()"
-            />
-          </td>
-          <td>
-            <select
-              class="form-select cell-input"
-              :value="spPending.budgetId"
-              @change="spPending.setBudget(budgetMap[Number(($event.target as HTMLSelectElement).value)]!)"
+  <Teleport v-if="spPending" to="body">
+    <table :style="{top: spPending.topOffset + 'px', left: spPending.leftOffset + 'px', background: 'white', width: spPending.width + 'px'}" class="modal-table">
+      <colgroup>
+        <col style="width: 50px" />
+        <col style="width: 160px" />
+        <col style="width: 50px" />
+        <col style="width: 55px" />
+      </colgroup>
+      <tbody>
+        <tr>
+        <td class="text-end">
+          <input
+            class="form-control cell-input"
+            v-model.number="spPending.amountFull"
+            @keyup.enter="spPending.save(new Date())"
+            @keyup.esc="spPending.cancel()"
+          />
+        </td>
+        <td>
+          <input
+            class="form-control cell-input"
+            v-model="spPending.description"
+            @keyup.enter="spPending.save(new Date())"
+            @keyup.esc="spPending.cancel()"
+          />
+        </td>
+        <td>
+          <select
+            class="form-select cell-input"
+            :value="spPending.budgetId"
+            @change="spPending.setBudget(budgetMap[Number(($event.target as HTMLSelectElement).value)]!)"
+          >
+            <option disabled value="">бюджет</option>
+            <option
+              v-for="b in Object.values(budgetMap).filter(b => b.dateFrom <= spPending!.date && spPending!.date <= b.dateTo).sort((a, b) => a.id - b.id)"
+              :key="b.id"
+              :value="b.id"
             >
-              <option disabled value="">бюджет</option>
-              <option
-                v-for="b in Object.values(budgetMap).filter(b => b.dateFrom <= spPending!.date && spPending!.date <= b.dateTo).sort((a, b) => a.id - b.id)"
-                :key="b.id"
-                :value="b.id"
-              >
-                {{ b.alias }}: {{ getFormatter(b.left.currency).format(b.left.full()) }}
-              </option>
-            </select>
-          </td>
-          <td style="padding: 2px">
-            <button
-              class="btn btn-danger btn-sm p-1 m-1"
-              style="min-width: 20px; line-height: 1"
-              @click="spPending.cancel()"
-            >
-              <font-awesome-icon :icon="['fas', 'xmark']" />
-            </button>
-            <button
-              class="btn btn-success btn-sm p-1 m-1"
-              style="min-width: 20px; line-height: 1"
-              @click="spPending.save(new Date())"
-            >
-              <font-awesome-icon :icon="['fas', 'check']" />
-            </button>
-          </td>
-        </tr>
-        </tbody>
-      </table>
-       <!-- invisible click-catcher -->
-      <div class="click-overlay" @click="spPending.isNewEmpty() ? spPending.cancel() : spPending.save(new Date())"></div>
-    </Teleport>
-  </template>
+              {{ b.alias }}: {{ getFormatter(b.left.currency).format(b.left.full()) }}
+            </option>
+          </select>
+        </td>
+        <td style="padding: 2px">
+          <button
+            class="btn btn-danger btn-sm p-1 m-1"
+            style="min-width: 20px; line-height: 1"
+            @click="spPending.cancel()"
+          >
+            <font-awesome-icon :icon="['fas', 'xmark']" />
+          </button>
+          <button
+            class="btn btn-success btn-sm p-1 m-1"
+            style="min-width: 20px; line-height: 1"
+            @click="spPending.save(new Date())"
+          >
+            <font-awesome-icon :icon="['fas', 'check']" />
+          </button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+      <!-- invisible click-catcher -->
+    <div class="click-overlay" @click="spPending.isNewEmpty() ? spPending.cancel() : spPending.save(new Date())"></div>
+  </Teleport>
 
 </template>
 

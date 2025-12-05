@@ -19,6 +19,7 @@ describe('PendingSpendingRow', () => {
       '', // TODO: null ?
       12,
       15,
+      50,
       null,
       () => {
 
@@ -31,6 +32,7 @@ describe('PendingSpendingRow', () => {
     expect(dateISO(s.date)).toEqual('2021-05-13')
     expect(s.topOffset).toEqual(12)
     expect(s.leftOffset).toEqual(15)
+    expect(s.width).toEqual(50)
 
     s.setBudget(
       makeBudget({
@@ -51,7 +53,7 @@ describe('PendingSpendingRow', () => {
   test('setBudget:update', () => {
     const spyGenSpendingID = vi.spyOn(models, 'genSpendingID').mockReturnValue('newID')
 
-    const s = new PendingSpendingRow('id1', 'v1-23a1e' , 1, new Date(),  'RUB', '<3', '14.07', 0, 0, null, () => {})
+    const s = new PendingSpendingRow('id1', 'v1-23a1e' , 1, new Date(),  'RUB', '<3', '14.07', 0, 0, 0, null, () => {})
 
     expect(s.id).toEqual('id1')
     expect(s.budgetId).toEqual(1)
@@ -100,6 +102,7 @@ describe('PendingSpendingRow', () => {
       null,
       '', // TODO: null ?
       '', // TODO: null ?
+      0,
       0,
       0,
       spMock,

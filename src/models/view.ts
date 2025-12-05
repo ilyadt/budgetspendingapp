@@ -33,6 +33,7 @@ export class PendingSpendingRow {
     public amountFull: string,
     public topOffset: number,
     public leftOffset: number,
+    public width: number,
 
     private sp: SpendingRow | null, // Link to creator
     private destroy: () => void // destroy modal view
