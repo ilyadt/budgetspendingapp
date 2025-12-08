@@ -160,7 +160,7 @@ onMounted(() => {
           <i>{{ dateFormat(table.date) }} ({{ dayName(table.date) }})</i>
         </template>
       </p>
-      <div style="position: relative">
+      <div>
         <table
           class="table table-bordered table-sm align-middle"
           :style="{ tableLayout: 'fixed', minWidth: '350px', opacity: isToday(table.date) ? '100%' : '50%' }"
