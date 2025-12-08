@@ -3,8 +3,8 @@ import { Facade } from '@/facade'
 import { dateFormat, dateISO, dateRange, DateCheck, dayName } from '@/helpers/date'
 import { from, getFormatter, Money, moneyFormat, type Currency } from '@/helpers/money'
 import { type Budget, genSpendingID, genVersion } from '@/models/models'
-import { PendingSpendingRow, SpendingRow } from '@/models/view'
-import { computed, nextTick, onMounted, ref, type Ref } from 'vue'
+import { PendingSpendingRow, SpendingRow, Table } from '@/models/view'
+import { computed, nextTick, onMounted, ref } from 'vue'
 const { isToday, isFuture } = DateCheck(new Date())
 
 const props = defineProps<{
@@ -23,16 +23,22 @@ const { dateFrom, dateTo } = budgets.reduce(
   { dateFrom: new Date(8640000000000000), dateTo: new Date(-8640000000000000) },
 )
 
-type SpendingGroups = Record<string, SpendingRow[]>
+type SpendingGroups = Record<string, Table>
 
-function groupSpendings(bids: number[]): SpendingGroups {
-  const groups: SpendingGroups = {}
+function makeTables(bids: number[], [dateFrom, dateTo]: [Date, Date]): SpendingGroups {
+  const tables: Record<string, Table> = {}
 
+  // init
+  for (const date of dateRange(dateFrom, dateTo)) {
+    tables[dateISO(date)] = new Table(date, [], null)
+  }
+
+  // fill
   for (const bid of bids) {
     const spendings = Facade.spendingsByBudgetId(bid)
 
     for (const s of spendings) {
-      ;(groups[dateISO(s.date)] ??= []).push(
+      tables[dateISO(s.date)]?.addRow(
         new SpendingRow(
           s.id,
           bid,
@@ -44,57 +50,31 @@ function groupSpendings(bids: number[]): SpendingGroups {
           s.description,
           s.createdAt,
           s.updatedAt,
-          destroy,
         ),
       )
     }
   }
 
-  // Сортируем
-  for (const key in groups) {
-    // сначала по id для стабильности при одинаковом sort
-    groups[key]!.sort((a, b) => (a.id > b.id ? 1 : -1))
-
-    // потом по sort
-    groups[key]!.sort((a, b) => a.sort - b.sort)
+  // Sort
+  for (const tbl of Object.values(tables)) {
+    tbl.sort()
   }
 
-  return groups
+  return tables
 }
 
-function destroy(sp: SpendingRow) {
-  const date = dateISO(sp.date)
+function addSpending(date: Date): void {
+  const sp = new SpendingRow(genSpendingID(), null, null, null, date, Date.now(), 0, '', null, null)
 
-  groupedSpendings.value = {
-    ...groupedSpendings.value,
-    [date]: groupedSpendings.value[date]!.filter(d => d.id !== sp.id),
-  }
+  tables.value[dateISO(date)]!.addRow(sp)
+
+  createPending(sp)
 }
 
-function addSpending(date: Date, $el: HTMLElement): void {
-  const sp = new SpendingRow(
-      genSpendingID(),
-      null,
-      null,
-      null,
-      date,
-      Date.now(),
-      0,
-      '',
-      null,
-      null,
-      destroy,
-  )
-
-  ;(groupedSpendings.value[dateISO(date)] ??= []).push(sp)
-
-  createPending(sp, $el)
-}
-
-function createPending(sp: SpendingRow, $el: HTMLElement) {
-  const rect = $el.getBoundingClientRect();
-
-  spPending.value = new PendingSpendingRow(
+function createPending(sp: SpendingRow) {
+  sp.dt!.setPendingRow(
+    new PendingSpendingRow(
+      sp.getRowNum(),
       sp.id,
       sp.version,
       sp.budgetId,
@@ -102,25 +82,23 @@ function createPending(sp: SpendingRow, $el: HTMLElement) {
       sp.currency,
       sp.description,
       String(sp.amountFull || ''),
-      rect.top + window.scrollY,
-      rect.left + window.scrollX,
-      rect.width,
       sp,
       () => {
-        spPending.value = null
-      }
-    )
+        sp.dt!.setPendingRow(null)
+      },
+    ),
+  )
 }
 
-const groupedSpendings = ref(groupSpendings(budgets.map(b => b.id)))
+const tables = ref(makeTables(budgets.map(b => b.id), [dateFrom, dateTo]))
 
 type BudgetWithLeft = Budget & { left: Money }
 
 const budgetMap = computed<Record<number, BudgetWithLeft>>(() => {
   const spentByBid: Record<number, number> = {}
 
-  Object.values(groupedSpendings.value).forEach(daySpendings => {
-    daySpendings.forEach(sp => {
+  Object.values(tables.value).forEach(daySpendings => {
+    daySpendings.rows.forEach(sp => {
       if (sp.budgetId != null) {
         spentByBid[sp.budgetId] = (spentByBid[sp.budgetId] ?? 0) + sp.amountFull
       }
@@ -138,10 +116,10 @@ const budgetMap = computed<Record<number, BudgetWithLeft>>(() => {
 const daysTotal = computed((): Record<string, Partial<Record<Currency, number>>> => {
   const res: Record<string, Partial<Record<Currency, number>>> = {}
 
-  Object.entries(groupedSpendings.value).forEach(([date, daySpendings]) => {
+  Object.entries(tables.value).forEach(([date, table]) => {
     const dayTotal: Partial<Record<Currency, number>> = {}
 
-    daySpendings.forEach(sp => {
+    table.rows.forEach(sp => {
       const c = sp.currency!
       dayTotal[c] = (dayTotal[c] ?? 0) + sp.amountFull
     })
@@ -154,46 +132,38 @@ const daysTotal = computed((): Record<string, Partial<Record<Currency, number>>>
 
 const dateRefs: Record<string, Element> = {}
 
-const trRefs: Record<string, HTMLElement> = {}  // spID => <tr>
-
-const scrollToDate = (targetDate: Date) => {
-  const el = dateRefs[dateISO(targetDate)]
-  if (el) {
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-  }
-}
-
 onMounted(() => {
   nextTick(() => {
     const targetDate = new Date()
-    scrollToDate(targetDate)
+    const el = dateRefs[dateISO(targetDate)]
+
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
   })
 })
-
-const spPending: Ref<PendingSpendingRow | null> = ref(null)
-
 </script>
 
-<template v-if="budgets.length > 0">
-  <div :key="dateISO(date)" v-for="date in dateRange(dateFrom, dateTo)" class="row">
-    <div class="table-responsive" style="max-width: 100vw; overflow-x: auto" :ref="el => dateRefs[dateISO(date)] = el as Element">
+<template>
+  <div :key="date" v-for="(table, date) in tables" class="row">
+    <div class="table-responsive" style="max-width: 100vw; overflow-x: auto" :ref="el => dateRefs[date] = el as Element">
       <p style="padding-left: 0; margin-bottom: 0">
-        <template v-if="isToday(date)">
+        <template v-if="isToday(new Date(date))">
           <b>
-            <i>{{ dateFormat(date) }} ({{ dayName(date) }})</i>
+            <i>{{ dateFormat(table.date) }} ({{ dayName(table.date) }})</i>
           </b>
         </template>
-        <template v-else-if="isFuture(date)">
-          <i style="opacity: 40%">{{ dateFormat(date) }} ({{ dayName(date) }})</i>
+        <template v-else-if="isFuture(table.date)">
+          <i style="opacity: 40%">{{ dateFormat(table.date) }} ({{ dayName(table.date) }})</i>
         </template>
         <template v-else>
-          <i>{{ dateFormat(date) }} ({{ dayName(date) }})</i>
+          <i>{{ dateFormat(table.date) }} ({{ dayName(table.date) }})</i>
         </template>
       </p>
-      <div :id="'tbl-' + (dateISO(date))" style="position: relative;">
+      <div style="position: relative">
         <table
           class="table table-bordered table-sm align-middle"
-          :style="{ tableLayout: 'fixed', minWidth: '350px', opacity: isToday(date) ? '100%' : '50%' }"
+          :style="{ tableLayout: 'fixed', minWidth: '350px', opacity: isToday(table.date) ? '100%' : '50%' }"
         >
           <colgroup>
             <col style="width: 50px" />
@@ -202,15 +172,15 @@ const spPending: Ref<PendingSpendingRow | null> = ref(null)
             <col style="width: 55px" />
           </colgroup>
           <tbody>
-            <tr v-for="sp of groupedSpendings[dateISO(date)]" :key="sp.id" :ref="el => trRefs[sp.id]= el as HTMLElement">
+            <tr v-for="sp of table.rows" :key="sp.id">
               <td class="text-end">
-                <span @click="createPending(sp, trRefs[sp.id]!)">{{ sp.amountFull }}</span>
+                <span @click="createPending(sp)">{{ sp.amountFull }}</span>
               </td>
               <td>
-                <span @click="createPending(sp, trRefs[sp.id]!)">{{ sp.description }}</span>
+                <span @click="createPending(sp)">{{ sp.description }}</span>
               </td>
               <td>
-                <span @click="createPending(sp, trRefs[sp.id]!)">{{ budgetMap[sp.budgetId!]?.alias }}</span>
+                <span @click="createPending(sp)">{{ budgetMap[sp.budgetId!]?.alias }}</span>
               </td>
               <td style="padding: 2px">
                 <button
@@ -225,10 +195,10 @@ const spPending: Ref<PendingSpendingRow | null> = ref(null)
                 </button>
               </td>
             </tr>
-            <tr :ref="el => trRefs['add_' + dateISO(date)]= el as HTMLElement">
+            <tr>
               <td>
                 <button
-                  @click="addSpending(date, trRefs['add_' + dateISO(date)]!)"
+                  @click="addSpending(table.date)"
                   class="btn btn-success btn-small d-flex align-items-center"
                   style="height: 30px"
                 >
@@ -237,83 +207,82 @@ const spPending: Ref<PendingSpendingRow | null> = ref(null)
               </td>
               <td></td>
               <td></td>
-              <td> {{ daysTotal[dateISO(date)]?.RUB ?? 0 }} ₽</td>
+              <td>{{ daysTotal[date]?.RUB ?? 0 }} ₽</td>
             </tr>
           </tbody>
         </table>
+
+        <template v-if="table.pendingRow">
+          <table class="table table-bordered table-sm align-middle modal-table" :style="{ top: table.pendingRow.rowNum * 37.25 + 'px', background: 'white'}">
+            <colgroup>
+              <col style="width: 50px" />
+              <col style="width: 160px" />
+              <col style="width: 50px" />
+              <col style="width: 55px" />
+            </colgroup>
+            <tbody>
+              <tr>
+                <td class="text-end">
+                  <input
+                    class="form-control cell-input"
+                    v-model.number="table.pendingRow.amountFull"
+                    @keyup.enter="table.pendingRow.save(new Date())"
+                    @keyup.esc="table.pendingRow.cancel()"
+                  />
+                </td>
+                <td>
+                  <input
+                    class="form-control cell-input"
+                    v-model="table.pendingRow.description"
+                    @keyup.enter="table.pendingRow.save(new Date())"
+                    @keyup.esc="table.pendingRow.cancel()"
+                  />
+                </td>
+                <td>
+                  <select
+                    class="form-select cell-input"
+                    :value="table.pendingRow.budgetId"
+                    @change="table.pendingRow.setBudget(budgetMap[Number(($event.target as HTMLSelectElement).value)]!)"
+                  >
+                    <option disabled value="">бюджет</option>
+                    <option
+                      v-for="b in Object.values(budgetMap).filter(b => b.dateFrom <= table.pendingRow!.date && table.pendingRow!.date <= b.dateTo).sort((a, b) => a.id - b.id)"
+                      :key="b.id"
+                      :value="b.id"
+                    >
+                      {{ b.alias }}: {{ getFormatter(b.left.currency).format(b.left.full()) }}
+                    </option>
+                  </select>
+                </td>
+                <td style="padding: 2px">
+                  <button
+                    class="btn btn-danger btn-sm p-1 m-1"
+                    style="min-width: 20px; line-height: 1"
+                    @click="table.pendingRow.cancel()"
+                  >
+                    <font-awesome-icon :icon="['fas', 'xmark']" />
+                  </button>
+                  <button
+                    class="btn btn-success btn-sm p-1 m-1"
+                    style="min-width: 20px; line-height: 1"
+                    @click="table.pendingRow.save(new Date())"
+                  >
+                    <font-awesome-icon :icon="['fas', 'check']" />
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <Teleport to="body">
+            <div class="click-overlay" @click="table.pendingRow.isNewEmpty() ? table.pendingRow.cancel() : table.pendingRow.save(new Date())"></div>
+          </Teleport>
+        </template>
       </div>
     </div>
   </div>
-
-  <Teleport v-if="spPending" to="body">
-    <table :style="{top: spPending.topOffset + 'px', left: spPending.leftOffset + 'px', background: 'white', width: spPending.width + 'px'}" class="modal-table">
-      <colgroup>
-        <col style="width: 50px" />
-        <col style="width: 160px" />
-        <col style="width: 50px" />
-        <col style="width: 55px" />
-      </colgroup>
-      <tbody>
-        <tr>
-        <td class="text-end">
-          <input
-            class="form-control cell-input"
-            v-model.number="spPending.amountFull"
-            @keyup.enter="spPending.save(new Date())"
-            @keyup.esc="spPending.cancel()"
-          />
-        </td>
-        <td>
-          <input
-            class="form-control cell-input"
-            v-model="spPending.description"
-            @keyup.enter="spPending.save(new Date())"
-            @keyup.esc="spPending.cancel()"
-          />
-        </td>
-        <td>
-          <select
-            class="form-select cell-input"
-            :value="spPending.budgetId"
-            @change="spPending.setBudget(budgetMap[Number(($event.target as HTMLSelectElement).value)]!)"
-          >
-            <option disabled value="">бюджет</option>
-            <option
-              v-for="b in Object.values(budgetMap).filter(b => b.dateFrom <= spPending!.date && spPending!.date <= b.dateTo).sort((a, b) => a.id - b.id)"
-              :key="b.id"
-              :value="b.id"
-            >
-              {{ b.alias }}: {{ getFormatter(b.left.currency).format(b.left.full()) }}
-            </option>
-          </select>
-        </td>
-        <td style="padding: 2px">
-          <button
-            class="btn btn-danger btn-sm p-1 m-1"
-            style="min-width: 20px; line-height: 1"
-            @click="spPending.cancel()"
-          >
-            <font-awesome-icon :icon="['fas', 'xmark']" />
-          </button>
-          <button
-            class="btn btn-success btn-sm p-1 m-1"
-            style="min-width: 20px; line-height: 1"
-            @click="spPending.save(new Date())"
-          >
-            <font-awesome-icon :icon="['fas', 'check']" />
-          </button>
-        </td>
-      </tr>
-      </tbody>
-    </table>
-      <!-- invisible click-catcher -->
-    <div class="click-overlay" @click="spPending.isNewEmpty() ? spPending.cancel() : spPending.save(new Date())"></div>
-  </Teleport>
-
 </template>
 
 <style lang="css" scoped>
-
 .cell-input {
   appearance: none;
   -webkit-appearance: none;
@@ -332,7 +301,6 @@ const spPending: Ref<PendingSpendingRow | null> = ref(null)
 }
 
 .modal-table {
-  width: 90%;
   position: absolute;
   z-index: 2001;
 }

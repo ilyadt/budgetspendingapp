@@ -17,28 +17,27 @@ interface DeleteData {
   version: string
 }
 
+// ViewModel
 export class PendingSpendingRow {
-  public initId: string
+  public initSpId: string
   private _budgetId: number | null
   private initBudgetId: number | null
   private initHash: string
 
   constructor(
-    public id: string,
+    public rowNum: number,
+    public spId: string,
     private version: string | null,
     budgetId: number | null,
     public date: Date,
     public currency: Currency | null,
     public description: string,
     public amountFull: string,
-    public topOffset: number,
-    public leftOffset: number,
-    public width: number,
 
     private sp: SpendingRow | null, // Link to creator
-    private destroy: () => void // destroy modal view
+    private destroy: () => void, // destroy modal view
   ) {
-    this.initId = id
+    this.initSpId = spId
     this._budgetId = budgetId
     this.initBudgetId = budgetId
     this.initHash = this.hash(budgetId, amountFull, description)
@@ -51,7 +50,7 @@ export class PendingSpendingRow {
   public setBudget(b: Budget) {
     this._budgetId = b.id
     this.currency = b.money.currency
-    this.id = b.id == this.initBudgetId ? this.initId : genSpendingID()
+    this.spId = b.id == this.initBudgetId ? this.initSpId : genSpendingID()
   }
 
   public get budgetId(): number | null {
@@ -92,10 +91,10 @@ export class PendingSpendingRow {
     }
 
     // Если бюджет изменился, то генерируем версии сначала
-    const ver = (this.budgetId != this.initBudgetId) ? genVersion(null) : genVersion(this.version)
+    const ver = this.budgetId != this.initBudgetId ? genVersion(null) : genVersion(this.version)
 
     this.sp?.saveChanges({
-      id: this.id,
+      id: this.spId,
       version: ver,
       budgetId: this.budgetId,
       currency: this.currency!,
@@ -118,6 +117,13 @@ export class PendingSpendingRow {
   }
 }
 
+interface DataTable {
+  getRowNum(spId: string): number
+  setPendingRow(pending: PendingSpendingRow | null): void
+  removeRowBySpId(spId: string): void
+}
+
+// ViewModel
 export class SpendingRow {
   constructor(
     public id: string,
@@ -130,8 +136,6 @@ export class SpendingRow {
     public description: string,
     public createdAt: Date | null,
     public updatedAt: Date | null,
-
-    public destroy: ((self: SpendingRow) => void) | null,
   ) {}
 
   public saveChanges(data: SaveData): void {
@@ -176,7 +180,7 @@ export class SpendingRow {
 
   public cancelChanges(): void {
     if (!this.version) {
-      this.destroy?.(this)
+      this.dt?.removeRowBySpId(this.id)
     }
   }
 
@@ -192,6 +196,49 @@ export class SpendingRow {
       updatedAt: data.dt,
     })
 
-    this.destroy?.(this)
+    this.dt!.removeRowBySpId(this.id)
+  }
+
+  public dt: DataTable | undefined
+
+  public setDataTable(dt: DataTable): void {
+    this.dt = dt
+  }
+
+  public getRowNum(): number {
+    return this.dt!.getRowNum(this.id)
+  }
+}
+
+export class Table {
+  constructor(
+    public date: Date,
+    public rows: SpendingRow[],
+    public pendingRow: PendingSpendingRow | null,
+  ) {}
+
+  addRow(sp: SpendingRow): void {
+    sp.setDataTable(this)
+    this.rows.push(sp)
+  }
+
+  getRowNum(spId: string): number {
+    return this.rows.findIndex(sp => sp.id == spId)!
+  }
+
+  removeRowBySpId(spId: string): void {
+    this.rows = this.rows.filter(s => s.id !== spId)
+  }
+
+  setPendingRow(pending: PendingSpendingRow | null): void {
+    this.pendingRow = pending
+  }
+
+  sort(): void {
+    // сначала по id для стабильности при одинаковом sort
+    this.rows.sort((a, b) => (a.id > b.id ? 1 : -1))
+
+    // потом по sort
+    this.rows.sort((a, b) => a.sort - b.sort)
   }
 }

@@ -10,6 +10,7 @@ describe('PendingSpendingRow', () => {
     const spyGenSpendingID = vi.spyOn(models, 'genSpendingID').mockReturnValue('newID')
 
     const s = new PendingSpendingRow(
+      4,
       'id1',
       null,
       null,
@@ -17,22 +18,17 @@ describe('PendingSpendingRow', () => {
       null,
       '', // TODO: null ?
       '', // TODO: null ?
-      12,
-      15,
-      50,
       null,
       () => {
 
       }
     )
 
-    expect(s.id).toEqual('id1')
+    expect(s.spId).toEqual('id1')
     expect(s.budgetId).toEqual(null)
     expect(s.currency).toEqual(null)
     expect(dateISO(s.date)).toEqual('2021-05-13')
-    expect(s.topOffset).toEqual(12)
-    expect(s.leftOffset).toEqual(15)
-    expect(s.width).toEqual(50)
+    expect(s.rowNum).toEqual(4)
 
     s.setBudget(
       makeBudget({
@@ -45,7 +41,7 @@ describe('PendingSpendingRow', () => {
     expect(s.currency).toEqual('RUB')
 
     // ID генерируется новый, так как Spending помещается уже внутри другого бюджета
-    expect(s.id).eq('newID')
+    expect(s.spId).eq('newID')
 
     spyGenSpendingID.mockRestore()
   })
@@ -53,9 +49,9 @@ describe('PendingSpendingRow', () => {
   test('setBudget:update', () => {
     const spyGenSpendingID = vi.spyOn(models, 'genSpendingID').mockReturnValue('newID')
 
-    const s = new PendingSpendingRow('id1', 'v1-23a1e' , 1, new Date(),  'RUB', '<3', '14.07', 0, 0, 0, null, () => {})
+    const s = new PendingSpendingRow(2, 'id1', 'v1-23a1e' , 1, new Date(),  'RUB', '<3', '14.07', null, () => {})
 
-    expect(s.id).toEqual('id1')
+    expect(s.spId).toEqual('id1')
     expect(s.budgetId).toEqual(1)
     expect(s.currency).toEqual('RUB')
 
@@ -70,7 +66,7 @@ describe('PendingSpendingRow', () => {
     expect(s.currency).toEqual('EUR')
 
     // ID генерируется новый, так как Spending помещается уже внутри другого бюджета
-    expect(s.id).eq('newID')
+    expect(s.spId).eq('newID')
 
     spyGenSpendingID.mockRestore()
 
@@ -82,7 +78,7 @@ describe('PendingSpendingRow', () => {
       }),
     )
 
-    expect(s.id).toEqual('id1') // id остается изначальным
+    expect(s.spId).toEqual('id1') // id остается изначальным
   })
 
   test('save', () => {
@@ -95,6 +91,7 @@ describe('PendingSpendingRow', () => {
     const destroyMock = vi.fn(() => {})
 
     const s = new PendingSpendingRow(
+      1,
       'id1',
       null,
       null,
@@ -102,9 +99,6 @@ describe('PendingSpendingRow', () => {
       null,
       '', // TODO: null ?
       '', // TODO: null ?
-      0,
-      0,
-      0,
       spMock,
       destroyMock,
     )

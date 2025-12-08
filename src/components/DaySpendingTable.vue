@@ -2,8 +2,8 @@
 import { moneyFormat, type Currency } from '@/helpers/money'
 import { type Budget, type Spending, genSpendingID, genVersion } from '@/models/models'
 import { ref, type PropType } from 'vue'
-import { dateFormat, DateCheck, dayName, dateISO } from '@/helpers/date'
-import { PendingSpendingRow, SpendingRow } from '@/models/view'
+import { dateFormat, DateCheck, dayName } from '@/helpers/date'
+import { PendingSpendingRow, SpendingRow, Table } from '@/models/view'
 
 const { isToday, isFuture } = DateCheck(new Date())
 
@@ -13,10 +13,10 @@ const props = defineProps({
   daySpendings: { type: Array<Spending>, required: true },
 })
 
-const rowSpendings = ref<SpendingRow[]>([])
+const table = ref<Table>(new Table(props.date, [], null))
 
 for (const sp of props.daySpendings) {
-  rowSpendings.value.push(
+  table.value.addRow(
     new SpendingRow(
       sp.id,
       props.budget.id,
@@ -28,18 +28,13 @@ for (const sp of props.daySpendings) {
       sp.description,
       sp.createdAt,
       sp.updatedAt,
-      destroy,
     ),
   )
 }
 
-rowSpendings.value.sort((a, b) => a.sort - b.sort)
+table.value.sort()
 
-function destroy(sp: SpendingRow) {
-  rowSpendings.value = rowSpendings.value.filter(d => d.id !== sp.id)
-}
-
-function addNew($el: HTMLElement): void {
+function addNew(): void {
   const sp = new SpendingRow(
     genSpendingID(),
     props.budget.id,
@@ -51,19 +46,17 @@ function addNew($el: HTMLElement): void {
     '',
     null,
     null,
-    destroy,
   )
-  rowSpendings.value.push(sp)
 
-  createPending(sp, $el)
+  table.value.addRow(sp)
+
+  createPending(sp)
 }
 
-const spPending = ref<PendingSpendingRow | null>(null)
-
-function createPending(sp: SpendingRow, $el: HTMLElement) {
-  const rect = $el.getBoundingClientRect();
-
-  spPending.value = new PendingSpendingRow(
+function createPending(sp: SpendingRow) {
+  table.value.setPendingRow(
+    new PendingSpendingRow(
+      sp.getRowNum(),
       sp.id,
       sp.version,
       sp.budgetId,
@@ -71,18 +64,13 @@ function createPending(sp: SpendingRow, $el: HTMLElement) {
       sp.currency,
       sp.description,
       String(sp.amountFull || ''),
-      rect.top + window.screenY,
-      rect.left + window.screenX,
-      rect.width,
       sp,
       () => {
-        spPending.value = null
-      }
-    )
+        sp.dt!.setPendingRow(null)
+      },
+    ),
+  )
 }
-
-const trRefs: Record<string, HTMLElement> = {}  // spID => <tr>
-
 </script>
 <template>
   <div class="table-responsive" style="max-width: 100vw; overflow-x: auto">
@@ -99,7 +87,7 @@ const trRefs: Record<string, HTMLElement> = {}  // spID => <tr>
         <i>{{ dateFormat(props.date) }} ({{ dayName(props.date) }})</i>
       </template>
     </p>
-    <div :id="'tbl-' + (dateISO(date))" style="position: relative;">
+    <div style="position: relative">
       <table
         class="table table-bordered table-sm align-middle"
         :style="{ tableLayout: 'fixed', minWidth: '350px', opacity: isToday(date) ? '100%' : '50%' }"
@@ -110,12 +98,12 @@ const trRefs: Record<string, HTMLElement> = {}  // spID => <tr>
           <col style="width: 65px" />
         </colgroup>
         <tbody>
-          <tr v-for="sp in rowSpendings" :key="sp.id" :ref="el => trRefs[sp.id]= el as HTMLElement">
+          <tr v-for="sp in table.rows" :key="sp.id">
             <td class="text-end">
-              <span @click="createPending(sp, trRefs[sp.id]!)">{{ sp.amountFull }}</span>
+              <span @click="createPending(sp)">{{ sp.amountFull }}</span>
             </td>
             <td>
-              <span @click="createPending(sp, trRefs[sp.id]!)">{{ sp.description }}</span>
+              <span @click="createPending(sp)">{{ sp.description }}</span>
             </td>
             <td>
               <button
@@ -127,21 +115,18 @@ const trRefs: Record<string, HTMLElement> = {}  // spID => <tr>
               </button>
             </td>
           </tr>
-          <tr :ref="el => trRefs['add_' + dateISO(date)]= el as HTMLElement">
+          <tr>
             <td>
-              <button @click="addNew(trRefs['add_' + dateISO(date)]!)" class="btn btn-success btn-small d-flex align-items-center" style="height: 30px">
+              <button @click="addNew()" class="btn btn-success btn-small d-flex align-items-center" style="height: 30px">
                 +
               </button>
             </td>
           </tr>
         </tbody>
       </table>
-    </div>
-  </div>
 
-  <template v-if="spPending">
-    <Teleport to="body">
-      <table :style="{top: spPending.topOffset + 'px', left: spPending.leftOffset}" class="modal-table">
+    <template v-if="table.pendingRow">
+      <table class="table table-bordered table-sm align-middle modal-table" :style="{ top: table.pendingRow.rowNum * 37.25 + 'px', background: 'white'}">
         <colgroup>
           <col style="width: 70px" />
           <col style="width: 190px" />
@@ -149,27 +134,27 @@ const trRefs: Record<string, HTMLElement> = {}  // spID => <tr>
         </colgroup>
         <tbody>
           <tr>
-          <td class="text-end">
+            <td class="text-end">
               <input
                 class="form-control cell-input"
-                v-model="spPending.amountFull"
-                @keyup.enter="spPending.save(new Date())"
-                @keyup.esc="spPending.cancel()"
+                v-model="table.pendingRow.amountFull"
+                @keyup.enter="table.pendingRow.save(new Date())"
+                @keyup.esc="table.pendingRow.cancel()"
               />
             </td>
             <td>
               <input
                 class="form-control cell-input"
-                v-model="spPending.description"
-                @keyup.enter="spPending.save(new Date())"
-                @keyup.esc="spPending.cancel()"
+                v-model="table.pendingRow.description"
+                @keyup.enter="table.pendingRow.save(new Date())"
+                @keyup.esc="table.pendingRow.cancel()"
               />
             </td>
             <td>
               <button
                 class="btn btn-danger btn-sm p-1 m-1"
                 style="min-width: 20px; line-height: 1"
-                @click="spPending.cancel()"
+                @click="table.pendingRow.cancel()"
               >
                 <font-awesome-icon :icon="['fas', 'xmark']" />
               </button>
@@ -177,18 +162,20 @@ const trRefs: Record<string, HTMLElement> = {}  // spID => <tr>
               <button
                 class="btn btn-success btn-sm p-1 m-1"
                 style="min-width: 20px; line-height: 1"
-                @click="spPending.save(new Date())"
+                @click="table.pendingRow.save(new Date())"
               >
                 <font-awesome-icon :icon="['fas', 'check']" />
               </button>
             </td>
-        </tr>
+          </tr>
         </tbody>
       </table>
-       <!-- invisible click-catcher -->
-      <div class="click-overlay" @click="spPending.isNewEmpty() ? spPending.cancel() : spPending.save(new Date())"></div>
-    </Teleport>
-  </template>
+      <Teleport to="body">
+        <div class="click-overlay" @click="table.pendingRow.isNewEmpty() ? table.pendingRow.cancel() : table.pendingRow.save(new Date())"></div
+      ></Teleport>
+    </template>
+    </div>
+  </div>
 </template>
 
 <style lang="css" scoped>
@@ -200,14 +187,14 @@ const trRefs: Record<string, HTMLElement> = {}  // spID => <tr>
 .click-overlay {
   position: fixed;
   inset: 0; /* covers entire viewport */
-  background: transparent;
+  background: aqua;
+  opacity: 0.5;
   z-index: 2000;
 }
 
+
 .modal-table {
-  width: 100%;
   position: absolute;
   z-index: 2001;
 }
-
 </style>
