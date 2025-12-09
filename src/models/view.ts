@@ -220,6 +220,23 @@ export class SpendingRow {
   public getRowNum(): number {
     return this.dt!.getRowNum(this.id)
   }
+
+  public createPending(): PendingSpendingRow {
+    const pending = new PendingSpendingRow(
+      this.getRowNum(),
+      this.id,
+      this.version,
+      this.budgetId,
+      this.date,
+      this.currency,
+      this.description,
+      String(this.amountFull || ''),
+    )
+
+    pending.setOriginalSpending(this)
+
+    return pending
+  }
 }
 
 export class Table {

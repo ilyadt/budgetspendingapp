@@ -3,7 +3,7 @@ import { Facade } from '@/facade'
 import { dateFormat, dateISO, dateRange, DateCheck, dayName } from '@/helpers/date'
 import { from, getFormatter, Money, moneyFormat, type Currency } from '@/helpers/money'
 import { type Budget, genSpendingID, genVersion } from '@/models/models'
-import { PendingSpendingRow, SpendingRow, Table } from '@/models/view'
+import { SpendingRow, Table } from '@/models/view'
 import { computed, nextTick, onMounted, ref } from 'vue'
 const { isToday, isFuture } = DateCheck(new Date())
 
@@ -72,20 +72,7 @@ function addSpending(tbl: Table): void {
 }
 
 function createPending(sp: SpendingRow) {
-  const pending = new PendingSpendingRow(
-    sp.getRowNum(),
-    sp.id,
-    sp.version,
-    sp.budgetId,
-    sp.date,
-    sp.currency,
-    sp.description,
-    String(sp.amountFull || ''),
-  )
-
-  pending.setOriginalSpending(sp)
-
-  sp.dt!.setPendingRow(pending)
+  sp.dt!.setPendingRow(sp.createPending())
 }
 
 const tables = ref(makeTables(budgets.map(b => b.id), [dateFrom, dateTo]))

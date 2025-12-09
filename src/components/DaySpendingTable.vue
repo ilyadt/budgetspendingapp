@@ -3,7 +3,7 @@ import { moneyFormat, type Currency } from '@/helpers/money'
 import { type Budget, type Spending, genSpendingID, genVersion } from '@/models/models'
 import { ref, type PropType } from 'vue'
 import { dateFormat, DateCheck, dayName } from '@/helpers/date'
-import { PendingSpendingRow, SpendingRow, Table } from '@/models/view'
+import { SpendingRow, Table } from '@/models/view'
 
 const { isToday, isFuture } = DateCheck(new Date())
 
@@ -54,20 +54,7 @@ function addNew(): void {
 }
 
 function createPending(sp: SpendingRow) {
-  const pending = new PendingSpendingRow(
-    sp.getRowNum(),
-    sp.id,
-    sp.version,
-    sp.budgetId,
-    sp.date,
-    sp.currency,
-    sp.description,
-    String(sp.amountFull || ''),
-  )
-
-  pending.setOriginalSpending(sp)
-
-  table.value.setPendingRow(pending)
+  sp.dt!.setPendingRow(sp.createPending())
 }
 </script>
 <template>
