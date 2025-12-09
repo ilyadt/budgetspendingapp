@@ -73,7 +73,7 @@ function createPending(sp: SpendingRow) {
 }
 </script>
 <template>
-  <div class="table-responsive" style="max-width: 100vw; overflow-x: auto">
+  <div>
     <p style="padding-left: 0; margin-bottom: 0">
       <template v-if="isToday(props.date)">
         <b>
