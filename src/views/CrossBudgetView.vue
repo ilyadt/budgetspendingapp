@@ -145,7 +145,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div :key="date" v-for="(table, date) in tables" class="row">
+  <div :key="date" v-for="(table, date) in tables" class="row cross-tbl">
     <div class="table-responsive" style="max-width: 100vw; overflow-x: auto" :ref="el => dateRefs[date] = el as Element">
       <p style="padding-left: 0; margin-bottom: 0">
         <template v-if="isToday(new Date(date))">
@@ -213,7 +213,7 @@ onMounted(() => {
         </table>
 
         <template v-if="table.pendingRow">
-          <Teleport to=".container">
+          <Teleport to=".cross-tbl">
             <table class="table table-bordered table-sm align-middle modal-table" :style="{ top: table.pendingRow.rowNum * 37.25 + 'px', background: 'white'}">
               <colgroup>
                 <col style="width: 50px" />
