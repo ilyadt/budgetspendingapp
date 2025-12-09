@@ -160,7 +160,7 @@ onMounted(() => {
           <i>{{ dateFormat(table.date) }} ({{ dayName(table.date) }})</i>
         </template>
       </p>
-      <div>
+      <div style="position: relative">
         <table
           class="table table-bordered table-sm align-middle"
           :style="{ tableLayout: 'fixed', minWidth: '350px', opacity: isToday(table.date) ? '100%' : '50%' }"
@@ -273,7 +273,7 @@ onMounted(() => {
               </tr>
             </tbody>
           </table>
-          <Teleport to="body">
+          <Teleport to="#app">
             <div class="click-overlay" @click="table.pendingRow.isNewEmpty() ? table.pendingRow.cancel() : table.pendingRow.save(new Date())"></div>
           </Teleport>
         </template>
