@@ -146,7 +146,7 @@ onMounted(() => {
 
 <template>
   <div :key="date" v-for="(table, date) in tables" class="row">
-    <div class="table-responsive cross-tbl" style="max-width: 100vw; overflow-x: auto" :ref="el => dateRefs[date] = el as Element">
+    <div class="cross-tbl" :ref="el => dateRefs[date] = el as Element">
       <p style="padding-left: 0; margin-bottom: 0">
         <template v-if="isToday(new Date(date))">
           <b>
