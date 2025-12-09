@@ -63,31 +63,29 @@ function makeTables(bids: number[], [dateFrom, dateTo]: [Date, Date]): SpendingG
   return tables
 }
 
-function addSpending(date: Date): void {
-  const sp = new SpendingRow(genSpendingID(), null, null, null, date, Date.now(), 0, '', null, null)
+function addSpending(tbl: Table): void {
+  const sp = new SpendingRow(genSpendingID(), null, null, null, tbl.date, Date.now(), 0, '', null, null)
 
-  tables.value[dateISO(date)]!.addRow(sp)
+  tbl.addRow(sp)
 
   createPending(sp)
 }
 
 function createPending(sp: SpendingRow) {
-  sp.dt!.setPendingRow(
-    new PendingSpendingRow(
-      sp.getRowNum(),
-      sp.id,
-      sp.version,
-      sp.budgetId,
-      sp.date,
-      sp.currency,
-      sp.description,
-      String(sp.amountFull || ''),
-      sp,
-      () => {
-        sp.dt!.setPendingRow(null)
-      },
-    ),
+  const pending = new PendingSpendingRow(
+    sp.getRowNum(),
+    sp.id,
+    sp.version,
+    sp.budgetId,
+    sp.date,
+    sp.currency,
+    sp.description,
+    String(sp.amountFull || ''),
   )
+
+  pending.setOriginalSpending(sp)
+
+  sp.dt!.setPendingRow(pending)
 }
 
 const tables = ref(makeTables(budgets.map(b => b.id), [dateFrom, dateTo]))
@@ -198,7 +196,7 @@ onMounted(() => {
             <tr>
               <td>
                 <button
-                  @click="addSpending(table.date)"
+                  @click="addSpending(table)"
                   class="btn btn-success btn-small d-flex align-items-center"
                   style="height: 30px"
                 >

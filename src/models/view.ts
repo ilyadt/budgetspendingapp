@@ -24,6 +24,12 @@ export class PendingSpendingRow {
   private initBudgetId: number | null
   private initHash: string
 
+  // Back-link to the creator
+  private sp: SpendingRow | null  = null
+
+  // Back-link to the place where PendingSpendingRow lives (to destroy itself)
+  public dt: DataTable|undefined
+
   constructor(
     public rowNum: number,
     public spId: string,
@@ -33,9 +39,6 @@ export class PendingSpendingRow {
     public currency: Currency | null,
     public description: string,
     public amountFull: string,
-
-    private sp: SpendingRow | null, // Link to creator
-    private destroy: () => void, // destroy modal view
   ) {
     this.initSpId = spId
     this._budgetId = budgetId
@@ -84,7 +87,7 @@ export class PendingSpendingRow {
     // Нет изменений
     const hash = this.hash(this.budgetId, this.amountFull, this.description) // TODO: +this.id
     if (hash == this.initHash) {
-      this.destroy()
+      this.dt?.removePending()
       this.sp?.cancelChanges()
 
       return
@@ -102,7 +105,15 @@ export class PendingSpendingRow {
       description: this.description,
       amountFull: amountFull,
     })
-    this.destroy()
+    this.dt?.removePending()
+  }
+
+  public setDataTable(dt: DataTable): void {
+    this.dt = dt
+  }
+
+  public setOriginalSpending(sp: SpendingRow): void {
+    this.sp = sp
   }
 
   public cancel() {
@@ -112,14 +123,15 @@ export class PendingSpendingRow {
       return
     }
 
-    this.destroy()
+    this.dt?.removePending()
     this.sp?.cancelChanges()
   }
 }
 
-interface DataTable {
+export interface DataTable {
   getRowNum(spId: string): number
-  setPendingRow(pending: PendingSpendingRow | null): void
+  setPendingRow(pending: PendingSpendingRow): void
+  removePending(): void
   removeRowBySpId(spId: string): void
 }
 
@@ -230,8 +242,13 @@ export class Table {
     this.rows = this.rows.filter(s => s.id !== spId)
   }
 
-  setPendingRow(pending: PendingSpendingRow | null): void {
+  setPendingRow(pending: PendingSpendingRow): void {
+    pending.setDataTable(this)
     this.pendingRow = pending
+  }
+
+  removePending(): void {
+    this.pendingRow = null
   }
 
   sort(): void {

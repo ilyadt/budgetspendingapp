@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from 'vitest'
-import { PendingSpendingRow, SpendingRow, type SaveData } from './view'
+import { PendingSpendingRow, SpendingRow, type DataTable, type SaveData } from './view'
 import { fromRUB, Money } from '@/helpers/money'
 import * as models from './models'
 import { type Budget } from './models'
@@ -18,10 +18,6 @@ describe('PendingSpendingRow', () => {
       null,
       '', // TODO: null ?
       '', // TODO: null ?
-      null,
-      () => {
-
-      }
     )
 
     expect(s.spId).toEqual('id1')
@@ -49,7 +45,7 @@ describe('PendingSpendingRow', () => {
   test('setBudget:update', () => {
     const spyGenSpendingID = vi.spyOn(models, 'genSpendingID').mockReturnValue('newID')
 
-    const s = new PendingSpendingRow(2, 'id1', 'v1-23a1e' , 1, new Date(),  'RUB', '<3', '14.07', null, () => {})
+    const s = new PendingSpendingRow(2, 'id1', 'v1-23a1e' , 1, new Date(),  'RUB', '<3', '14.07')
 
     expect(s.spId).toEqual('id1')
     expect(s.budgetId).toEqual(1)
@@ -88,7 +84,12 @@ describe('PendingSpendingRow', () => {
       saveChanges: vi.fn(),
     })))() as unknown as SpendingRow
 
-    const destroyMock = vi.fn(() => {})
+    const mockDt: DataTable = {
+      getRowNum: vi.fn(),
+      setPendingRow: vi.fn(),
+      removePending: vi.fn(), // only this method needed
+      removeRowBySpId: vi.fn(),
+    }
 
     const s = new PendingSpendingRow(
       1,
@@ -99,9 +100,11 @@ describe('PendingSpendingRow', () => {
       null,
       '', // TODO: null ?
       '', // TODO: null ?
-      spMock,
-      destroyMock,
     )
+
+    s.setOriginalSpending(spMock)
+
+    s.setDataTable(mockDt)
 
     s.save(new Date())
 
@@ -145,7 +148,7 @@ describe('PendingSpendingRow', () => {
       amountFull: 110.50,
     } as SaveData)
 
-    expect(destroyMock).toBeCalled()
+    expect(mockDt.removePending).toBeCalled()
 
     expect(spyGenVersionID).toHaveBeenCalledWith(null) // budget changed
 

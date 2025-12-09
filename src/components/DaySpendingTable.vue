@@ -38,7 +38,7 @@ function addNew(): void {
   const sp = new SpendingRow(
     genSpendingID(),
     props.budget.id,
-    props.budget.money.currency as Currency,
+    props.budget.money.currency,
     null,
     props.date,
     Date.now(),
@@ -54,22 +54,20 @@ function addNew(): void {
 }
 
 function createPending(sp: SpendingRow) {
-  table.value.setPendingRow(
-    new PendingSpendingRow(
-      sp.getRowNum(),
-      sp.id,
-      sp.version,
-      sp.budgetId,
-      sp.date,
-      sp.currency,
-      sp.description,
-      String(sp.amountFull || ''),
-      sp,
-      () => {
-        sp.dt!.setPendingRow(null)
-      },
-    ),
+  const pending = new PendingSpendingRow(
+    sp.getRowNum(),
+    sp.id,
+    sp.version,
+    sp.budgetId,
+    sp.date,
+    sp.currency,
+    sp.description,
+    String(sp.amountFull || ''),
   )
+
+  pending.setOriginalSpending(sp)
+
+  table.value.setPendingRow(pending)
 }
 </script>
 <template>
