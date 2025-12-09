@@ -213,7 +213,7 @@ onMounted(() => {
         </table>
 
         <template v-if="table.pendingRow">
-          <Teleport to="#app">
+          <Teleport to=".container">
             <table class="table table-bordered table-sm align-middle modal-table" :style="{ top: table.pendingRow.rowNum * 37.25 + 'px', background: 'white'}">
               <colgroup>
                 <col style="width: 50px" />
