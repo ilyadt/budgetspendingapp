@@ -2,7 +2,7 @@
 import { Facade } from '@/facade'
 import { dateFormat, dateISO, dateRange, DateCheck, dayName } from '@/helpers/date'
 import { from, getFormatter, Money, moneyFormat, type Currency } from '@/helpers/money'
-import { type Budget, genSpendingID, genVersion } from '@/models/models'
+import { type Budget, genVersion } from '@/models/models'
 import { SpendingRow, Table } from '@/models/view'
 import { computed, nextTick, onMounted, ref } from 'vue'
 const { isToday, isFuture } = DateCheck(new Date())
@@ -61,18 +61,6 @@ function makeTables(bids: number[], [dateFrom, dateTo]: [Date, Date]): SpendingG
   }
 
   return tables
-}
-
-function addSpending(tbl: Table): void {
-  const sp = new SpendingRow(genSpendingID(), null, null, null, tbl.date, Date.now(), 0, '', null, null)
-
-  tbl.addRow(sp)
-
-  createPending(sp)
-}
-
-function createPending(sp: SpendingRow) {
-  sp.dt!.setPendingRow(sp.createPending())
 }
 
 const tables = ref(makeTables(budgets.map(b => b.id), [dateFrom, dateTo]))
@@ -159,13 +147,13 @@ onMounted(() => {
           <tbody>
             <tr v-for="sp of table.rows" :key="sp.id">
               <td class="text-end">
-                <span @click="createPending(sp)">{{ sp.amountFull }}</span>
+                <span @click="sp.createPending()">{{ sp.amountFull }}</span>
               </td>
               <td>
-                <span @click="createPending(sp)">{{ sp.description }}</span>
+                <span @click="sp.createPending()">{{ sp.description }}</span>
               </td>
               <td>
-                <span @click="createPending(sp)">{{ budgetMap[sp.budgetId!]?.alias }}</span>
+                <span @click="sp.createPending()">{{ budgetMap[sp.budgetId!]?.alias }}</span>
               </td>
               <td style="padding: 2px">
                 <button
@@ -183,7 +171,7 @@ onMounted(() => {
             <tr>
               <td>
                 <button
-                  @click="addSpending(table)"
+                  @click="table.addNewSpending().createPending()"
                   class="btn btn-success btn-small d-flex align-items-center"
                   style="height: 30px"
                 >

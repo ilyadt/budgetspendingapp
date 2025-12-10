@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { moneyFormat, type Currency } from '@/helpers/money'
-import { type Budget, type Spending, genSpendingID, genVersion } from '@/models/models'
+import { moneyFormat } from '@/helpers/money'
+import { type Budget, type Spending, genVersion } from '@/models/models'
 import { ref, type PropType } from 'vue'
 import { dateFormat, DateCheck, dayName } from '@/helpers/date'
 import { SpendingRow, Table } from '@/models/view'
@@ -13,49 +13,35 @@ const props = defineProps({
   daySpendings: { type: Array<Spending>, required: true },
 })
 
-const table = ref<Table>(new Table(props.date, [], null))
+function createTbl(): Table {
+  const tbl = new Table(props.date, [], null)
 
-for (const sp of props.daySpendings) {
-  table.value.addRow(
-    new SpendingRow(
-      sp.id,
-      props.budget.id,
-      props.budget.money.currency as Currency,
-      sp.version,
-      props.date,
-      sp.sort,
-      moneyFormat(sp.money),
-      sp.description,
-      sp.createdAt,
-      sp.updatedAt,
-    ),
-  )
+  tbl.setBudget(props.budget)
+
+  for (const sp of props.daySpendings) {
+    tbl.addRow(
+      new SpendingRow(
+        sp.id,
+        props.budget.id,
+        props.budget.money.currency,
+        sp.version,
+        props.date,
+        sp.sort,
+        moneyFormat(sp.money),
+        sp.description,
+        sp.createdAt,
+        sp.updatedAt,
+      ),
+    )
+  }
+
+  tbl.sort()
+
+  return tbl
 }
 
-table.value.sort()
+const table = ref<Table>(createTbl())
 
-function addNew(): void {
-  const sp = new SpendingRow(
-    genSpendingID(),
-    props.budget.id,
-    props.budget.money.currency,
-    null,
-    props.date,
-    Date.now(),
-    0,
-    '',
-    null,
-    null,
-  )
-
-  table.value.addRow(sp)
-
-  createPending(sp)
-}
-
-function createPending(sp: SpendingRow) {
-  sp.dt!.setPendingRow(sp.createPending())
-}
 </script>
 <template>
   <div>
@@ -85,10 +71,10 @@ function createPending(sp: SpendingRow) {
         <tbody>
           <tr v-for="sp in table.rows" :key="sp.id">
             <td class="text-end">
-              <span @click="createPending(sp)">{{ sp.amountFull }}</span>
+              <span @click="sp.createPending()">{{ sp.amountFull }}</span>
             </td>
             <td>
-              <span @click="createPending(sp)">{{ sp.description }}</span>
+              <span @click="sp.createPending()">{{ sp.description }}</span>
             </td>
             <td>
               <button
@@ -102,7 +88,7 @@ function createPending(sp: SpendingRow) {
           </tr>
           <tr>
             <td>
-              <button @click="addNew()" class="btn btn-success btn-small d-flex align-items-center" style="height: 30px">
+              <button @click="table.addNewSpending().createPending()" class="btn btn-success btn-small d-flex align-items-center" style="height: 30px">
                 +
               </button>
             </td>

@@ -61,8 +61,8 @@ export class PendingSpendingRow {
   }
 
   public isNewEmpty(): boolean {
-    const isNew = !this._budgetId // TODO: budgetId -> id
-    const isEmpty = !this.description && !this.amountFull && !this.budgetId
+    const isNew = !this.version // TODO: version -> id
+    const isEmpty = !this.description && !this.amountFull
 
     return isNew && isEmpty
   }
@@ -235,11 +235,16 @@ export class SpendingRow {
 
     pending.setOriginalSpending(this)
 
+    this.dt?.setPendingRow(pending)
+
     return pending
   }
 }
 
 export class Table {
+  // Заполняется если таблица по бюджету, то заполняется бюджет
+  public budget: Budget | null = null;
+
   constructor(
     public date: Date,
     public rows: SpendingRow[],
@@ -264,6 +269,10 @@ export class Table {
     this.pendingRow = pending
   }
 
+  setBudget(b: Budget): void {
+    this.budget = b
+  }
+
   removePending(): void {
     this.pendingRow = null
   }
@@ -274,5 +283,24 @@ export class Table {
 
     // потом по sort
     this.rows.sort((a, b) => a.sort - b.sort)
+  }
+
+  addNewSpending(): SpendingRow {
+    const sp = new SpendingRow(
+      genSpendingID(),
+      this.budget?.id ?? null,
+      this.budget?.money.currency ?? null,
+      null,
+      this.date,
+      Date.now(),
+      0,
+      '',
+      null,
+      null,
+    )
+
+    this.addRow(sp)
+
+    return sp
   }
 }
