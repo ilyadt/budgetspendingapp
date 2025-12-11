@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from 'vitest'
-import { PendingSpendingRow, SpendingRow, type DataTable, type SaveData } from './view'
+import { PendingSpendingRow, SpendingRow, type SaveData } from './view'
 import { fromRUB, Money } from '@/helpers/money'
 import * as models from './models'
 import { type Budget } from './models'
@@ -84,12 +84,7 @@ describe('PendingSpendingRow', () => {
       saveChanges: vi.fn(),
     })))() as unknown as SpendingRow
 
-    const mockDt: DataTable = {
-      getRowNum: vi.fn(),
-      setPendingRow: vi.fn(),
-      removePending: vi.fn(), // only this method needed
-      removeRowBySpId: vi.fn(),
-    }
+    const mockDestroy = vi.fn()
 
     const s = new PendingSpendingRow(
       1,
@@ -104,7 +99,7 @@ describe('PendingSpendingRow', () => {
 
     s.setOriginalSpending(spMock)
 
-    s.setDataTable(mockDt)
+    s.setDestroyFn(mockDestroy)
 
     s.save(new Date())
 
@@ -148,7 +143,7 @@ describe('PendingSpendingRow', () => {
       amountFull: 110.50,
     } as SaveData)
 
-    expect(mockDt.removePending).toBeCalled()
+    expect(mockDestroy).toBeCalled()
 
     expect(spyGenVersionID).toHaveBeenCalledWith(null) // budget changed
 

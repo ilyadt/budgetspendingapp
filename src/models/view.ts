@@ -28,7 +28,7 @@ export class PendingSpendingRow {
   private sp: SpendingRow | null  = null
 
   // Back-link to the place where PendingSpendingRow lives (to destroy itself)
-  public dt: DataTable|undefined
+  public destroy: () => void = () => {};
 
   constructor(
     public rowNum: number,
@@ -87,7 +87,7 @@ export class PendingSpendingRow {
     // Нет изменений
     const hash = this.hash(this.budgetId, this.amountFull, this.description) // TODO: +this.id
     if (hash == this.initHash) {
-      this.dt?.removePending()
+      this.destroy()
       this.sp?.cancelChanges()
 
       return
@@ -105,11 +105,11 @@ export class PendingSpendingRow {
       description: this.description,
       amountFull: amountFull,
     })
-    this.dt?.removePending()
+    this.destroy()
   }
 
-  public setDataTable(dt: DataTable): void {
-    this.dt = dt
+  public setDestroyFn(fn: () => void): void {
+    this.destroy = fn
   }
 
   public setOriginalSpending(sp: SpendingRow): void {
@@ -123,15 +123,13 @@ export class PendingSpendingRow {
       return
     }
 
-    this.dt?.removePending()
+    this.destroy()
     this.sp?.cancelChanges()
   }
 }
 
 export interface DataTable {
   getRowNum(spId: string): number
-  setPendingRow(pending: PendingSpendingRow): void
-  removePending(): void
   removeRowBySpId(spId: string): void
 }
 
@@ -235,8 +233,6 @@ export class SpendingRow {
 
     pending.setOriginalSpending(this)
 
-    this.dt?.setPendingRow(pending)
-
     return pending
   }
 }
@@ -248,7 +244,6 @@ export class Table {
   constructor(
     public date: Date,
     public rows: SpendingRow[],
-    public pendingRow: PendingSpendingRow | null,
   ) {}
 
   addRow(sp: SpendingRow): void {
@@ -264,17 +259,8 @@ export class Table {
     this.rows = this.rows.filter(s => s.id !== spId)
   }
 
-  setPendingRow(pending: PendingSpendingRow): void {
-    pending.setDataTable(this)
-    this.pendingRow = pending
-  }
-
   setBudget(b: Budget): void {
     this.budget = b
-  }
-
-  removePending(): void {
-    this.pendingRow = null
   }
 
   sort(): void {

@@ -60,6 +60,9 @@ export interface Budget {
   }
 }
 
+// Бюджет с остатком
+export type BudgetWithLeft = Budget & { left: Money }
+
 export type DelSpending = Pick<Spending, 'id' | 'version' | 'prevVersion' | 'updatedAt'>
 
 export interface ConflictVersion {
