@@ -128,6 +128,8 @@
                     class="form-select cell-input"
                     :value="pending.budgetId"
                     @change="pending.setBudget(budgetsMap[Number(($event.target as HTMLSelectElement).value)]!)"
+                    @keyup.enter="pending.save(new Date())"
+                    @keyup.esc="pending.cancel()"
                   >
                     <option disabled value="">бюджет</option>
                     <option
