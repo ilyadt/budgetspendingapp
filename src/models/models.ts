@@ -3,8 +3,9 @@ import { customAlphabet } from 'nanoid/non-secure'
 
 import type { Money } from '@/helpers/money'
 import type { components, paths } from '@/models/oaschema'
+import { uuidv7 } from 'uuidv7'
 
-export const genSpendingID = customAlphabet(alphanumeric, 10)
+export const genSpendingID = uuidv7
 
 const hexSymbols5 = customAlphabet('0123456789abcdef', 5)
 

@@ -50,6 +50,9 @@ importers:
       uuid:
         specifier: ^11.0.5
         version: 11.1.0
+      uuidv7:
+        specifier: ^1.1.0
+        version: 1.1.0
       vue:
         specifier: ^3.5.22
         version: 3.5.22(typescript@5.7.3)
@@ -2872,6 +2875,10 @@ packages:
 
   uuid@11.1.0:
     resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
+    hasBin: true
+
+  uuidv7@1.1.0:
+    resolution: {integrity: sha512-2VNnOC0+XQlwogChUDzy6pe8GQEys9QFZBGOh54l6qVfwoCUwwRvk7rDTgaIsRgsF5GFa5oiNg8LqXE3jofBBg==}
     hasBin: true
 
   vite-node@3.2.4:
@@ -6142,6 +6149,8 @@ snapshots:
   util-deprecate@1.0.2: {}
 
   uuid@11.1.0: {}
+
+  uuidv7@1.1.0: {}
 
   vite-node@3.2.4(@types/node@22.18.3)(jiti@2.5.1)(terser@5.44.0):
     dependencies:
