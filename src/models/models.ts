@@ -45,6 +45,7 @@ export interface Spending {
   description: string
   createdAt: Date
   updatedAt: Date
+  receiptGroupId: number
 }
 
 export interface Budget {

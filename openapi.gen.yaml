@@ -132,6 +132,11 @@ components:
           type: array
           items:
             type: string
+        receiptGroupId:
+          description: Объединение траты в один чек
+          type: integer
+          format: uint64
+          x-go-type-skip-optional-pointer: true
       required:
         - id
         - date
@@ -245,6 +250,10 @@ components:
           $ref: '#/components/schemas/Money'
         description:
           type: string
+        receiptGroupId:
+          type: integer
+          format: uint64
+          x-go-type-skip-optional-pointer: true
       required:
         - date
         - sort
@@ -265,6 +274,10 @@ components:
           $ref: '#/components/schemas/Money'
         description:
           type: string
+        receiptGroupId:
+          type: integer
+          format: uint64
+          x-go-type-skip-optional-pointer: true
       required:
         - date
         - sort

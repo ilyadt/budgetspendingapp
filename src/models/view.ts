@@ -10,6 +10,7 @@ export interface SaveData {
   currency: Currency
   description: string
   amountFull: number
+  receiptGroupId: number
 }
 
 interface DeleteData {
@@ -39,6 +40,7 @@ export class PendingSpendingRow {
     public currency: Currency | null,
     public description: string,
     public amountFull: string,
+    public receiptGroupId: number
   ) {
     this.initSpId = spId
     this._budgetId = budgetId
@@ -104,6 +106,7 @@ export class PendingSpendingRow {
       dt: dt,
       description: this.description,
       amountFull: amountFull,
+      receiptGroupId: this.receiptGroupId
     })
     this.destroy()
   }
@@ -135,6 +138,8 @@ export interface DataTable {
 
 // ViewModel
 export class SpendingRow {
+  private selected: boolean = false;
+
   constructor(
     public id: string,
     public budgetId: number | null, // null if cross-budget
@@ -146,7 +151,23 @@ export class SpendingRow {
     public description: string,
     public createdAt: Date | null,
     public updatedAt: Date | null,
+    public receiptGroupId: number
   ) {}
+
+  public saveReceiptId(rId: number, ver: string, updAt: Date) {
+    const data: SaveData = {
+      id: this.id,
+      dt: updAt,
+      version: ver,
+      budgetId: this.budgetId!,
+      currency: this.currency!,
+      description: this.description,
+      amountFull: this.amountFull,
+      receiptGroupId: rId,
+    }
+
+    this.saveChanges(data)
+  }
 
   public saveChanges(data: SaveData): void {
     // External send
@@ -162,6 +183,7 @@ export class SpendingRow {
       description: data.description,
       createdAt: this.version ? this.createdAt! : data.dt,
       updatedAt: data.dt,
+      receiptGroupId: data.receiptGroupId,
     }
 
     if (isNew) {
@@ -170,7 +192,7 @@ export class SpendingRow {
       Facade.deleteSpending(this.budgetId!, { ...sendData, id: this.id })
       Facade.createSpending(data.budgetId, sendData)
     } else {
-      Facade.updateSpending(data.budgetId, sendData)
+      Facade.updateSpending(this.budgetId!, sendData)
     }
 
     // end External
@@ -186,6 +208,7 @@ export class SpendingRow {
       this.createdAt = data.dt
     }
     this.version = data.version
+    this.receiptGroupId = data.receiptGroupId
   }
 
   public cancelChanges(): void {
@@ -219,6 +242,18 @@ export class SpendingRow {
     return this.dt!.getRowNum(this.id)
   }
 
+  public select() {
+    this.selected = true
+  }
+
+  public unselect() {
+    this.selected = false
+  }
+
+  public isSelected(): boolean {
+    return this.selected
+  }
+
   public createPending(): PendingSpendingRow {
     const pending = new PendingSpendingRow(
       this.getRowNum(),
@@ -229,6 +264,7 @@ export class SpendingRow {
       this.currency,
       this.description,
       String(this.amountFull || ''),
+      this.receiptGroupId,
     )
 
     pending.setOriginalSpending(this)
@@ -283,10 +319,52 @@ export class Table {
       '',
       null,
       null,
+      0,
     )
 
     this.addRow(sp)
 
     return sp
   }
+
+  resetSelected() {
+    for (const sp of this.rows) {
+      sp.unselect()
+    }
+  }
+
+  uniteReceipt(color: number) {
+    const days = daysFrom2000UTC(
+      this.date.getUTCFullYear(),
+      this.date.getUTCMonth(),
+      this.date.getUTCDate(),
+    )
+
+    // 3byte + 3byte
+    const rId: number = Number(BigInt(days) << 24n | BigInt(color))
+    const now = new Date()
+
+    for (const sp of this.rows) {
+      if (sp.isSelected()) {
+        sp.saveReceiptId(rId, genVersion(sp.version), now)
+      }
+    }
+  }
+
+  separateReceipt() {
+    const now = new Date()
+
+    for (const sp of this.rows) {
+      if (sp.isSelected()) {
+        sp.saveReceiptId(0, genVersion(sp.version), now)
+      }
+    }
+  }
+}
+
+
+function daysFrom2000UTC(y: number, m: number, d: number):number {
+  const base = Date.UTC(2000, 0, 1);
+  const current = Date.UTC(y, m - 1, d);
+  return Math.floor((current - base) / 86400000);
 }

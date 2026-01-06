@@ -178,7 +178,7 @@ describe('storage_test', () => {
 
       const sps = BudgetSpendingsStore.spendingsByBudgetId(1)
 
-      expect(sps).toEqual([
+      const expSps: Spending[] = [
         {
           id: 'sp1',
           date: new Date('2025-09-03'),
@@ -188,8 +188,11 @@ describe('storage_test', () => {
           createdAt: new Date('2025-09-03T15:23:22Z'),
           updatedAt: new Date('2025-09-03T15:23:22Z'),
           version: '32kl4j3',
+          receiptGroupId: 0,
         },
-      ])
+      ]
+
+      expect(sps).toEqual(expSps)
     }
 
     // Сохранение в правильном порядке (sp.id ASC)
@@ -223,7 +226,7 @@ describe('storage_test', () => {
       const sps = BudgetSpendingsStore.spendingsByBudgetId(1)
 
       // Проверяем так же сортировку
-      expect(sps).toEqual([
+      const expSps: Spending[] = [
         {
           id: 'sp1',
           date: new Date('2025-09-03'),
@@ -233,6 +236,7 @@ describe('storage_test', () => {
           createdAt: new Date('2025-09-03T15:23:22Z'),
           updatedAt: new Date('2025-09-03T15:23:22Z'),
           version: 'ver2',
+          receiptGroupId: 0,
         },
         {
           id: 'sp2',
@@ -243,8 +247,11 @@ describe('storage_test', () => {
           createdAt: new Date('2025-09-04T10:00:00Z'),
           updatedAt: new Date('2025-09-04T10:00:00Z'),
           version: 'ver1',
+          receiptGroupId: 0,
         },
-      ])
+      ]
+
+      expect(sps).toEqual(expSps)
     }
   })
 
@@ -392,7 +399,7 @@ describe('storage_test', () => {
   })
 
   test(BudgetSpendingsStore.createSpending, () => {
-    const sp1 = {
+    const sp1: Spending = {
       id: 'sp1',
       version: 'ver1',
       date: new Date('2025-09-12'),
@@ -401,6 +408,7 @@ describe('storage_test', () => {
       description: 'что-то',
       createdAt: new Date('2025-09-12T23:22:00Z'),
       updatedAt: new Date('2025-09-12T23:22:00Z'),
+      receiptGroupId: 0,
     }
 
     // Не можем создать в несуществующем бюджете
@@ -446,6 +454,7 @@ describe('storage_test', () => {
       description: 'что-то',
       createdAt: new Date('2025-09-12T23:22:00Z'),
       updatedAt: new Date('2025-09-12T23:22:00Z'),
+      receiptGroupId: 0,
     }
 
     const sp2: Spending = {
@@ -457,6 +466,7 @@ describe('storage_test', () => {
       description: 'что-то',
       createdAt: new Date('2025-09-12T23:22:00Z'),
       updatedAt: new Date('2025-09-12T23:22:00Z'),
+      receiptGroupId: 17,
     }
 
     BudgetSpendingsStore.createSpending(1, sp)
@@ -469,7 +479,7 @@ describe('storage_test', () => {
 
     const sps = BudgetSpendingsStore.spendingsByBudgetId(1)
 
-    expect(sps).toEqual([
+    const expSps: Spending[] = [
       {
         id: 'wqerdop',
         version: 'ver2',
@@ -479,8 +489,11 @@ describe('storage_test', () => {
         description: 'что-то',
         createdAt: new Date('2025-09-12T23:22:00Z'),
         updatedAt: new Date('2025-09-12T23:22:00Z'),
+        receiptGroupId: 17,
       },
-    ])
+    ]
+
+    expect(sps).toEqual(expSps)
 
     // TODO: check deleted throw error on update
   })
@@ -501,6 +514,7 @@ describe('storage_test', () => {
       description: 'что-то',
       createdAt: new Date('2025-09-12T23:22:00Z'),
       updatedAt: new Date('2025-09-12T23:22:00Z'),
+      receiptGroupId: 0,
     }
 
     BudgetSpendingsStore.createSpending(1, sp)
@@ -648,5 +662,6 @@ function makeSpending(sp: Partial<Spending> = {}): Spending {
     description: sp.description ?? '',
     createdAt: sp.createdAt ?? new Date(0),
     updatedAt: sp.updatedAt ?? new Date(0),
+    receiptGroupId: sp.receiptGroupId ?? 0,
   }
 }

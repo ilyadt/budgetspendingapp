@@ -4,6 +4,7 @@ import { fromRUB, Money } from '@/helpers/money'
 import * as models from './models'
 import { type Budget } from './models'
 import { dateISO } from '@/helpers/date'
+import { Facade } from '@/facade'
 
 describe('PendingSpendingRow', () => {
   test('setBudget:new', () => {
@@ -18,6 +19,7 @@ describe('PendingSpendingRow', () => {
       null,
       '', // TODO: null ?
       '', // TODO: null ?
+      0,
     )
 
     expect(s.spId).toEqual('id1')
@@ -45,7 +47,7 @@ describe('PendingSpendingRow', () => {
   test('setBudget:update', () => {
     const spyGenSpendingID = vi.spyOn(models, 'genSpendingID').mockReturnValue('newID')
 
-    const s = new PendingSpendingRow(2, 'id1', 'v1-23a1e' , 1, new Date(),  'RUB', '<3', '14.07')
+    const s = new PendingSpendingRow(2, 'id1', 'v1-23a1e' , 1, new Date(),  'RUB', '<3', '14.07', 0)
 
     expect(s.spId).toEqual('id1')
     expect(s.budgetId).toEqual(1)
@@ -95,6 +97,7 @@ describe('PendingSpendingRow', () => {
       null,
       '', // TODO: null ?
       '', // TODO: null ?
+      123456,
     )
 
     s.setOriginalSpending(spMock)
@@ -141,6 +144,7 @@ describe('PendingSpendingRow', () => {
       currency: 'RUB',
       description: 'чай',
       amountFull: 110.50,
+      receiptGroupId: 123456,
     } as SaveData)
 
     expect(mockDestroy).toBeCalled()
@@ -165,3 +169,55 @@ function makeBudget(b: Partial<Budget>): Budget {
     params: b.params ?? {},
   }
 }
+
+describe('SpendingRow', () => {
+  test('save', () => {
+    const sp = new SpendingRow(
+      "id1",
+      2,
+      'RUB',
+      "ver1",
+      new Date('2026-01-06'),
+      12,
+      550,
+      'love',
+      new Date('2026-01-06 12:30'),
+      new Date('2026-01-06 12:30'),
+      0
+    )
+
+    expect(sp.isSelected()).toBe(false)
+    sp.select()
+    expect(sp.isSelected()).toBe(true)
+    sp.unselect()
+    expect(sp.isSelected()).toBe(false)
+
+
+    vi.mock('@/facade', () => ({ Facade: { updateSpending: vi.fn() } }))
+
+    const newVer = models.genVersion(sp.version)
+    const newReceiptId = 17
+    const updAt = new Date('2026-01-06 17:59:20')
+
+    sp.saveReceiptId(newReceiptId, newVer, updAt)
+
+    const expSp: models.Spending = {
+      id: "id1",
+      prevVersion: "ver1",
+      version: newVer,
+      date: new Date('2026-01-06'),
+      sort: 12,
+      money: fromRUB(550),
+      description: 'love',
+      createdAt: new Date('2026-01-06 12:30'),
+      updatedAt: updAt,
+      receiptGroupId: newReceiptId,
+    }
+
+    expect(Facade.updateSpending).toBeCalledWith(2, expSp)
+
+    expect(sp.version).toBe(newVer)
+    expect(sp.receiptGroupId).toBe(newReceiptId)
+    expect(sp.updatedAt).toBe(updAt)
+  })
+})

@@ -96,6 +96,11 @@ export interface components {
             version: string;
             /** @description все версии c первой по последнюю */
             versions: string[];
+            /**
+             * Format: uint64
+             * @description Объединение траты в один чек
+             */
+            receiptGroupId?: number;
         };
         SpendingsByBudget: {
             budgetId: number;
@@ -147,6 +152,8 @@ export interface components {
             sort: number;
             money: components["schemas"]["Money"];
             description: string;
+            /** Format: uint64 */
+            receiptGroupId?: number;
         };
         SpendingUpdateData: {
             /** @description предыдущая версия записи */
@@ -157,6 +164,8 @@ export interface components {
             sort: number;
             money: components["schemas"]["Money"];
             description: string;
+            /** Format: uint64 */
+            receiptGroupId?: number;
         };
         SpendingDeleteData: {
             /** @description предыдущая версия записи */

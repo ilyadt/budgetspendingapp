@@ -64,6 +64,7 @@ function makeTables(budgets: Budget[]|Budget, [dateFrom, dateTo]: [Date, Date]):
           s.description,
           s.createdAt,
           s.updatedAt,
+          s.receiptGroupId,
         ),
       )
     }

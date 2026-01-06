@@ -6,5 +6,5 @@ genapi: downloadoa
 downloadoa:
 	curl --request GET \
 		--fail \
-		--url 'https://api.bitbucket.org/2.0/repositories/ilya_dt/budgedoa/src/v1.1.2/openapi.yaml' \
+		--url 'https://api.bitbucket.org/2.0/repositories/ilya_dt/budgedoa/src/v1.2.0/openapi.yaml' \
 		--header 'Authorization: Bearer $(BB_ACCESS_TOKEN)' > openapi.gen.yaml

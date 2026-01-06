@@ -37,6 +37,7 @@ export interface SpendingVersion {
   sort?: number
   updatedAt: Date | string // заменить на versionDt
   deleted?: boolean
+  receiptId?: number // объединение в один чек в рамках одного дня
 }
 
 const SpendingVersionProto = {
@@ -156,6 +157,7 @@ export const BudgetSpendingsStore: BudgetSpendingsStoreInterface = {
         description: lastVer.description!,
         createdAt: new Date(spVersioned.createdAt),
         updatedAt: new Date(lastVer.updatedAt),
+        receiptGroupId: lastVer.receiptId ?? 0,
       })
     }
 
@@ -230,6 +232,7 @@ export const BudgetSpendingsStore: BudgetSpendingsStoreInterface = {
       money: upd.money,
       sort: upd.sort,
       updatedAt: upd.updatedAt,
+      receiptId: upd.receiptGroupId,
     })
 
     localStorage.setItem(lsSpendingsKey(bid), JSON.stringify(fromStore))
@@ -432,6 +435,7 @@ function remoteToVersion(sp: ApiSpending): SpendingVersion {
     sort: sp.sort,
     updatedAt: new Date(sp.updatedAt),
     deleted: false,
+    receiptId: sp.receiptGroupId,
   }
 }
 

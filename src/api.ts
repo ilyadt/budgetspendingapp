@@ -142,6 +142,7 @@ export const Uploader = {
         sort: upd.sort,
         money: upd.money,
         description: upd.description,
+        receiptGroupId: upd.receiptGroupId,
       },
     }
 

@@ -51,6 +51,7 @@ function makeTables(bids: number[], [dateFrom, dateTo]: [Date, Date]): SpendingG
           s.description,
           s.createdAt,
           s.updatedAt,
+          s.receiptGroupId,
         ),
       )
     }

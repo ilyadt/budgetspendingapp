@@ -100,6 +100,7 @@ describe('fetcher', () => {
         description: 'кофе',
         createdAt: new Date(1759154425085),
         updatedAt: new Date(1759154543304),
+        receiptGroupId: 0,
       },
     ]
 
@@ -132,6 +133,7 @@ describe('fetcher', () => {
       updatedAt: new Date('2025-09-29T15:02:23.304Z'),
       money: fromRUB(90), // изменил цену
       sort: 101,
+      receiptGroupId: 0,
     })
 
     const mockResponse: Partial<Response> = {
@@ -211,6 +213,7 @@ describe('updater', () => {
       description: 'любовь',
       createdAt: new Date('2025-10-03T10:54:44.020Z'),
       updatedAt: new Date('2025-10-03T10:54:44.020Z'),
+      receiptGroupId: 0,
     })
 
     const events = Uploader.getEvents()
@@ -304,6 +307,7 @@ describe('updater', () => {
       description: 'dyson',
       createdAt: new Date('2025-10-02T12:22:22.023Z'),
       updatedAt: new Date('2025-10-03T12:22:22.023Z'),
+      receiptGroupId: 22,
     })
 
     const expEvents: ApiSpendingEvent[] = [
@@ -320,6 +324,7 @@ describe('updater', () => {
           sort: 777,
           money: { amount: 20_000_00, fraction: 2, currency: 'RUB' },
           description: 'dyson',
+          receiptGroupId: 22,
         },
       },
     ]
