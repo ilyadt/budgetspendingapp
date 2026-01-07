@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import SpendingTable from '@/components/SpendingTable.vue'
 import { Facade } from '@/facade'
-import { dateFormat, dateISO, dateRange, DateCheck, dayName } from '@/helpers/date'
+import { dateISO, dateRange} from '@/helpers/date'
 import { from, moneyFormat } from '@/helpers/money'
 import { type Budget, type BudgetWithLeft } from '@/models/models'
 import { SpendingRow, Table } from '@/models/view'
 import { computed, nextTick, onMounted, ref } from 'vue'
-const { isToday, isFuture } = DateCheck(new Date())
 
 const props = defineProps<{
   budgets: Budget[]
@@ -101,22 +100,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div :key="date" v-for="(table, date) in tables" class="row">
-    <div :ref="el => dateRefs[date] = el as Element">
-      <p style="padding-left: 0; margin-bottom: 0">
-        <template v-if="isToday(new Date(date))">
-          <b>
-            <i>{{ dateFormat(table.date) }} ({{ dayName(table.date) }})</i>
-          </b>
-        </template>
-        <template v-else-if="isFuture(table.date)">
-          <i style="opacity: 40%">{{ dateFormat(table.date) }} ({{ dayName(table.date) }})</i>
-        </template>
-        <template v-else>
-          <i>{{ dateFormat(table.date) }} ({{ dayName(table.date) }})</i>
-        </template>
-      </p>
-      <SpendingTable :table="table" :budgets-map="budgetMap" />
-    </div>
+  <div :key="date" v-for="(table, date) in tables" class="row" :ref="el => dateRefs[date] = el as Element" >
+    <SpendingTable :table="table" :budgets-map="budgetMap" />
   </div>
 </template>

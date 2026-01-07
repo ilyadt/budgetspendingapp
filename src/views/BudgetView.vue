@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Facade } from '@/facade'
-import { DateCheck, dateFormat, dateISO, dateRange, dayName } from '@/helpers/date'
+import { dateFormat, dateISO, dateRange } from '@/helpers/date'
 import { moneyToString, minus, moneyFormat } from '@/helpers/money'
 import type { Budget } from '@/models/models'
 import { computed, ref } from 'vue'
@@ -25,8 +25,6 @@ const moneyLeft = computed(() => {
 
   return moneyLeft
 })
-
-const { isToday, isFuture } = DateCheck(new Date())
 
 type SpendingGroups = Record<string, Table>
 
@@ -98,22 +96,6 @@ const tbls = ref<SpendingGroups>(makeTables(budget,[budget.dateFrom, budget.date
     <p v-if="budget?.description" style="white-space: pre">{{ budget!.description }}</p>
   </div>
   <div v-for="(tbl, date) of tbls" :key="date" class="row">
-
-     <div>
-      <p style="padding-left: 0; margin-bottom: 0">
-        <template v-if="isToday(new Date(date))">
-          <b>
-            <i>{{ dateFormat(new Date(date)) }} ({{ dayName(new Date(date)) }})</i>
-          </b>
-        </template>
-        <template v-else-if="isFuture(new Date(date))">
-          <i style="opacity: 40%">{{ dateFormat(new Date(date)) }} ({{ dayName(new Date(date)) }})</i>
-        </template>
-        <template v-else>
-          <i>{{ dateFormat(new Date(date)) }} ({{ dayName(new Date(date)) }})</i>
-        </template>
-      </p>
-      <SpendingTable :table="tbl" :budgets-map="{}"/>
-    </div>
+    <SpendingTable :table="tbl" :budgets-map="{}"/>
   </div>
 </template>
