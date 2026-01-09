@@ -32,6 +32,10 @@
 
     pending.value = p
   }
+
+  function onReceiptClick() {
+    window.alert('receipt')
+  }
 </script>
 
 <template>
@@ -45,7 +49,7 @@
       "
     >
       <!-- left icon -->
-      <span style="padding: 5px 8px;margin-left: 6px;">
+      <span style="padding: 5px 8px;margin-left: 6px; cursor: pointer;" @click="onReceiptClick">
         <font-awesome-icon icon="fa-receipt" />
       </span>
 
