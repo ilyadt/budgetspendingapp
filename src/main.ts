@@ -15,7 +15,7 @@ import * as Sentry from '@sentry/vue'
 
 // Font Awesome
 import { library, type IconDefinition } from '@fortawesome/fontawesome-svg-core'
-import { faSync, faCheck, faXmark, faHome } from '@fortawesome/free-solid-svg-icons'
+import { faSync, faCheck, faXmark, faHome, faReceipt } from '@fortawesome/free-solid-svg-icons'
 
 const faGripDotsVertical: IconDefinition = {
     prefix: 'fas',
@@ -29,7 +29,7 @@ const faGripDotsVertical: IconDefinition = {
     ]
 };
 
-library.add(faSync, faCheck, faXmark, faHome, faGripDotsVertical)
+library.add(faSync, faCheck, faXmark, faHome, faReceipt, faGripDotsVertical)
 
 const app = createApp(App)
 

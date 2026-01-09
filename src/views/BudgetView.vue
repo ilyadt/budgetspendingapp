@@ -95,7 +95,5 @@ const tbls = ref<SpendingGroups>(makeTables(budget,[budget.dateFrom, budget.date
     </p>
     <p v-if="budget?.description" style="white-space: pre">{{ budget!.description }}</p>
   </div>
-  <div v-for="(tbl, date) of tbls" :key="date" class="row">
-    <SpendingTable :table="tbl" :budgets-map="{}"/>
-  </div>
+  <SpendingTable v-for="(tbl, date) of tbls" :key="date" :table="tbl" :budgets-map="{}"/>
 </template>

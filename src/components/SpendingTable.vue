@@ -35,24 +35,47 @@
 </script>
 
 <template>
-  <div>
-    <p style="padding-left: 0; margin-bottom: 0">
-      <template v-if="isToday(table.date)">
-        <b>
+  <div class="row">
+    <p
+      style="
+        position: relative;
+        margin-bottom: 0;
+        padding-left: 0;
+        line-height: 1.5;
+      "
+    >
+      <!-- left icon -->
+      <span style="padding: 5px 8px;margin-left: 6px;">
+        <font-awesome-icon icon="fa-receipt" />
+      </span>
+
+      <!-- centered date -->
+      <span
+        style="
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+          white-space: nowrap;  /* prevent multiline text */
+        "
+      >
+        <b v-if="isToday(table.date)">
           <i>{{ dateFormat(table.date) }} ({{ dayName(table.date) }})</i>
         </b>
-      </template>
-      <template v-else-if="isFuture(table.date)">
-        <i style="opacity: 40%">{{ dateFormat(table.date) }} ({{ dayName(table.date) }})</i>
-      </template>
-      <template v-else>
-        <i>{{ dateFormat(table.date) }} ({{ dayName(table.date) }})</i>
-      </template>
+        <i v-else-if="isFuture(table.date)" style="opacity: 40%">
+          {{ dateFormat(table.date) }} ({{ dayName(table.date) }})
+        </i>
+        <i v-else>{{ dateFormat(table.date) }} ({{ dayName(table.date) }})</i>
+      </span>
     </p>
     <div style="position: relative">
       <table
         class="table table-bordered table-sm align-middle"
-        :style="{ tableLayout: 'fixed', minWidth: '350px', opacity: isToday(table.date) ? '100%' : '50%' }"
+        :style="{
+          tableLayout: 'fixed',
+          minWidth: '350px',
+          opacity: isToday(table.date) ? '100%' : '50%',
+          marginBottom: '20px',
+        }"
       >
         <colgroup v-if="showBudgetSelectCol">
           <col style="width: 50px" />

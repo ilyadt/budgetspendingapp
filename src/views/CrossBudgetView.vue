@@ -100,7 +100,11 @@ onMounted(() => {
 </script>
 
 <template>
-  <div :key="date" v-for="(table, date) in tables" class="row" :ref="el => dateRefs[date] = el as Element" >
-    <SpendingTable :table="table" :budgets-map="budgetMap" />
-  </div>
+  <SpendingTable
+    v-for="(table, date) in tables"
+    :key="date"
+    :table="table"
+    :budgets-map="budgetMap"
+    :ref="el => dateRefs[date] = el as Element"
+  />
 </template>
