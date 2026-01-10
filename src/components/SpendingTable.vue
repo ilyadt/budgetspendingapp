@@ -44,6 +44,40 @@
   function cancelGroupOperation() {
     selectSpendingsView.value = false
   }
+
+  // TODO: move to lib
+  function randomSoftRGB(): number {
+    const rand = () => Math.floor(100 + Math.random() * 120); // 100–219
+
+    const r = rand();
+    const g = rand();
+    const b = rand();
+
+    return (r << 16) | (g << 8) | b;
+  }
+
+  function colorFromReceiptId(rId: number): number {
+    return rId & 0xFF_FF_FF
+  }
+
+  function rgbNumberToCss(color: number): string|undefined {
+    if (color == 0) {
+      return undefined
+    }
+    return `#${color.toString(16).padStart(6, '0')}`;
+  }
+
+  function uniteReceipt() {
+    props.table.uniteReceipt(randomSoftRGB())
+    props.table.resetSelected()
+    selectSpendingsView.value = false
+  }
+
+  function separateReceipt() {
+    props.table.separateReceipt()
+    props.table.resetSelected()
+    selectSpendingsView.value = false
+  }
 </script>
 
 <template>
@@ -102,7 +136,7 @@
         </colgroup>
         <tbody>
           <tr v-for="sp of table.rows" :key="sp.id">
-            <td class="text-end" style="position: relative;">
+            <td class="text-end" :style="{position: 'relative', background: rgbNumberToCss(colorFromReceiptId(sp.receiptGroupId))}">
               <span @click="bindPending(sp.createPending())">{{ sp.amountFull }}</span>
 
               <input
@@ -145,13 +179,14 @@
             <td v-if="showBudgetSelectCol"></td>
             <td>{{ dayTotal.RUB ?? 0 }} ₽</td>
           </tr>
-          <tr v-if="selectSpendingsView">
-            <td>
-              <button @click="cancelGroupOperation" class="btn btn-warning btn-small d-flex align-items-center">Отменить</button>
-            </td>
-          </tr>
         </tbody>
       </table>
+
+      <div v-if="selectSpendingsView">
+          <button @click="uniteReceipt" class="btn btn-success btn-small">Объединить в чек</button>
+          <button @click="separateReceipt" class="btn btn-success btn-small">Разъединить чек</button>
+          <button @click="cancelGroupOperation" class="btn btn-warning btn-small">Отменить</button>
+      </div>
 
       <template v-if="pending">
         <table class="table table-bordered table-sm align-middle modal-table" :style="{ top: pending.rowNum * 37.25 + 'px', background: 'white'}">
