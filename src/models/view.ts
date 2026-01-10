@@ -138,7 +138,7 @@ export interface DataTable {
 
 // ViewModel
 export class SpendingRow {
-  private selected: boolean = false;
+  public selected: boolean = false;
 
   constructor(
     public id: string,

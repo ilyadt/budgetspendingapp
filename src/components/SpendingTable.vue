@@ -33,8 +33,16 @@
     pending.value = p
   }
 
+  // View с возможностью выбора нескольких BudgetSpending с последующим объединением их
+  const selectSpendingsView = ref<boolean>(false)
+
   function onReceiptClick() {
-    window.alert('receipt')
+    props.table.resetSelected()
+    selectSpendingsView.value = true
+  }
+
+  function cancelGroupOperation() {
+    selectSpendingsView.value = false
   }
 </script>
 
@@ -94,8 +102,15 @@
         </colgroup>
         <tbody>
           <tr v-for="sp of table.rows" :key="sp.id">
-            <td class="text-end">
+            <td class="text-end" style="position: relative;">
               <span @click="bindPending(sp.createPending())">{{ sp.amountFull }}</span>
+
+              <input
+                v-if="selectSpendingsView"
+                v-model="sp.selected"
+                style="position: absolute; top: 10px; left: 10px"
+                type="checkbox"
+              >
             </td>
             <td>
               <span @click="bindPending(sp.createPending())">{{ sp.description }}</span>
@@ -116,7 +131,7 @@
               </button>
             </td>
           </tr>
-          <tr>
+          <tr v-if="!selectSpendingsView">
             <td>
               <button
                 @click="bindPending(table.addNewSpending().createPending())"
@@ -129,6 +144,11 @@
             <td></td>
             <td v-if="showBudgetSelectCol"></td>
             <td>{{ dayTotal.RUB ?? 0 }} ₽</td>
+          </tr>
+          <tr v-if="selectSpendingsView">
+            <td>
+              <button @click="cancelGroupOperation" class="btn btn-warning btn-small d-flex align-items-center">Отменить</button>
+            </td>
           </tr>
         </tbody>
       </table>
