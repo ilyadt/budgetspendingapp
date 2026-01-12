@@ -135,8 +135,8 @@
           <col style="width: 65px" />
         </colgroup>
         <tbody>
-          <tr v-for="sp of table.rows" :key="sp.id">
-            <td class="text-end" :style="{position: 'relative', background: rgbNumberToCss(colorFromReceiptId(sp.receiptGroupId))}">
+          <tr v-for="sp of table.rows" :key="sp.id" :class="{'bg-row': sp.receiptGroupId}" :style="{'--row-color': rgbNumberToCss(colorFromReceiptId(sp.receiptGroupId))}">
+            <td class="text-end" :style="{position: 'relative'}">
               <span @click="bindPending(sp.createPending())">{{ sp.amountFull }}</span>
 
               <input
@@ -285,5 +285,9 @@
 .modal-table {
   position: absolute;
   z-index: 2001;
+}
+
+.bg-row > td {
+  background: var(--row-color)
 }
 </style>
