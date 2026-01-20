@@ -4,6 +4,7 @@ import { customAlphabet } from 'nanoid/non-secure'
 import type { Money } from '@/helpers/money'
 import type { components, paths } from '@/models/oaschema'
 import { uuidv7 } from 'uuidv7'
+import type { SpendingRow } from './view'
 
 export const genSpendingID = uuidv7
 
@@ -76,4 +77,25 @@ export interface ConflictVersion {
   from: string | null // null - created
   to: string | null // null - deleted
   reason: string | null
+}
+
+// TODO: move
+export function receiptTotals(tableRows: SpendingRow[]): Array<number> {
+  const rId2total: Record<number, [number, number] > = {}
+
+  for (const [i, sp] of tableRows.entries()) {
+    if (sp.receiptGroupId == 0) {
+      continue
+    }
+
+    const oldTotal = rId2total[sp.receiptGroupId] ?? [-1, 0]
+    rId2total[sp.receiptGroupId] = [i, oldTotal[1] + sp.amountFull]
+  }
+
+  const res = Array.from({length: tableRows.length}, () => 0)
+  for (const [rowIdx, totalRecept] of  Object.values(rId2total)) {
+    res[rowIdx] = totalRecept
+  }
+
+  return res
 }

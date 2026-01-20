@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { dateFormat, dayName } from '@/helpers/date';
   import { getFormatter, type Currency } from '@/helpers/money';
-  import { genVersion, type BudgetWithLeft } from '@/models/models';
+  import { genVersion, receiptTotals, type BudgetWithLeft } from '@/models/models';
   import { PendingSpendingRow, Table } from '@/models/view';
   import { isFuture, isToday } from 'date-fns';
   import { computed, ref } from 'vue';
@@ -78,6 +78,10 @@
     props.table.resetSelected()
     selectSpendingsView.value = false
   }
+
+  const receiptTotalsComputed = computed((): Array<number> => {
+    return receiptTotals(props.table.rows)
+  })
 </script>
 
 <template>
@@ -135,9 +139,9 @@
           <col style="width: 65px" />
         </colgroup>
         <tbody>
-          <tr v-for="sp of table.rows" :key="sp.id" :class="{'bg-row': sp.receiptGroupId}" :style="{'--row-color': rgbNumberToCss(colorFromReceiptId(sp.receiptGroupId))}">
+          <tr v-for="(sp, i) of table.rows" :key="sp.id" :class="{'bg-row': sp.receiptGroupId}" :style="{'--row-color': rgbNumberToCss(colorFromReceiptId(sp.receiptGroupId))}">
             <td class="text-end" :style="{position: 'relative'}">
-              <span @click="bindPending(sp.createPending())">{{ sp.amountFull }}</span>
+              <span @click="bindPending(sp.createPending())">{{ receiptTotalsComputed[i] ? receiptTotalsComputed[i] + ' \\ ' : '' }}{{ sp.amountFull }}</span>
 
               <input
                 v-if="selectSpendingsView"
