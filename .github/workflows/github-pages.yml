@@ -13,16 +13,16 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Configure env vars
         run: |
           echo "GITHUB_SHA_SHORT=$(git rev-parse --short ${{ github.sha }})" >> $GITHUB_ENV
 
       - name: Install Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 23
+          node-version: 24
 
       - name: 📥 Install dependencies
         run: npm install
@@ -59,9 +59,11 @@ jobs:
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v6
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
       - name: Deployment Notify Telegram
         uses: appleboy/telegram-action@master
         with:
