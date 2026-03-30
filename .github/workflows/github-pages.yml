@@ -46,9 +46,8 @@ jobs:
         run: ls -l dist
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-pages-artifact@v4
         with:
-          name: github-pages
           path: ./dist
   deploy:
     environment:
