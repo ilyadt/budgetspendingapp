@@ -46,7 +46,7 @@ jobs:
         run: ls -l dist
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-artifact@v6
         with:
           path: ./dist
   deploy:
