@@ -6,6 +6,8 @@ import { type Budget } from './models'
 import { dateISO } from '@/helpers/date'
 import { Facade } from '@/facade'
 
+vi.mock('@/facade', () => ({ Facade: { updateSpending: vi.fn() } }))
+
 describe('PendingSpendingRow', () => {
   test('setBudget:new', () => {
     const spyGenSpendingID = vi.spyOn(models, 'genSpendingID').mockReturnValue('newID')
@@ -47,7 +49,7 @@ describe('PendingSpendingRow', () => {
   test('setBudget:update', () => {
     const spyGenSpendingID = vi.spyOn(models, 'genSpendingID').mockReturnValue('newID')
 
-    const s = new PendingSpendingRow(2, 'id1', 'v1-23a1e' , 1, new Date(),  'RUB', '<3', '14.07', 0)
+    const s = new PendingSpendingRow(2, 'id1', 'v1-23a1e', 1, new Date(), 'RUB', '<3', '14.07', 0)
 
     expect(s.spId).toEqual('id1')
     expect(s.budgetId).toEqual(1)
@@ -82,9 +84,9 @@ describe('PendingSpendingRow', () => {
   test('save', () => {
     vi.stubGlobal('alert', vi.fn())
 
-    const spMock = new (vi.fn(() => ({
+    const spMock = {
       saveChanges: vi.fn(),
-    })))() as unknown as SpendingRow
+    } as unknown as SpendingRow
 
     const mockDestroy = vi.fn()
 
@@ -143,7 +145,7 @@ describe('PendingSpendingRow', () => {
       budgetId: 1,
       currency: 'RUB',
       description: 'чай',
-      amountFull: 110.50,
+      amountFull: 110.5,
       receiptGroupId: 123456,
     } as SaveData)
 
@@ -173,17 +175,17 @@ function makeBudget(b: Partial<Budget>): Budget {
 describe('SpendingRow', () => {
   test('save', () => {
     const sp = new SpendingRow(
-      "id1",
+      'id1',
       2,
       'RUB',
-      "ver1",
+      'ver1',
       new Date('2026-01-06'),
       12,
       550,
       'love',
       new Date('2026-01-06 12:30'),
       new Date('2026-01-06 12:30'),
-      0
+      0,
     )
 
     expect(sp.isSelected()).toBe(false)
@@ -192,9 +194,6 @@ describe('SpendingRow', () => {
     sp.unselect()
     expect(sp.isSelected()).toBe(false)
 
-
-    vi.mock('@/facade', () => ({ Facade: { updateSpending: vi.fn() } }))
-
     const newVer = models.genVersion(sp.version)
     const newReceiptId = 17
     const updAt = new Date('2026-01-06 17:59:20')
@@ -202,8 +201,8 @@ describe('SpendingRow', () => {
     sp.saveReceiptId(newReceiptId, newVer, updAt)
 
     const expSp: models.Spending = {
-      id: "id1",
-      prevVersion: "ver1",
+      id: 'id1',
+      prevVersion: 'ver1',
       version: newVer,
       date: new Date('2026-01-06'),
       sort: 12,

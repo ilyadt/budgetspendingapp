@@ -16,6 +16,8 @@ import type {
 import { fromRUB } from './helpers/money'
 import * as uuid from 'uuid'
 
+vi.mock('uuid', () => ({ v4: vi.fn(() => 'mocked-uuid') }))
+
 describe('fetcher', () => {
   beforeEach(() => {
     clearLocalStorageByPrefix(Fetcher._lsFetcherPrefix)
@@ -185,10 +187,6 @@ describe('updater', () => {
   })
 
   test('uploader:create', async () => {
-    vi.mock('uuid', () => ({
-      v4: vi.fn(() => 'mocked-uuid'),
-    }))
-
     const mockResponse: Partial<Response> = {
       ok: true,
       status: 200,
@@ -421,8 +419,8 @@ describe('updater', () => {
     }
 
     {
-      Uploader.addEvent(makeApiSpendingEvent({eventId: 'ev1'}))
-      Uploader.addEvent(makeApiSpendingEvent({eventId: 'ev2'}))
+      Uploader.addEvent(makeApiSpendingEvent({ eventId: 'ev1' }))
+      Uploader.addEvent(makeApiSpendingEvent({ eventId: 'ev2' }))
 
       {
         // сразу после save они доступны
