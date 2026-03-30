@@ -1,6 +1,6 @@
 include .env
 
-genapi: downloadoa
+genapi:
 	pnpx openapi-typescript openapi.gen.yaml -o ./src/models/oaschema.ts
 
 downloadoa:
