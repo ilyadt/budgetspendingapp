@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Facade } from '@/facade'
 import { dateFormat, dateISO, dateRange } from '@/helpers/date'
-import { moneyToString, minus, moneyFormat } from '@/helpers/money'
-import type { Budget } from '@/models/models'
+import { moneyToString, minus, moneyFormat, from } from '@/helpers/money'
+import { genSpendingID, genVersion, type Budget, type Spending } from '@/models/models'
 import { computed, ref } from 'vue'
 import { SpendingRow, Table } from '@/models/view'
 import SpendingTable from '@/components/SpendingTable.vue'
@@ -76,7 +76,62 @@ function makeTables(budgets: Budget[]|Budget, [dateFrom, dateTo]: [Date, Date]):
   return tables
 }
 
-const tbls = ref<SpendingGroups>(makeTables(budget,[budget.dateFrom, budget.dateTo]))
+const { dateFrom, dateTo } = spendings.reduce((acc, curr) => {
+  return {
+    dateFrom: curr.date < acc.dateFrom ? curr.date : acc.dateFrom,
+    dateTo: curr.date > acc.dateTo ? curr.date : acc.dateTo
+  }
+}, { dateFrom: budget.dateFrom, dateTo: budget.dateTo })
+
+const tbls = ref<SpendingGroups>(makeTables(budget,[dateFrom, dateTo]))
+
+interface TopForm {
+  date: string,
+  amount: number|null,
+  description: string,
+}
+
+const topForm = ref<TopForm>({
+  date: '',
+  amount: null,
+  description: ''
+})
+
+function saveTopForm(now: Date) {
+  if (!topForm.value.date || !topForm.value.amount || !topForm.value.description) {
+    alert('Заполните все поля')
+    return
+  }
+
+  const sendData: Spending = {
+    id: genSpendingID(),
+    version: genVersion(null),
+    date: new Date(topForm.value.date),
+    sort: now.getTime(),
+    money: from(topForm.value.amount, budget.money.currency),
+    description: topForm.value.description,
+    createdAt: now,
+    updatedAt: now,
+    receiptGroupId: 0,
+  }
+
+  Facade.createSpending(budget.id, sendData)
+
+  // clear form
+  topForm.value = {
+    date: '',
+    amount: null,
+    description: ''
+  }
+
+  // After DOM update
+  setTimeout(() => {
+    alert('Сохранено!')
+  }, 0)
+
+  // костылик
+  location.reload()
+}
 
 </script>
 
@@ -101,19 +156,22 @@ const tbls = ref<SpendingGroups>(makeTables(budget,[budget.dateFrom, budget.date
       class="form-control form-control-sm p-1"
       placeholder="дата"
       style="width: 16ch;"
+      v-model="topForm.date"
     />
     <input
       type="number"
       class="form-control form-control-sm no-spinner text-end p-1"
       placeholder="сумма"
       style="width: 10ch;"
+      v-model="topForm.amount"
     />
     <input
       type="text"
       class="form-control form-control-sm flex-grow-1 p-1"
       placeholder="описание"
+      v-model="topForm.description"
     />
-    <button class="btn btn-warning btn-sm">
+    <button class="btn btn-warning btn-sm" @click="saveTopForm(new Date())">
       <font-awesome-icon :icon="['fas', 'floppy-disk']" />
     </button>
   </div>
