@@ -95,5 +95,41 @@ const tbls = ref<SpendingGroups>(makeTables(budget,[budget.dateFrom, budget.date
     </p>
     <p v-if="budget?.description" style="white-space: pre">{{ budget!.description }}</p>
   </div>
+  <div class="d-flex align-items-center gap-1 mb-5">
+    <input
+      type="date"
+      class="form-control form-control-sm"
+      placeholder="дата"
+      style="width: 13ch;"
+    />
+    <input
+      type="number"
+      class="form-control form-control-sm no-spinner"
+      placeholder="сумма"
+      style="width: 10ch;"
+    />
+    <input
+      type="text"
+      class="form-control form-control-sm flex-grow-1"
+      placeholder="описание"
+    />
+    <button class="btn btn-warning btn-sm">
+      <font-awesome-icon :icon="['fas', 'floppy-disk']" />
+    </button>
+  </div>
   <SpendingTable v-for="(tbl, date) of tbls" :key="date" :table="tbl" :budgets-map="{}"/>
 </template>
+
+<style lang="css" scoped>
+  /* Chrome, Safari, Edge */
+  .no-spinner::-webkit-outer-spin-button,
+  .no-spinner::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox */
+  .no-spinner {
+    -moz-appearance: textfield;
+  }
+</style>
