@@ -98,19 +98,19 @@ const tbls = ref<SpendingGroups>(makeTables(budget,[budget.dateFrom, budget.date
   <div class="d-flex align-items-center gap-1 mb-5">
     <input
       type="date"
-      class="form-control form-control-sm"
+      class="form-control form-control-sm p-1"
       placeholder="дата"
-      style="width: 13ch;"
+      style="width: 16ch;"
     />
     <input
       type="number"
-      class="form-control form-control-sm no-spinner"
+      class="form-control form-control-sm no-spinner text-end p-1"
       placeholder="сумма"
       style="width: 10ch;"
     />
     <input
       type="text"
-      class="form-control form-control-sm flex-grow-1"
+      class="form-control form-control-sm flex-grow-1 p-1"
       placeholder="описание"
     />
     <button class="btn btn-warning btn-sm">
