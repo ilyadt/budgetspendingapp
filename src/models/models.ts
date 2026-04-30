@@ -3,7 +3,7 @@ import { customAlphabet } from 'nanoid/non-secure'
 
 import type { Money } from '@/helpers/money'
 import type { components, paths } from '@/models/oaschema'
-import { uuidv7 } from 'uuidv7'
+import { v7 as uuidv7 } from 'uuid'
 import type { SpendingRow } from './view'
 
 export const genSpendingID = uuidv7
