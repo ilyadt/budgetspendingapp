@@ -49,11 +49,12 @@ for (const b of budgets) {
 
 templateBudgets.sort((a, b) => a.sort - b.sort)
 
-const now: Date = new Date()
+const nowT: Date = new Date()
+const todayDate = new Date(nowT.getFullYear(), nowT.getMonth(), nowT.getDate());
 const dayInMs = 1000 * 60 * 60 * 24
 
 function daysLeft(dateTo: Date): number {
-  const left = Math.floor(dateTo.getTime() / dayInMs) - Math.floor(now.getTime() / dayInMs) + 1
+  const left = Math.floor(dateTo.getTime() / dayInMs) - Math.floor(todayDate.getTime() / dayInMs) + 1
 
   if (left < 0) {
     return 0
@@ -68,7 +69,7 @@ function percentAmount(b: TemplateBudget): number {
 
 function percentDays(b: TemplateBudget): number {
   const result = Math.floor(
-    ((Math.floor(now.getTime() / dayInMs) - Math.floor(b.dateFrom.getTime() / dayInMs)) /
+    ((Math.floor(todayDate.getTime() / dayInMs) - Math.floor(b.dateFrom.getTime() / dayInMs)) /
       (Math.floor(b.dateTo.getTime() / dayInMs) - Math.floor(b.dateFrom.getTime() / dayInMs) + 1)) *
       100,
   )
@@ -85,12 +86,12 @@ const buildCommit = import.meta.env.VITE_BUILD_COMMIT
 
 <template>
   <h1>
-    Love you so much &hearts; <span style="font-size: small">{{ buildCommit }}</span>
+    Love you so much &hearts; <span style="font-size: small">{{ buildCommit.slice(0, 7) }}</span>
   </h1>
   <div
     v-for="b in templateBudgets"
     v-bind:key="b.id"
-    :style="{ borderTop: 'outset', marginTop: '5px', opacity: b.dateTo > now ? 1 : 0.5 }"
+    :style="{ borderTop: 'outset', marginTop: '5px', opacity: b.dateTo >= todayDate ? 1 : 0.5 }"
   >
     <h4 style="margin-bottom: 0">{{ b.name }} #{{ b.id }}</h4>
     <p style="margin-bottom: 0">{{ dateFormat(b.dateFrom) }}-{{ dateFormat(b.dateTo) }}</p>
