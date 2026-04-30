@@ -22,13 +22,13 @@ interface DeleteData {
 export class PendingSpendingRow {
   public initSpId: string
   private _budgetId: number | null
-  private initBudgetId: number | null
-  private initHash: string
+  private readonly initBudgetId: number | null
+  private readonly initHash: string
 
-  // Back-link to the creator
+  // Backlink to the creator
   private sp: SpendingRow | null  = null
 
-  // Back-link to the place where PendingSpendingRow lives (to destroy itself)
+  // Backlink to the place where PendingSpendingRow lives (to destroy itself)
   public destroy: () => void = () => {};
 
   constructor(
@@ -273,7 +273,7 @@ export class SpendingRow {
   }
 }
 
-export class Table {
+export class Table implements DataTable {
   // Заполняется если таблица по бюджету, то заполняется бюджет
   public budget: Budget | null = null;
 

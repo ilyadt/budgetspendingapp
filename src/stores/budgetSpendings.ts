@@ -9,7 +9,7 @@ import type {
 } from '@/models/models'
 import { type Currency, Money, moneyToStringWithCurrency } from '../helpers/money'
 import '@/helpers/date' // For date prototypes
-import { format } from 'date-fns'
+import { format, isAfter, isBefore, subSeconds } from 'date-fns'
 
 export enum VersionStatus {
   InDb = 'FROM_BACKEND', // версия, полученная с бека
@@ -320,7 +320,7 @@ export const BudgetSpendingsStore: BudgetSpendingsStoreInterface = {
       const at = new Date(v1.statusAt!)
       const createdRecentlyLocally =
         v1.status === VersionStatus.Pending ||
-        (v1.status === VersionStatus.Applied && at.lessThanSecondsAgo(15))
+        (v1.status === VersionStatus.Applied && isAfter(at, subSeconds(Date.now(), 15)))
 
       if (createdRecentlyLocally) {
         result.push(spv)
@@ -329,7 +329,7 @@ export const BudgetSpendingsStore: BudgetSpendingsStoreInterface = {
 
       const deleted =
         v1.status === VersionStatus.InDb ||
-        (v1.status === VersionStatus.Applied && at.moreThanSecondsAgo(15))
+        (v1.status === VersionStatus.Applied && isBefore(at, subSeconds(Date.now(), 15)))
 
       if (deleted) {
         revoked.push(
