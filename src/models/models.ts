@@ -6,7 +6,7 @@ import type { components, paths } from '@/models/oaschema'
 import { v7 as uuidv7 } from 'uuid'
 import type { SpendingRow } from './view'
 
-export const genSpendingID = uuidv7
+export const genSpendingID = (): string => uuidv7()
 
 const hexSymbols5 = customAlphabet('0123456789abcdef', 5)
 
