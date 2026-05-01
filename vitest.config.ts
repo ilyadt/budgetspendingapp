@@ -17,6 +17,9 @@ if (nodeVersion >= 25) {
 }
 
 export default defineConfig({
+  define: {
+    __API_BASE_URL__: JSON.stringify('http://localhost'),
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

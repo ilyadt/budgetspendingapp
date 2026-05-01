@@ -14,6 +14,9 @@ export default defineConfig(({ mode }) => {
   const baseUrl = env.VITE_BASE_URL || ''
 
   return {
+    define: {
+      __API_BASE_URL__: JSON.stringify(env.VITE_SERVER_URL),
+    },
     base: baseUrl,
     plugins: [
       vue(),
