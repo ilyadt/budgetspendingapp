@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { minus, Money, moneyToString, type Currency } from '@/helpers/money'
 import { moneyToStringWithCurrency, moneyFormat } from '@/helpers/money'
-import { dateFormat } from '@/helpers/date'
+import { dateFormat, daysLeft, percentPassed } from '@/helpers/date'
 import { Facade } from '@/facade'
 import type { Budget } from '@/models/models'
 
@@ -51,34 +51,9 @@ templateBudgets.sort((a, b) => a.sort - b.sort)
 
 const nowT: Date = new Date()
 const todayDate = new Date(nowT.getFullYear(), nowT.getMonth(), nowT.getDate());
-const dayInMs = 1000 * 60 * 60 * 24
-
-function daysLeft(dateTo: Date): number {
-  const left = Math.floor(dateTo.getTime() / dayInMs) - Math.floor(todayDate.getTime() / dayInMs) + 1
-
-  if (left < 0) {
-    return 0
-  }
-
-  return left
-}
 
 function percentAmount(b: TemplateBudget): number {
   return Math.floor((b.amountSpent.amount / b.amount.amount) * 100)
-}
-
-function percentDays(b: TemplateBudget): number {
-  const result = Math.floor(
-    ((Math.floor(todayDate.getTime() / dayInMs) - Math.floor(b.dateFrom.getTime() / dayInMs)) /
-      (Math.floor(b.dateTo.getTime() / dayInMs) - Math.floor(b.dateFrom.getTime() / dayInMs) + 1)) *
-      100,
-  )
-
-  if (result > 100) {
-    return 100
-  }
-
-  return result
 }
 
 const buildCommit = import.meta.env.VITE_BUILD_COMMIT
@@ -103,10 +78,10 @@ const buildCommit = import.meta.env.VITE_BUILD_COMMIT
       <div class="col-5" style="font-size: 0.7rem">
         <b>{{ moneyToString(minus(b.amount, b.amountSpent)) }}</b> {{ b.amount.currency }} left. Money:
         <br />
-        <b>{{ daysLeft(b.dateTo) }}</b> days left. Days:
+        <b>{{ daysLeft(todayDate, b.dateTo) }}</b> days left. Days:
         <br />
         <p v-if="b.showPerDay">
-          <b>{{ Math.floor(moneyFormat(minus(b.amount, b.amountSpent)) / daysLeft(b.dateTo)) }}</b>
+          <b>{{ Math.floor(moneyFormat(minus(b.amount, b.amountSpent)) / daysLeft(todayDate, b.dateTo)) }}</b>
           {{ b.amount.currency }}/Day left
         </p>
       </div>
@@ -118,10 +93,10 @@ const buildCommit = import.meta.env.VITE_BUILD_COMMIT
           <span v-if="percentAmount(b) < 50">{{ percentAmount(b) }} %</span>
         </div>
         <div class="progress">
-          <div class="progress-bar" role="progressbar" :style="{ width: percentDays(b) + '%' }">
-            <span v-if="percentDays(b) >= 50">{{ percentDays(b) }} %</span>
+          <div class="progress-bar" role="progressbar" :style="{ width: percentPassed(todayDate, b) + '%' }">
+            <span v-if="percentPassed(todayDate, b) >= 50">{{ percentPassed(todayDate, b) }} %</span>
           </div>
-          <span v-if="percentDays(b) < 50">{{ percentDays(b) }} %</span>
+          <span v-if="percentPassed(todayDate, b) < 50">{{ percentPassed(todayDate, b) }} %</span>
         </div>
       </div>
     </div>
