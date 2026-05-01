@@ -49,8 +49,7 @@ for (const b of budgets) {
 
 templateBudgets.sort((a, b) => a.sort - b.sort)
 
-const nowT: Date = new Date()
-const todayDate = new Date(nowT.getFullYear(), nowT.getMonth(), nowT.getDate());
+const todayDate = new Date();
 
 function percentAmount(b: TemplateBudget): number {
   return Math.floor((b.amountSpent.amount / b.amount.amount) * 100)
@@ -80,7 +79,7 @@ const buildCommit = import.meta.env.VITE_BUILD_COMMIT
         <br />
         <b>{{ daysLeft(todayDate, b.dateTo) }}</b> days left. Days:
         <br />
-        <p v-if="b.showPerDay">
+        <p v-if="b.showPerDay && (todayDate <= b.dateTo)">
           <b>{{ Math.floor(moneyFormat(minus(b.amount, b.amountSpent)) / daysLeft(todayDate, b.dateTo)) }}</b>
           {{ b.amount.currency }}/Day left
         </p>
