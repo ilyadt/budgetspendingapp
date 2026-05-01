@@ -8,7 +8,7 @@ import { format } from 'date-fns'
 import type { Spending, ApiSpendingEvent, DelSpending, ApiUploadError, ApiSchemaPaths } from './models/models'
 
 function createApiClient() {
-  return createClient<ApiSchemaPaths>({ baseUrl: import.meta.env.VITE_SERVER_URL })
+  return createClient<ApiSchemaPaths>({ baseUrl: import.meta.env.VITE_SERVER_URL ?? 'http://localhost' })
 }
 
 // Получение бюджетов и расходов по ним
