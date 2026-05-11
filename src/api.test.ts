@@ -42,7 +42,7 @@ describe('fetcher', () => {
       ok: true,
       status: 200,
       headers: new Headers(),
-      json: async () => JSON.parse(jsonResponse),
+      text: async (): Promise<string> => jsonResponse,
     }
 
     vi.stubGlobal(
@@ -142,7 +142,7 @@ describe('fetcher', () => {
       ok: true,
       status: 200,
       headers: new Headers(),
-      json: async () => JSON.parse(jsonResponse),
+      text: async (): Promise<string> => jsonResponse,
     }
 
     vi.stubGlobal(
@@ -191,10 +191,10 @@ describe('updater', () => {
       ok: true,
       status: 200,
       headers: new Headers(),
-      json: async (): Promise<ApiUpdateSpendingsErrorsResponse> => ({
+      text: async (): Promise<string> => JSON.stringify({
         success: ['mocked-uuid'],
         errors: [],
-      }),
+      } satisfies ApiUpdateSpendingsErrorsResponse),
     }
 
     vi.stubGlobal(
@@ -282,10 +282,10 @@ describe('updater', () => {
         ok: true,
         status: 200,
         headers: new Headers(),
-        json: async (): Promise<ApiUpdateSpendingsErrorsResponse> => ({
+        text: async (): Promise<string> => JSON.stringify({
           success: [],
           errors: [{ eventId: 'event_id_uuid_v4', number: 0, error: 'db error' }],
-        }),
+        } satisfies ApiUpdateSpendingsErrorsResponse),
       })),
     )
 
@@ -359,10 +359,10 @@ describe('updater', () => {
         ok: true,
         status: 200,
         headers: new Headers(),
-        json: async (): Promise<ApiUpdateSpendingsErrorsResponse> => ({
+        text: async (): Promise<string> => JSON.stringify({
           success: ['event_id_uuid_v4'],
           errors: [],
-        }),
+        } satisfies ApiUpdateSpendingsErrorsResponse),
       })),
     )
 
@@ -459,10 +459,10 @@ describe('updater', () => {
       ok: true,
       status: 200,
       headers: new Headers(),
-      json: async (): Promise<ApiUpdateSpendingsErrorsResponse> => ({
+      text: async (): Promise<string> => JSON.stringify({
         success: ['ev1', 'ev2'],
         errors: [{ eventId: 'ev3', number: 0, error: '' }],
-      }),
+      } satisfies ApiUpdateSpendingsErrorsResponse),
     }
 
     vi.stubGlobal(
@@ -485,10 +485,10 @@ describe('updater', () => {
 
   test('uploader:sendEvents:statusNot200', async () => {
     const mockResponse: Partial<Response> = {
-      ok: true,
+      ok: false,
       status: 400,
       headers: new Headers(),
-      json: async () => ({}),
+      text: async () => 'some error',
     }
 
     vi.stubGlobal(
