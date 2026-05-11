@@ -11,10 +11,13 @@ import { VitePWA } from 'vite-plugin-pwa'
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd())
 
+  const baseUrl = env.VITE_BASE_URL || ''
+
   return {
     define: {
       __API_BASE_URL__: JSON.stringify(env.VITE_SERVER_URL),
     },
+    base: baseUrl,
     plugins: [
       vue(),
       vueJsx(),
@@ -27,9 +30,9 @@ export default defineConfig(({ mode }) => {
         manifest: {
           theme_color: '#ffffff',
           icons: [
-            { src: 'icons/android-chrome-192x192.png', sizes: '192x192', type: 'image/png' },
-            { src: 'icons/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' },
-            { src: 'icons/apple-touch-icon.png', type: 'image/png' },
+            { src: baseUrl + 'icons/android-chrome-192x192.png', sizes: '192x192', type: 'image/png' },
+            { src: baseUrl + 'icons/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' },
+            { src: baseUrl + 'icons/apple-touch-icon.png', type: 'image/png' },
           ],
         },
       }),
