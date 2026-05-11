@@ -63,10 +63,3 @@ function deleteError(versionId: string) {
     </table>
   </div>
 </template>
-
-<style scoped>
-.table-responsive {
-  overflow-x: auto;
-  max-width: 100%;
-}
-</style>
