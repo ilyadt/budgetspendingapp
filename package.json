@@ -24,7 +24,7 @@
     "date-fns": "^4.1.0",
     "nanoid": "^5.0.9",
     "nanoid-dictionary": "^5.0.0-beta.1",
-    "openapi-fetch": "^0.13.4",
+    "openapi-fetch": "^0.17.0",
     "pinia": "^3.0.3",
     "pinia-plugin-persistedstate": "^4.5.0",
     "uuid": "14.0.0",
